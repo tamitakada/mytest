@@ -31,6 +31,16 @@ class DataManager {
     catch (e) { return null; }
   }
 
+  static Future<List<Record>?> getAllRecords() async {
+    try {
+      return await (await isar).records
+        .where()
+        .sortByTime()
+        .findAll();
+    }
+    catch (e) { return null; }
+  }
+
   static Future<bool> upsertTest(Test test) async {
     try {
       await (await isar).writeTxn(() async {
@@ -55,6 +65,8 @@ class DataManager {
     try {
       await (await isar).writeTxn(() async {
         await (await isar).records.put(record);
+        await record.incorrectQuestions.save();
+        await record.correctQuestions.save();
         record.test.value = test;
         await record.test.save();
       });

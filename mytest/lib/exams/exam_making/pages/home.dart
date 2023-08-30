@@ -10,9 +10,11 @@ import 'package:mytest/utils/data_manager.dart';
 import '../widgets/tab_button.dart';
 import '../widgets/problems_subpage.dart';
 import '../widgets/settings_subpage.dart';
+import '../widgets/stats_subpage.dart';
 
 import '../overlays/edit_problem_overlay.dart';
 import 'package:mytest/widgets/mt_button.dart';
+
 
 
 enum ExamMakingPage {
@@ -191,7 +193,8 @@ class _ExamHomePageState extends State<ExamHomePage> with TickerProviderStateMix
                   child: _page == ExamMakingPage.problems
                     ? ExamProblemsSubpage(editProblem: _openProblemEditOverlay)
                     : _page == ExamMakingPage.settings
-                    ? ExamSettingsSubpage(onDelete: _deleteTest) : Container()
+                    ? ExamSettingsSubpage(onDelete: _deleteTest)
+                    : ExamStatsSubpage()
                 )
               ],
             ),
