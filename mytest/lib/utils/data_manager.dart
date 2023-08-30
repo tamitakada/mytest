@@ -62,4 +62,22 @@ class DataManager {
     } catch (e) { return false; }
   }
 
+  static Future<bool> deleteTest(Test test) async {
+    try {
+      await (await isar).writeTxn(() async {
+        await (await isar).tests.delete(test.id);
+      });
+      return true;
+    } catch (e) { return false; }
+  }
+
+  static Future<bool> deleteQuestion(Question question) async {
+    try {
+      await (await isar).writeTxn(() async {
+        await (await isar).questions.delete(question.id);
+      });
+      return true;
+    } catch (e) { return false; }
+  }
+
 }

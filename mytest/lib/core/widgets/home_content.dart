@@ -20,10 +20,13 @@ class HomePageContent extends StatefulWidget {
 }
 
 class _HomePageContentState extends State<HomePageContent> {
+
+  String? _query;
+
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(30, 80, 30, 0),
+      padding: const EdgeInsets.fromLTRB(40, 80, 40, 0),
       child: Column(
         children: [
           Text(
@@ -31,14 +34,18 @@ class _HomePageContentState extends State<HomePageContent> {
             style: Theme.of(context).textTheme.displayLarge,
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 20),
+            padding: const EdgeInsets.fromLTRB(0, 40, 0, 20),
             child: Row(
               children: [
                 Expanded(
-                  child: MTTextField()
+                  child: MTTextField(
+                    hintText: 'テストを検索する',
+                    onChanged: (query) => setState(() { _query = query; }),
+                  )
                 ),
+                const SizedBox(width: 10),
                 IconButton(
-                  icon: Icon(Icons.add),
+                  icon: Icon(Icons.add, color: Colors.white),
                   onPressed: widget.manager.openOverlay
                 )
               ]
@@ -49,17 +56,20 @@ class _HomePageContentState extends State<HomePageContent> {
             builder: (BuildContext context, AsyncSnapshot<List<Test>?> snapshot) {
               if (snapshot.hasData) {
                 List<Test> tests = snapshot.data ?? [];
-                return  Expanded(
+                return Expanded(
                   child: ListView.builder(
                     itemCount: tests.length,
                     itemBuilder: (BuildContext context, int index) {
-                      return TestListTile(
-                        test: tests[index],
-                        onTap: () => Navigator.of(context).pushNamed(
-                          '/exams/home',
-                          arguments: {'test': tests[index]}
-                        ),
-                      );
+                      if (_query == null || tests[index].title.toLowerCase().contains((_query ?? "").toLowerCase())) {
+                        return TestListTile(
+                          test: tests[index],
+                          onTap: () => Navigator.of(context).pushNamed(
+                            '/exams/home',
+                            arguments: {'test': tests[index]}
+                          ),
+                        );
+                      }
+                      return Container();
                     },
                   )
                 );

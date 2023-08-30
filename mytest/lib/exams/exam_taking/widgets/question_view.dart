@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'package:mytest/models/question.dart';
 
+import 'package:mytest/constants.dart';
+
 
 class QuestionView extends StatelessWidget {
 
@@ -16,7 +18,7 @@ class QuestionView extends StatelessWidget {
       margin: const EdgeInsets.symmetric(vertical: 5),
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: correct ? Colors.greenAccent.shade100 : Colors.redAccent.shade100,
+        color: correct ? Constants.lightBlue : Colors.redAccent.shade100,
         borderRadius: BorderRadius.circular(10)
       ),
       child: Row(

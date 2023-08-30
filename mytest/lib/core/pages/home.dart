@@ -99,7 +99,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin imple
         Navigator.of(context).pushNamed(
           '/exams/home',
           arguments: {'test': testToNavigate}
-        );
+        ).then((_) => setState(() {}));
       });
     }
 
@@ -135,7 +135,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin imple
                       child: Container(
                         padding: const EdgeInsets.all(20),
                         decoration: const BoxDecoration(
-                          color: Colors.white,
+                          color: Constants.blue,
                           borderRadius: BorderRadius.only(
                             topLeft: Radius.circular(20),
                             topRight: Radius.circular(20)

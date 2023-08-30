@@ -39,7 +39,7 @@ class MyApp extends StatelessWidget {
           ),
           bodyLarge: TextStyle(
             fontFamily: 'Smart',
-            fontSize: 30,
+            fontSize: 24,
             color: Colors.white
           ),
           bodyMedium: TextStyle(
@@ -57,7 +57,6 @@ class MyApp extends StatelessWidget {
       routes: {
         '/': (context) => const HomePage(),
         '/exams/home': (context) => const ExamHomePage(),
-        '/exams/problems': (context) => const ExamProblemsPage(),
         '/exams': (context) => const ExamPage(),
         '/exams/result': (context) => const ExamResultPage()
       },

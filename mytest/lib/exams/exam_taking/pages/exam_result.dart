@@ -35,32 +35,48 @@ class _ExamResultPageState extends State<ExamResultPage> with ExamResultMixin {
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 40),
         child: ListView.builder(
-          itemCount: _questions?.length ?? 0 + 1,
+          itemCount: (_questions?.length ?? 0) + 1,
           itemBuilder: (BuildContext context, int index) {
             if (index == 0) {
               return Column(
                 children: [
-                  const SizedBox(height: 40),
-                  Text(
-                    '結果',
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 40, 0, 20),
+                    child: Text(
+                      '結果',
+                      style: Theme.of(context).textTheme.displayMedium,
+                    ),
                   ),
-                  Text("$_score点"),
-                  Text('問題一覧'),
-                  Row(
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.replay),
-                        onPressed: () {
-
-                        },
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.close),
-                        onPressed: () {
-                          Navigator.of(context).pushNamed('/');
-                        },
-                      ),
-                    ],
+                  Text(
+                    "$_score点",
+                    style: Theme.of(context).textTheme.bodyLarge,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.replay, color: Colors.white, size: 20,),
+                          onPressed: () {
+                            Navigator.of(context).pushNamed(
+                              '/exams',
+                              arguments: {'test': _questions?.first.a.test.value}
+                            );
+                          }
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.close, color: Colors.white, size: 20,),
+                          onPressed: () {
+                            Navigator.of(context).pushNamed('/');
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 30, 0, 20),
+                    child: Text('問題一覧', style: Theme.of(context).textTheme.bodyLarge),
                   )
                 ],
               );

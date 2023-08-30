@@ -23,6 +23,7 @@ class ExamPage extends StatefulWidget {
 class _ExamPageState extends State<ExamPage> with ExamMixin {
 
   final FocusNode _focusNode = FocusNode();
+  final FocusNode _answerFocusNode = FocusNode();
   final TextEditingController _textEditingController = TextEditingController();
 
   Test? test;
@@ -40,6 +41,7 @@ class _ExamPageState extends State<ExamPage> with ExamMixin {
         _textEditingController.text = '';
         setState(() {
           _questions.add(Pair<Question, bool>(a: generateRandomQuestion(test!), b: false));
+          _answerFocusNode.requestFocus();
         });
       } else {
         setState(() {
@@ -117,6 +119,7 @@ class _ExamPageState extends State<ExamPage> with ExamMixin {
                                   b: false
                                 )
                               );
+                              _answerFocusNode.requestFocus();
                             });
                           }
                         }
@@ -136,6 +139,7 @@ class _ExamPageState extends State<ExamPage> with ExamMixin {
                                   readOnly: _mistakeMode,
                                   controller: _textEditingController,
                                   style: Theme.of(context).textTheme.bodyMedium,
+                                  focusNode: _answerFocusNode,
                                   decoration: InputDecoration(
                                     focusedBorder: UnderlineInputBorder(
                                       borderSide: BorderSide(
@@ -191,7 +195,7 @@ class _ExamPageState extends State<ExamPage> with ExamMixin {
             Column(
               children: [
                 Icon(
-                  Icons.favorite, color: _lives > 0 ? Constants.yellow : Colors.white.withOpacity(0.5),
+                  Icons.favorite, color: _lives > 0 ? Constants.green : Colors.white.withOpacity(0.5),
                   size: 30,
                 ),
                 const SizedBox(height: 5),

@@ -1,9 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 
 import 'package:mytest/models/models.dart';
 import 'package:mytest/abstract_classes/overlay_manager.dart';
 
 import 'package:mytest/constants.dart';
+import 'package:mytest/utils/data_manager.dart';
+
+import '../widgets/tab_button.dart';
+import '../widgets/problems_subpage.dart';
+import '../widgets/settings_subpage.dart';
+
+import '../overlays/edit_problem_overlay.dart';
+import 'package:mytest/widgets/mt_button.dart';
+
 
 enum ExamMakingPage {
   problems,
@@ -32,8 +42,33 @@ class _ExamHomePageState extends State<ExamHomePage> with TickerProviderStateMix
 
   ExamMakingPage _page = ExamMakingPage.problems;
 
+  Question? _selectedQuestion;
+
   Widget? _overlayChild;
   Test? test;
+
+  void _setExamMakingPage(ExamMakingPage page) {
+    if (_page != page) {
+      setState(() { _page = page; });
+    }
+  }
+
+  void _openProblemEditOverlay(Question? question) {
+    setState(() {
+      _selectedQuestion = question;
+    });
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      openOverlay();
+    });
+  }
+
+  void _deleteTest() {
+    DataManager.deleteTest(test!).then((success) {
+      if (success) {
+        Navigator.of(context).pop();
+      }
+    });
+  }
 
   @override
   void openOverlay() {
@@ -100,52 +135,63 @@ class _ExamHomePageState extends State<ExamHomePage> with TickerProviderStateMix
     test = args['test'];
 
     return Scaffold(
-      appBar: AppBar(automaticallyImplyLeading: true),
       backgroundColor: Constants.blue,
       body: Stack(
         children: [
           Padding(
             padding: const EdgeInsets.all(40),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text(test?.title ?? ""),
-                IconButton(
-                  onPressed: () => Navigator.of(context).pushNamed('/exams', arguments: {'test': test}),
-                  icon: const Icon(
-                    Icons.play_circle_filled_rounded,
-                    color: Constants.lightBlue,
-                    size: 120,
-                  )
-                ),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     IconButton(
-                      icon: Icon(Icons.list_rounded),
-                      onPressed: () {
-                        Navigator.of(context).pushNamed(
-                          '/exams/problems',
-                          arguments: {
-                            'test': test
-                          }
-                        );
-                      },
+                      icon: Icon(Icons.arrow_back_ios, color: Colors.white,),
+                      onPressed: () => Navigator.of(context).pop(),
                     ),
-                    IconButton(
-                      icon: Icon(Icons.settings),
-                      onPressed: () {
-                        _page = ExamMakingPage.settings;
-                        openOverlay();
-                      },
+                    const SizedBox(width: 20),
+                    Text(
+                      test?.title ?? "",
+                      style: Theme.of(context).textTheme.displayMedium,
                     ),
-                    IconButton(
-                      icon: Icon(Icons.bar_chart_rounded),
-                      onPressed: () {
-                        _page = ExamMakingPage.stats;
-                        openOverlay();
-                      },
+                  ]
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 20, 0, 30),
+                  child: MTButton(
+                    onTap: () => Navigator.of(context).pushNamed('/exams', arguments: {'test': test}),
+                    text: 'テスト開始',
+                    style:  Theme.of(context).textTheme.bodyMedium,
+                  ),
+                ),
+                Row(
+                  children: [
+                    TabButton(
+                      text: '問題集',
+                      color: Constants.lightBlue,
+                      onTap: () => _setExamMakingPage(ExamMakingPage.problems),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: TabButton(
+                        text: '設定',
+                        color: Constants.green,
+                        onTap: () => _setExamMakingPage(ExamMakingPage.settings),
+                      ),
+                    ),
+                    TabButton(
+                      text: '記録',
+                      color: Constants.yellow,
+                      onTap: () => _setExamMakingPage(ExamMakingPage.stats),
                     )
                   ]
+                ),
+                const SizedBox(height: 10),
+                Expanded(
+                  child: _page == ExamMakingPage.problems
+                    ? ExamProblemsSubpage(editProblem: _openProblemEditOverlay)
+                    : _page == ExamMakingPage.settings
+                    ? ExamSettingsSubpage(onDelete: _deleteTest) : Container()
                 )
               ],
             ),
@@ -175,27 +221,19 @@ class _ExamHomePageState extends State<ExamHomePage> with TickerProviderStateMix
                     child: Container(
                       padding: const EdgeInsets.all(20),
                       decoration: const BoxDecoration(
-                        color: Colors.white,
+                        color: Constants.blue,
                         borderRadius: BorderRadius.only(
                           topLeft: Radius.circular(20),
                           topRight: Radius.circular(20)
                         )
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          IconButton(
-                            icon: const Icon(
-                              Icons.close,
-                              color: Colors.black,
-                            ),
-                            onPressed: closeOverlay,
-                          ),
-                          Expanded(
-                            child: Container()
-                          )
-                        ]
-                      ),
+                      child: _page == ExamMakingPage.problems
+                        ? EditProblemOverlay(
+                          test: test!,
+                          question: _selectedQuestion,
+                          closeOverlay: (success) => closeOverlay(),
+                        )
+                        : Container(),
                     ),
                   )
                 ),
