@@ -1,6 +1,7 @@
 import 'package:mytest/pair.dart';
 import 'package:mytest/models/models.dart';
 import 'package:mytest/utils/data_manager.dart';
+import 'package:mytest/constants.dart';
 
 mixin ExamResultMixin {
 
@@ -13,8 +14,8 @@ mixin ExamResultMixin {
     return (rawScore * 100).toInt();
   }
 
-  Future<bool> saveResult(List<Pair<Question, bool>> questions, Test test) async {
-    Record record = Record(time: DateTime.now());
+  Future<bool> saveResult(List<Pair<Question, bool>> questions, Test test, TestMode mode) async {
+    Record record = Record(time: DateTime.now(), testMode: mode.index);
     for (var pair in questions) {
       if (pair.b) {
         record.correctQuestions.add(pair.a);

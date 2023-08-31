@@ -17,8 +17,13 @@ const RecordSchema = CollectionSchema(
   name: r'Record',
   id: -5560585825827271694,
   properties: {
-    r'time': PropertySchema(
+    r'testMode': PropertySchema(
       id: 0,
+      name: r'testMode',
+      type: IsarType.long,
+    ),
+    r'time': PropertySchema(
+      id: 1,
       name: r'time',
       type: IsarType.dateTime,
     )
@@ -71,7 +76,8 @@ void _recordSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeDateTime(offsets[0], object.time);
+  writer.writeLong(offsets[0], object.testMode);
+  writer.writeDateTime(offsets[1], object.time);
 }
 
 Record _recordDeserialize(
@@ -81,7 +87,8 @@ Record _recordDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = Record(
-    time: reader.readDateTime(offsets[0]),
+    testMode: reader.readLong(offsets[0]),
+    time: reader.readDateTime(offsets[1]),
   );
   object.id = id;
   return object;
@@ -95,6 +102,8 @@ P _recordDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
+      return (reader.readLong(offset)) as P;
+    case 1:
       return (reader.readDateTime(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -238,6 +247,59 @@ extension RecordQueryFilter on QueryBuilder<Record, Record, QFilterCondition> {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
         property: r'id',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<Record, Record, QAfterFilterCondition> testModeEqualTo(
+      int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'testMode',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Record, Record, QAfterFilterCondition> testModeGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'testMode',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Record, Record, QAfterFilterCondition> testModeLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'testMode',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Record, Record, QAfterFilterCondition> testModeBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'testMode',
         lower: lower,
         includeLower: includeLower,
         upper: upper,
@@ -443,6 +505,18 @@ extension RecordQueryLinks on QueryBuilder<Record, Record, QFilterCondition> {
 }
 
 extension RecordQuerySortBy on QueryBuilder<Record, Record, QSortBy> {
+  QueryBuilder<Record, Record, QAfterSortBy> sortByTestMode() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'testMode', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Record, Record, QAfterSortBy> sortByTestModeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'testMode', Sort.desc);
+    });
+  }
+
   QueryBuilder<Record, Record, QAfterSortBy> sortByTime() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'time', Sort.asc);
@@ -469,6 +543,18 @@ extension RecordQuerySortThenBy on QueryBuilder<Record, Record, QSortThenBy> {
     });
   }
 
+  QueryBuilder<Record, Record, QAfterSortBy> thenByTestMode() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'testMode', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Record, Record, QAfterSortBy> thenByTestModeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'testMode', Sort.desc);
+    });
+  }
+
   QueryBuilder<Record, Record, QAfterSortBy> thenByTime() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'time', Sort.asc);
@@ -483,6 +569,12 @@ extension RecordQuerySortThenBy on QueryBuilder<Record, Record, QSortThenBy> {
 }
 
 extension RecordQueryWhereDistinct on QueryBuilder<Record, Record, QDistinct> {
+  QueryBuilder<Record, Record, QDistinct> distinctByTestMode() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'testMode');
+    });
+  }
+
   QueryBuilder<Record, Record, QDistinct> distinctByTime() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'time');
@@ -494,6 +586,12 @@ extension RecordQueryProperty on QueryBuilder<Record, Record, QQueryProperty> {
   QueryBuilder<Record, int, QQueryOperations> idProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'id');
+    });
+  }
+
+  QueryBuilder<Record, int, QQueryOperations> testModeProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'testMode');
     });
   }
 

@@ -14,12 +14,13 @@ class ExamResultPage extends StatefulWidget {
 
 class _ExamResultPageState extends State<ExamResultPage> with ExamResultMixin {
 
+  TestMode? _mode;
   List<Pair<Question, bool>>? _questions;
   int? _score;
 
   void _initResults() {
     _score = getPercentageScore(_questions ?? []);
-    saveResult(_questions ?? [], _questions!.first.a.test.value!);
+    saveResult(_questions ?? [], _questions!.first.a.test.value!, _mode ?? TestMode.lives);
   }
 
   @override
@@ -27,6 +28,7 @@ class _ExamResultPageState extends State<ExamResultPage> with ExamResultMixin {
     if (_score == null) {
       final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
       _questions = args['questions'];
+      _mode = args['mode'];
       _initResults();
     }
 

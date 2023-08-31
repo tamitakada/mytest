@@ -160,10 +160,23 @@ class _ExamHomePageState extends State<ExamHomePage> with TickerProviderStateMix
                 ),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(0, 20, 0, 30),
-                  child: MTButton(
-                    onTap: () => Navigator.of(context).pushNamed('/exams', arguments: {'test': test}),
-                    text: 'テスト開始',
-                    style:  Theme.of(context).textTheme.bodyMedium,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: MTButton(
+                          onTap: () => Navigator.of(context).pushNamed('/exams', arguments: {'test': test}),
+                          text: '3アウト',
+                          style:  Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      ),
+                      Expanded(
+                        child: MTButton(
+                          onTap: () => Navigator.of(context).pushNamed('/exams/infinite', arguments: {'test': test}),
+                          text: '力試し',
+                          style:  Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      )
+                    ],
                   ),
                 ),
                 Row(

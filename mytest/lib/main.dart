@@ -4,6 +4,8 @@ import 'package:mytest/exams/exam_taking/pages/exam_result.dart';
 import 'core/pages/home.dart';
 import 'exams/exam_making/pages/pages.dart';
 import 'exams/exam_taking/pages/exam.dart';
+import 'exams/exam_taking/pages/lives_exam.dart';
+import 'exams/exam_taking/pages/infinite_exam.dart';
 
 import 'constants.dart';
 
@@ -57,7 +59,8 @@ class MyApp extends StatelessWidget {
       routes: {
         '/': (context) => const HomePage(),
         '/exams/home': (context) => const ExamHomePage(),
-        '/exams': (context) => const ExamPage(),
+        '/exams': (context) => const LivesExamPage(),
+        '/exams/infinite': (context) => const InfiniteExamPage(),
         '/exams/result': (context) => const ExamResultPage()
       },
     );
