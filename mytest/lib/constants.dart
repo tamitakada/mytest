@@ -17,4 +17,15 @@ class Constants {
   static const green = Color.fromRGBO(49, 193, 64, 1);
   static const lightGreen = Color.fromRGBO(59, 219, 75, 1);
 
+  static String modeRouteName(TestMode mode) {
+    switch (mode) {
+      case TestMode.lives:
+        return 'lives';
+      case TestMode.infinite:
+        return 'infinite';
+      case TestMode.timed:
+        return 'timed';
+    }
+  }
+
 }

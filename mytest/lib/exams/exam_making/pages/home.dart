@@ -164,7 +164,14 @@ class _ExamHomePageState extends State<ExamHomePage> with TickerProviderStateMix
                     children: [
                       Expanded(
                         child: MTButton(
-                          onTap: () => Navigator.of(context).pushNamed('/exams', arguments: {'test': test}),
+                          onTap: () => Navigator.of(context).pushNamed('/exams/timed', arguments: {'test': test}),
+                          text: 'タイムアタック',
+                          style:  Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      ),
+                      Expanded(
+                        child: MTButton(
+                          onTap: () => Navigator.of(context).pushNamed('/exams/lives', arguments: {'test': test}),
                           text: '3アウト',
                           style:  Theme.of(context).textTheme.bodyMedium,
                         ),

@@ -51,7 +51,12 @@ class _ExamResultPageState extends State<ExamResultPage> with ExamResultMixin {
                   ),
                   Text(
                     "$_score点",
-                    style: Theme.of(context).textTheme.bodyLarge,
+                    style: Theme.of(context).textTheme.displayLarge,
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    "${_questions?.length ?? 0}問突破",
+                    style: Theme.of(context).textTheme.bodyMedium,
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 10),
@@ -86,6 +91,7 @@ class _ExamResultPageState extends State<ExamResultPage> with ExamResultMixin {
               return QuestionView(
                 question: (_questions ?? [])[index - 1].a,
                 correct:  (_questions ?? [])[index - 1].b,
+                questionNumber: index - 1,
               );
             }
           },
