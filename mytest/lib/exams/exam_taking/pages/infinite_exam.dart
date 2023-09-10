@@ -26,12 +26,15 @@ class _InfiniteExamPageState extends State<InfiniteExamPage> with ExamMixin {
   bool _mistakeMode = false;
   bool _paused = false;
 
+  final TextEditingController _controller = TextEditingController();
+
   void _checkAnswer(String answer) {
     if (!_mistakeMode) {
       bool correct = isAnswerCorrect(_questions[_questions.length - 1].a, answer);
       _questions[_questions.length - 1].b = correct;
       _score = (_score * (_questions.length - 1) + (correct ? 1 : 0)) / _questions.length;
       if (correct) {
+        _controller.text = '';
         setState(() {
           _questions.add(Pair<Question, bool>(a: generateRandomQuestion(test!), b: false));
         });
@@ -41,6 +44,7 @@ class _InfiniteExamPageState extends State<InfiniteExamPage> with ExamMixin {
   }
 
   void _exitMistakeMode() {
+    _controller.text = '';
     setState(() {
       _mistakeMode = false;
       _questions.add(
@@ -125,6 +129,7 @@ class _InfiniteExamPageState extends State<InfiniteExamPage> with ExamMixin {
                 onSubmitted: _checkAnswer,
                 exitMistakeMode: _exitMistakeMode,
                 unpause: () => setState(() { _paused = false; }),
+                controller: _controller,
               )
             )
           ]

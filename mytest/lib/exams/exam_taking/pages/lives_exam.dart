@@ -27,11 +27,14 @@ class _LivesExamPageState extends State<LivesExamPage> with ExamMixin {
   bool _mistakeMode = false;
   bool _paused = false;
 
+  final TextEditingController _controller = TextEditingController();
+
   void _checkAnswer(String answer) {
     if (!_mistakeMode) {
       bool correct = isAnswerCorrect(_questions[_questions.length - 1].a, answer);
       _questions[_questions.length - 1].b = correct;
       if (correct) {
+        _controller.text = '';
         setState(() {
           _questions.add(Pair<Question, bool>(a: generateRandomQuestion(test!), b: false));
         });
@@ -51,6 +54,7 @@ class _LivesExamPageState extends State<LivesExamPage> with ExamMixin {
         arguments: {'questions': _questions, 'mode': TestMode.infinite}
       );
     } else {
+      _controller.text = '';
       setState(() {
         _mistakeMode = false;
         _questions.add(Pair<Question, bool>(a: generateRandomQuestion(test!), b: false));
@@ -110,6 +114,7 @@ class _LivesExamPageState extends State<LivesExamPage> with ExamMixin {
                 onSubmitted: _checkAnswer,
                 exitMistakeMode: _exitMistakeMode,
                 unpause: () => setState(() { _paused = false; }),
+                controller: _controller,
               )
             )
           ]

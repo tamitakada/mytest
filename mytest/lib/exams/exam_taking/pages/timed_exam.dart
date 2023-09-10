@@ -32,6 +32,8 @@ class _TimedExamPageState extends State<TimedExamPage> with ExamMixin {
 
   Timer? _timer;
 
+  final TextEditingController _controller = TextEditingController();
+
   void _tick(Timer _) {
     if (_timeLeft - 0.2 <= 0) {
       _timer?.cancel();
@@ -50,6 +52,7 @@ class _TimedExamPageState extends State<TimedExamPage> with ExamMixin {
       _questions[_questions.length - 1].b = correct;
       _score = (_score * (_questions.length - 1) + (correct ? 1 : 0)) / _questions.length;
       if (correct) {
+        _controller.text = '';
         setState(() {
           _questions.add(Pair<Question, bool>(a: generateRandomQuestion(test!), b: false));
         });
@@ -59,6 +62,7 @@ class _TimedExamPageState extends State<TimedExamPage> with ExamMixin {
   }
 
   void _exitMistakeMode() {
+    _controller.text = '';
     setState(() {
       _mistakeMode = false;
       _questions.add(Pair<Question, bool>(a: generateRandomQuestion(test!), b: false));
@@ -123,6 +127,7 @@ class _TimedExamPageState extends State<TimedExamPage> with ExamMixin {
                 onSubmitted: _checkAnswer,
                 exitMistakeMode: _exitMistakeMode,
                 unpause: _unpause,
+                controller: _controller,
               )
             )
           ]

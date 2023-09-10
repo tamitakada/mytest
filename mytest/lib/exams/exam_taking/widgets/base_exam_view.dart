@@ -21,6 +21,8 @@ class BaseExamView extends StatefulWidget {
   final void Function(String) onSubmitted;
   final void Function() exitMistakeMode;
   final void Function() unpause;
+  
+  final TextEditingController? controller;
 
   const BaseExamView({
     super.key,
@@ -32,7 +34,8 @@ class BaseExamView extends StatefulWidget {
     required this.mode,
     required this.onSubmitted,
     required this.exitMistakeMode,
-    required this.unpause
+    required this.unpause,
+    this.controller
   });
 
   @override
@@ -49,11 +52,10 @@ class _BaseExamViewState extends State<BaseExamView> with ExamMixin {
 
   final FocusNode _focusNode = FocusNode();
   final FocusNode _answerFocusNode = FocusNode();
-  final TextEditingController _textEditingController = TextEditingController();
 
   void _exitMistakeMode(RawKeyEvent event) {
     if (widget.mistakeMode && event.isKeyPressed(LogicalKeyboardKey.enter)) {
-      _textEditingController.text = '';
+      widget.controller?.text = '';
       widget.exitMistakeMode();
     }
   }
@@ -62,7 +64,6 @@ class _BaseExamViewState extends State<BaseExamView> with ExamMixin {
   void dispose() {
     _focusNode.dispose();
     _answerFocusNode.dispose();
-    _textEditingController.dispose();
     super.dispose();
   }
 
@@ -150,7 +151,7 @@ class _BaseExamViewState extends State<BaseExamView> with ExamMixin {
               onKey: _exitMistakeMode,
               child: TextField(
                 readOnly: widget.mistakeMode,
-                controller: _textEditingController,
+                controller: widget.controller,
                 style: Theme.of(context).textTheme.bodySmall,
                 focusNode: _answerFocusNode,
                 decoration: InputDecoration(
