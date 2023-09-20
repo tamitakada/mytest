@@ -4,35 +4,54 @@ import 'package:mytest/constants.dart';
 
 import 'package:mytest/models/models.dart';
 import 'package:mytest/utils/data_manager.dart';
-import 'record_view.dart';
+
+import '../mixins/record_mixin.dart';
+import 'stats_column.dart';
 
 
-class ExamStatsSubpage extends StatefulWidget {
-  const ExamStatsSubpage({Key? key}) : super(key: key);
+class ExamStatsSubpage extends StatelessWidget with RecordMixin {
 
-  @override
-  State<ExamStatsSubpage> createState() => _ExamStatsSubpageState();
-}
+  final Test test;
 
-class _ExamStatsSubpageState extends State<ExamStatsSubpage> {
+  const ExamStatsSubpage({ super.key, required this.test });
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Constants.yellow,
         borderRadius: BorderRadius.circular(10)
       ),
       child: FutureBuilder<List<Record>?>(
-        future: DataManager.getAllRecords(),
+        future: DataManager.getAllRecords(test),
         builder: (BuildContext context, AsyncSnapshot<List<Record>?> snapshot) {
           if (snapshot.hasData) {
             List<Record> records = snapshot.data ?? [];
-            return ListView.builder(
-              itemCount: records.length,
-              itemBuilder: (BuildContext context, int index) {
-                return RecordView(record: records[index]);
-              }
+            Map<TestMode, List<Record>> sortedRecords = sortRecordsByType(records);
+            return Row(
+              children: [
+                Expanded(
+                  child: StatsColumn(
+                    mode: TestMode.timed,
+                    records: sortedRecords[TestMode.timed] ?? [],
+                  )
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: StatsColumn(
+                    mode: TestMode.lives,
+                    records: sortedRecords[TestMode.lives] ?? [],
+                  )
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: StatsColumn(
+                    mode: TestMode.infinite,
+                    records: sortedRecords[TestMode.infinite] ?? [],
+                  )
+                ),
+              ],
             );
           }
           return Container();

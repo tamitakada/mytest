@@ -47,7 +47,7 @@ class _QuestionViewState extends State<QuestionView> {
             child: Row(
               children: [
                 Text(
-                  '${widget.questionNumber}',
+                  '${widget.questionNumber + 1}',
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 Expanded(
@@ -62,16 +62,17 @@ class _QuestionViewState extends State<QuestionView> {
                 GestureDetector(
                   onTap: () => setState(() { _questionSide = !_questionSide; }),
                   child: Container(
+                    width: 70,
+                    height: 30,
                     decoration: BoxDecoration(
                       color: _questionSide ? Constants.darkBlue : Constants.lightBlue,
-                      borderRadius: const BorderRadius.only(
-                        topRight: Radius.circular(10),
-                        bottomRight: Radius.circular(10)
-                      ),
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                    child: Text(
-                      _questionSide ? '答' : '問',
-                      style: Theme.of(context).textTheme.bodySmall,
+                    child: Center(
+                      child: Text(
+                        _questionSide ? '解答表示' : '戻る',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
                     ),
                   ),
                 )

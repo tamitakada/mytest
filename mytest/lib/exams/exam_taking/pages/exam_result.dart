@@ -65,12 +65,10 @@ class _ExamResultPageState extends State<ExamResultPage> with ExamResultMixin {
                       children: [
                         IconButton(
                           icon: Icon(Icons.replay, color: Colors.white, size: 20,),
-                          onPressed: () {
-                            Navigator.of(context).pushNamed(
-                              '/exams',
+                          onPressed: () => Navigator.of(context).popAndPushNamed(
+                              '/exams/${Constants.modeRouteName(_mode!)}',
                               arguments: {'test': _questions?.first.a.test.value}
-                            );
-                          }
+                          )
                         ),
                         IconButton(
                           icon: Icon(Icons.close, color: Colors.white, size: 20,),

@@ -27,7 +27,7 @@ class _MTButtonState extends State<MTButton> with WidgetsBindingObserver {
       onTap: () {
         if (_isActive) {
           Future.delayed(const Duration(milliseconds: 110), () {
-            setState(() { _isPressed = false; });
+            setState(() { _isPressed = false; _isActive = true; });
           });
           setState(() { _isPressed = true; _isActive = false; });
           widget.onTap();

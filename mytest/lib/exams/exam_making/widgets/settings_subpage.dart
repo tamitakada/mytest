@@ -4,19 +4,36 @@ import 'package:mytest/widgets/mt_text_field.dart';
 import 'package:mytest/widgets/mt_button.dart';
 
 import 'package:mytest/constants.dart';
+import 'package:mytest/widgets/mt_switch.dart';
+import 'package:mytest/models/models.dart';
 
 
 class ExamSettingsSubpage extends StatefulWidget {
 
+  final Test test;
   final void Function() onDelete;
 
-  const ExamSettingsSubpage({ super.key, required this.onDelete });
+  const ExamSettingsSubpage({ super.key, required this.test, required this.onDelete });
 
   @override
   State<ExamSettingsSubpage> createState() => _ExamSettingsSubpageState();
 }
 
 class _ExamSettingsSubpageState extends State<ExamSettingsSubpage> {
+
+  late bool _mistakeMode;
+  late bool _flipped;
+
+  TextEditingController _titleController = TextEditingController();
+
+  @override
+  void initState() {
+    _mistakeMode = false;
+    _flipped = false;
+    _titleController.text = widget.test.title;
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -29,11 +46,45 @@ class _ExamSettingsSubpageState extends State<ExamSettingsSubpage> {
         children: [
           MTTextField(
             hintText: 'テスト名',
+            controller: _titleController,
           ),
+          const SizedBox(height: 20),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                '一定の誤差まで許容する',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              MTSwitch(
+                height: 26,
+                switchUpdated: (isOn) {
+                  _mistakeMode = isOn;
+                },
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                '問題と解答を逆にする',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              MTSwitch(
+                height: 26,
+                switchUpdated: (isOn) {
+                  _mistakeMode = isOn;
+                },
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
           MTButton(
             text: '削除',
             onTap: widget.onDelete
-          )
+          ),
         ]
       ),
     );

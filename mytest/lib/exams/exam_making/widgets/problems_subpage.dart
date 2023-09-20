@@ -50,8 +50,8 @@ class _ExamProblemsSubpageState extends State<ExamProblemsSubpage>  {
               const SizedBox(width: 10),
               IconButton(
                 onPressed: () => widget.editProblem(null),
-                icon: Icon(Icons.add, color: Colors.white)
-              )
+                icon: const Icon(Icons.add, color: Colors.white)
+              ),
             ]
           ),
           const SizedBox(height: 10),

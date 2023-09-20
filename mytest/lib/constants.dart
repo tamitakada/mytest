@@ -28,4 +28,15 @@ class Constants {
     }
   }
 
+  static String modeName(TestMode mode) {
+    switch (mode) {
+      case TestMode.lives:
+        return '３アウト';
+      case TestMode.infinite:
+        return '力試し';
+      case TestMode.timed:
+        return 'タイムアタック';
+    }
+  }
+
 }

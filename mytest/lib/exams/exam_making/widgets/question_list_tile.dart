@@ -3,6 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:mytest/models/question.dart';
 import 'package:mytest/constants.dart';
 
+import 'package:mytest/utils/file_utils.dart';
+
+import 'package:mytest/widgets/scrollable_image_display.dart';
+
+import 'package:mytest/pair.dart';
+
 
 class QuestionListTile extends StatelessWidget {
 
@@ -63,6 +69,12 @@ class QuestionListTile extends StatelessWidget {
                     )
                   )
                 ],
+              ),
+              SizedBox(
+                height: (question.images != null && question.images!.isNotEmpty) ? 80 : 0,
+                child: ScrollableImageDisplay(
+                  images: question.images?.map((e) => Pair<String, bool>(a: e, b: true)).toList() ?? [],
+                )
               )
             ],
           ),

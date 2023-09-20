@@ -31,11 +31,12 @@ class DataManager {
     catch (e) { return null; }
   }
 
-  static Future<List<Record>?> getAllRecords() async {
+  static Future<List<Record>?> getAllRecords(Test test) async {
     try {
       return await (await isar).records
-        .where()
-        .sortByTime()
+        .filter()
+        .test((q) => q.idEqualTo(test.id))
+        .sortByTimeDesc()
         .findAll();
     }
     catch (e) { return null; }

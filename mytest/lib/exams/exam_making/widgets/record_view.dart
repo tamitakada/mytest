@@ -16,27 +16,23 @@ class RecordView extends StatelessWidget with RecordMixin {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            '${record.time.month}月${record.time.day}日${record.time.year}年　${record.time.hour}時${record.time.minute}分',
+            getDate(record),
             style: Theme.of(context).textTheme.bodySmall,
           ),
-          Container(
-            width: 100,
-            child: Row(
-              children: [
-                Text(
-                  'スコア',
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-                const SizedBox(width: 20),
-                Expanded(
-                  child: Text(
-                    '${getScore(record)}点',
-                    textAlign: TextAlign.right,
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ),
-              ],
-            ),
+          Row(
+            children: [
+              Text(
+                '${record.correctQuestions.length + record.incorrectQuestions.length}問',
+                textAlign: TextAlign.right,
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              const SizedBox(width: 5),
+              Text(
+                '${getScore(record)}点',
+                textAlign: TextAlign.right,
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ],
           )
         ],
       ),

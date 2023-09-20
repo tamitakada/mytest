@@ -170,10 +170,13 @@ class _ExamHomePageState extends State<ExamHomePage> with TickerProviderStateMix
                         ),
                       ),
                       Expanded(
-                        child: MTButton(
-                          onTap: () => Navigator.of(context).pushNamed('/exams/lives', arguments: {'test': test}),
-                          text: '3アウト',
-                          style:  Theme.of(context).textTheme.bodyMedium,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: MTButton(
+                            onTap: () => Navigator.of(context).pushNamed('/exams/lives', arguments: {'test': test}),
+                            text: '3アウト',
+                            style:  Theme.of(context).textTheme.bodyMedium,
+                          ),
                         ),
                       ),
                       Expanded(
@@ -213,8 +216,8 @@ class _ExamHomePageState extends State<ExamHomePage> with TickerProviderStateMix
                   child: _page == ExamMakingPage.problems
                     ? ExamProblemsSubpage(editProblem: _openProblemEditOverlay)
                     : _page == ExamMakingPage.settings
-                    ? ExamSettingsSubpage(onDelete: _deleteTest)
-                    : ExamStatsSubpage()
+                    ? ExamSettingsSubpage(test: test!, onDelete: _deleteTest)
+                    : ExamStatsSubpage(test: test!)
                 )
               ],
             ),

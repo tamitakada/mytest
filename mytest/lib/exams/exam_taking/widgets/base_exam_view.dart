@@ -6,6 +6,11 @@ import 'package:mytest/constants.dart';
 import 'package:mytest/models/models.dart';
 import '../mixins/exam_mixin.dart';
 
+import 'package:mytest/utils/file_utils.dart';
+
+import 'package:mytest/pair.dart';
+import 'package:mytest/widgets/scrollable_image_display.dart';
+
 
 class BaseExamView extends StatefulWidget {
 
@@ -130,9 +135,14 @@ class _BaseExamViewState extends State<BaseExamView> with ExamMixin {
                 )
               ]
             ),
-            const SizedBox(height: 20),
-            // TODO: Add photos
-            Expanded(child: Container()),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 30),
+                child: ScrollableImageDisplay(
+                  images: widget.question.images?.map((e) => Pair<String, bool>(a: e, b: true)).toList() ?? [],
+                ),
+              )
+            ),
             widget.mistakeMode
             ? Container(
               margin: const EdgeInsets.symmetric(vertical: 10),

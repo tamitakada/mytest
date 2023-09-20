@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:file_selector/file_selector.dart';
 
 import 'package:mytest/widgets/mt_text_field.dart';
 import 'package:mytest/widgets/counter.dart';
@@ -8,6 +11,11 @@ import 'package:mytest/utils/data_manager.dart';
 import 'package:mytest/models/models.dart';
 
 import '../mixins/exam_edit_mixin.dart';
+
+import 'package:mytest/utils/file_utils.dart';
+import 'package:mytest/pair.dart';
+
+import 'package:mytest/widgets/scrollable_image_display.dart';
 
 
 class EditProblemOverlay extends StatefulWidget {
@@ -22,15 +30,28 @@ class EditProblemOverlay extends StatefulWidget {
   State<EditProblemOverlay> createState() => _EditProblemOverlayState();
 }
 
-class _EditProblemOverlayState extends State<EditProblemOverlay> with ExamEditMixin implements CounterListener {
+class _EditProblemOverlayState extends State<EditProblemOverlay> with ExamEditMixin {
 
   final TextEditingController _questionController = TextEditingController();
   final TextEditingController _answerController = TextEditingController();
 
-  int _allowedMistakes = 0;
+  List<Pair<String, bool>> _images = [];
 
-  @override
-  void valueChanged(int newValue) => _allowedMistakes = newValue;
+  void _selectNewImage() {
+    try {
+      const XTypeGroup typeGroup = XTypeGroup(
+        label: 'images',
+        extensions: <String>['jpg', 'png'],
+      );
+      openFile(acceptedTypeGroups: <XTypeGroup>[typeGroup]).then((file) {
+        if (file != null) {
+          setState((){ _images.add(Pair<String, bool>(a: file.path, b: false)); });
+        }
+      });
+    } catch (e) {
+      print(e);
+    }
+  }
 
   @override
   void dispose() {
@@ -43,6 +64,9 @@ class _EditProblemOverlayState extends State<EditProblemOverlay> with ExamEditMi
   void initState() {
     _questionController.text = widget.question?.question ?? "";
     _answerController.text = widget.question?.answer ?? "";
+    _images = widget.question?.images?.map(
+      (e) => Pair<String, bool>(a: e, b: true)
+    ).toList() ?? [];
     super.initState();
   }
 
@@ -72,26 +96,29 @@ class _EditProblemOverlayState extends State<EditProblemOverlay> with ExamEditMi
             controller: _answerController,
           ),
         ),
-        Row(
-          children: [
-            Counter(listener: this),
-            Text("誤字まで許可する"),
-          ],
+        Expanded(
+          child: ScrollableImageDisplay(
+            images: _images,
+            onDelete: (int index) {
+              setState(() { _images.removeAt(index); });
+            },
+          )
         ),
-        TextButton(onPressed: () {}, child: Text("写真をアップする")),
+        TextButton(
+          onPressed: _selectNewImage,
+          child: Text("写真をアップする")
+        ),
         TextButton(
           child: Text("決定"),
           onPressed: () {
-            print("heloooo???");
             editQuestion(
               widget.test,
               _questionController.text,
               _answerController.text,
-              _allowedMistakes,
-              [],
-              widget.question,
-              widget.closeOverlay
-            );
+              0,
+              _images,
+              widget.question
+            ).then(widget.closeOverlay);
           },
         )
       ],
