@@ -59,6 +59,7 @@ class MyApp extends StatelessWidget {
         '/exams/home': (context) => const ExamHomePage(),
         '/exams/lives': (context) => const LivesExamPage(),
         '/exams/infinite': (context) => const InfiniteExamPage(),
+        '/exams/full': (context) => const FullExamPage(),
         '/exams/result': (context) => const ExamResultPage(),
         '/exams/timed': (context) => const TimedExamPage()
       },

@@ -7,6 +7,8 @@ import 'package:mytest/constants.dart';
 import 'package:mytest/widgets/mt_switch.dart';
 import 'package:mytest/models/models.dart';
 
+import 'package:mytest/utils/data_manager.dart';
+
 
 class ExamSettingsSubpage extends StatefulWidget {
 
@@ -28,8 +30,8 @@ class _ExamSettingsSubpageState extends State<ExamSettingsSubpage> {
 
   @override
   void initState() {
-    _mistakeMode = false;
-    _flipped = false;
+    _mistakeMode = widget.test.allowError;
+    _flipped = widget.test.flipTerms;
     _titleController.text = widget.test.title;
     super.initState();
   }
@@ -60,6 +62,8 @@ class _ExamSettingsSubpageState extends State<ExamSettingsSubpage> {
                 height: 26,
                 switchUpdated: (isOn) {
                   _mistakeMode = isOn;
+                  widget.test.allowError = isOn;
+                  DataManager.upsertTest(widget.test);
                 },
               ),
             ],
@@ -75,7 +79,9 @@ class _ExamSettingsSubpageState extends State<ExamSettingsSubpage> {
               MTSwitch(
                 height: 26,
                 switchUpdated: (isOn) {
-                  _mistakeMode = isOn;
+                  _flipped = isOn;
+                  widget.test.flipTerms = isOn;
+                  DataManager.upsertTest(widget.test);
                 },
               ),
             ],

@@ -17,13 +17,23 @@ const TestSchema = CollectionSchema(
   name: r'Test',
   id: -5479267249076327074,
   properties: {
-    r'lastTestDate': PropertySchema(
+    r'allowError': PropertySchema(
       id: 0,
+      name: r'allowError',
+      type: IsarType.bool,
+    ),
+    r'flipTerms': PropertySchema(
+      id: 1,
+      name: r'flipTerms',
+      type: IsarType.bool,
+    ),
+    r'lastTestDate': PropertySchema(
+      id: 2,
       name: r'lastTestDate',
       type: IsarType.dateTime,
     ),
     r'title': PropertySchema(
-      id: 1,
+      id: 3,
       name: r'title',
       type: IsarType.string,
     )
@@ -87,8 +97,10 @@ void _testSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeDateTime(offsets[0], object.lastTestDate);
-  writer.writeString(offsets[1], object.title);
+  writer.writeBool(offsets[0], object.allowError);
+  writer.writeBool(offsets[1], object.flipTerms);
+  writer.writeDateTime(offsets[2], object.lastTestDate);
+  writer.writeString(offsets[3], object.title);
 }
 
 Test _testDeserialize(
@@ -98,10 +110,12 @@ Test _testDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = Test(
-    title: reader.readString(offsets[1]),
+    allowError: reader.readBoolOrNull(offsets[0]) ?? false,
+    flipTerms: reader.readBoolOrNull(offsets[1]) ?? false,
+    title: reader.readString(offsets[3]),
   );
   object.id = id;
-  object.lastTestDate = reader.readDateTimeOrNull(offsets[0]);
+  object.lastTestDate = reader.readDateTimeOrNull(offsets[2]);
   return object;
 }
 
@@ -113,8 +127,12 @@ P _testDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readDateTimeOrNull(offset)) as P;
+      return (reader.readBoolOrNull(offset) ?? false) as P;
     case 1:
+      return (reader.readBoolOrNull(offset) ?? false) as P;
+    case 2:
+      return (reader.readDateTimeOrNull(offset)) as P;
+    case 3:
       return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -330,6 +348,25 @@ extension TestQueryWhere on QueryBuilder<Test, Test, QWhereClause> {
 }
 
 extension TestQueryFilter on QueryBuilder<Test, Test, QFilterCondition> {
+  QueryBuilder<Test, Test, QAfterFilterCondition> allowErrorEqualTo(
+      bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'allowError',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Test, Test, QAfterFilterCondition> flipTermsEqualTo(bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'flipTerms',
+        value: value,
+      ));
+    });
+  }
+
   QueryBuilder<Test, Test, QAfterFilterCondition> idEqualTo(Id value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -697,6 +734,30 @@ extension TestQueryLinks on QueryBuilder<Test, Test, QFilterCondition> {
 }
 
 extension TestQuerySortBy on QueryBuilder<Test, Test, QSortBy> {
+  QueryBuilder<Test, Test, QAfterSortBy> sortByAllowError() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'allowError', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Test, Test, QAfterSortBy> sortByAllowErrorDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'allowError', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Test, Test, QAfterSortBy> sortByFlipTerms() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'flipTerms', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Test, Test, QAfterSortBy> sortByFlipTermsDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'flipTerms', Sort.desc);
+    });
+  }
+
   QueryBuilder<Test, Test, QAfterSortBy> sortByLastTestDate() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'lastTestDate', Sort.asc);
@@ -723,6 +784,30 @@ extension TestQuerySortBy on QueryBuilder<Test, Test, QSortBy> {
 }
 
 extension TestQuerySortThenBy on QueryBuilder<Test, Test, QSortThenBy> {
+  QueryBuilder<Test, Test, QAfterSortBy> thenByAllowError() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'allowError', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Test, Test, QAfterSortBy> thenByAllowErrorDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'allowError', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Test, Test, QAfterSortBy> thenByFlipTerms() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'flipTerms', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Test, Test, QAfterSortBy> thenByFlipTermsDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'flipTerms', Sort.desc);
+    });
+  }
+
   QueryBuilder<Test, Test, QAfterSortBy> thenById() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.asc);
@@ -761,6 +846,18 @@ extension TestQuerySortThenBy on QueryBuilder<Test, Test, QSortThenBy> {
 }
 
 extension TestQueryWhereDistinct on QueryBuilder<Test, Test, QDistinct> {
+  QueryBuilder<Test, Test, QDistinct> distinctByAllowError() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'allowError');
+    });
+  }
+
+  QueryBuilder<Test, Test, QDistinct> distinctByFlipTerms() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'flipTerms');
+    });
+  }
+
   QueryBuilder<Test, Test, QDistinct> distinctByLastTestDate() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'lastTestDate');
@@ -779,6 +876,18 @@ extension TestQueryProperty on QueryBuilder<Test, Test, QQueryProperty> {
   QueryBuilder<Test, int, QQueryOperations> idProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'id');
+    });
+  }
+
+  QueryBuilder<Test, bool, QQueryOperations> allowErrorProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'allowError');
+    });
+  }
+
+  QueryBuilder<Test, bool, QQueryOperations> flipTermsProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'flipTerms');
     });
   }
 

@@ -2,6 +2,14 @@ import 'package:mytest/models/models.dart';
 import 'dart:math';
 
 mixin ExamMixin {
+  // NR = No Replacement
+  Question generateRandomQuestionNR(List<Question> questions) {
+    Random random = Random();
+    int questionIndex = random.nextInt(questions.length);
+    Question toReturn = questions[questionIndex];
+    questions.removeAt(questionIndex);
+    return toReturn;
+  }
 
   Question generateRandomQuestion(Test test) {
     Random random = Random();
@@ -37,52 +45,66 @@ mixin ExamMixin {
     return !((s1Index < s1.length) || s2Index < s2.length);
   }
 
-  List<String> parseAnswers(String answer) {
-    int i = 0;
-
-    bool ignoreSpecial = false;
-    bool optional = false;
-
-    List<String> answers = [];
-
-    String current = '';
-    String optionalCurrent = '';
-
-    while (i < answer.length) {
-      if (!ignoreSpecial) {
-        if (answer[i] == '\\') { ignoreSpecial = true; i++; continue; }
-        else if (!optional && answer[i] == '[') {
-          optionalCurrent += current;
-          optional = true;
-          i++; continue;
-        }
-        else if (optional && answer[i] == ']') { optional = false; i++; continue; }
-        else if (!optional && answer[i] == '・') {
-          answers.add(current);
-          if (optionalCurrent.isNotEmpty) { answers.add(optionalCurrent); }
-          current = '';
-          optionalCurrent = '';
-          i++; continue;
-        }
-      }
-      else { ignoreSpecial = false; }
-
-      if (!optional) { current += answer[i]; }
-      if (optional || optionalCurrent.isNotEmpty) {
-        optionalCurrent += answer[i];
-      }
-
-      i++;
+  void _addToAnswers(
+    String letter,
+    int currentAnswer,
+    List<String> answers,
+    bool optional,
+    int currentOptional
+  ) {
+    int i = currentAnswer;
+    if (optional) { i += pow(2, currentOptional) as int; }
+    for (i; i < answers.length; i++) {
+      answers[i] += letter;
     }
+  }
 
-    if (current.isNotEmpty) { answers.add(current); }
-    if (optionalCurrent.isNotEmpty) { answers.add(optionalCurrent); }
+  List<String> parseAnswer(String answer) {
+    List<String> answers = [""];
+    int currentAnswer = 0;
+
+    bool optional = false;
+    int currentOptional = -1;
+
+    for (int i = 0; i < answer.length; i++) {
+      switch (answer[i]) {
+        case "・": // Split answer
+          answers.add("");
+          currentAnswer = answers.length - 1;
+          currentOptional = -1;
+          break;
+        case "[": // Begin optional block iff not already begun
+          if (!optional) {
+            optional = true;
+            currentOptional++;
+
+            // Copy all current answers
+            int currentLen = answers.length;
+            for (int j = currentAnswer; j < currentLen; j++) {
+              answers.add(answers[j]);
+            }
+          }
+          else { // Treat like a normal optional char
+            _addToAnswers(answer[i], currentAnswer, answers, true, currentOptional);
+          }
+          break;
+        case "]": // End optional block iff previously begun
+          if (optional) { optional = false; }
+          else { // Treat like a normal char
+            _addToAnswers(answer[i], currentAnswer, answers, false, currentOptional);
+          }
+          break;
+        default:
+          _addToAnswers(answer[i], currentAnswer, answers, optional, currentOptional);
+          break;
+      }
+    }
 
     return answers;
   }
 
   bool isAnswerCorrect(Question question, String answer) {
-    List<String> answers = parseAnswers(question.answer);
+    List<String> answers = parseAnswer(question.answer);
     return answers.contains(answer);
   }
 

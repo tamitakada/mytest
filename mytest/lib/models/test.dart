@@ -11,6 +11,9 @@ class Test {
 
   String title;
 
+  bool flipTerms;
+  bool allowError;
+
   @Index()
   DateTime? lastTestDate;
 
@@ -20,6 +23,6 @@ class Test {
   @Backlink(to: 'test')
   final records = IsarLinks<Record>();
 
-  Test({ required this.title });
+  Test({ required this.title, this.flipTerms = false, this.allowError = false });
 
 }
