@@ -128,7 +128,8 @@ class _BaseExamViewState extends State<BaseExamView> with ExamMixin {
                 const SizedBox(width: 40),
                 Expanded(
                   child: Text(
-                    widget.question.question,
+                    widget.test.flipTerms ?
+                      widget.question.answer : widget.question.question,
                     textAlign: TextAlign.left,
                     style: Theme.of(context).textTheme.bodyMedium
                   )
@@ -152,7 +153,8 @@ class _BaseExamViewState extends State<BaseExamView> with ExamMixin {
                 color: Constants.lightRed
               ),
               child: Text(
-                widget.question.answer,
+                widget.test.flipTerms ?
+                  widget.question.question : widget.question.answer,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.white),
               )
             ) : Container(),

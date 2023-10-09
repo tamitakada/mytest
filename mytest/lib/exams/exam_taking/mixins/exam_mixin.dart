@@ -103,8 +103,8 @@ mixin ExamMixin {
     return answers;
   }
 
-  bool isAnswerCorrect(Question question, String answer) {
-    List<String> answers = parseAnswer(question.answer);
+  bool isAnswerCorrect(Question question, String answer, bool flipTerms) {
+    List<String> answers = parseAnswer(flipTerms ? question.question : question.answer);
     return answers.contains(answer);
   }
 

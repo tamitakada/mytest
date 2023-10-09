@@ -60,6 +60,7 @@ class _ExamSettingsSubpageState extends State<ExamSettingsSubpage> {
               ),
               MTSwitch(
                 height: 26,
+                initialState: _mistakeMode,
                 switchUpdated: (isOn) {
                   _mistakeMode = isOn;
                   widget.test.allowError = isOn;
@@ -78,6 +79,7 @@ class _ExamSettingsSubpageState extends State<ExamSettingsSubpage> {
               ),
               MTSwitch(
                 height: 26,
+                initialState: _flipped,
                 switchUpdated: (isOn) {
                   _flipped = isOn;
                   widget.test.flipTerms = isOn;

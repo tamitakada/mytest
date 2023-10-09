@@ -40,7 +40,6 @@ mixin ExamEditMixin {
       }
     }
 
-    print(imageNames);
     toEdit.images = imageNames;
     return await DataManager.upsertQuestion(toEdit, test);
   }

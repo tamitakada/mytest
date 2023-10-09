@@ -3,6 +3,7 @@ import 'package:mytest/constants.dart';
 
 class MTSwitch extends StatefulWidget {
 
+  final bool initialState;
   final Color switchColor;
   final Color onColor;
   final Color offColor;
@@ -16,6 +17,7 @@ class MTSwitch extends StatefulWidget {
     this.onColor = Constants.lightGreen,
     this.offColor = Constants.yellow,
     this.switchColor = Colors.white,
+    this.initialState = true,
     this.switchUpdated
   });
 
@@ -28,15 +30,18 @@ class _MTSwitchState extends State<MTSwitch> with SingleTickerProviderStateMixin
   late AnimationController _controller;
   late Animation<Offset> _animation;
 
-  bool _isOn = true;
+  late bool _isOn;
 
   @override
   void initState() {
+    _isOn = widget.initialState;
     _controller = AnimationController(
       vsync: this, duration: const Duration(milliseconds: 240)
     );
-    _animation = Tween<Offset>(begin: Offset(0, 0), end: Offset(1, 0))
-      .animate(_controller);
+    _animation = Tween<Offset>(
+      begin: _isOn ? Offset(0, 0) : Offset(1, 0),
+      end: _isOn ? Offset(1, 0) : Offset(0, 0)
+    ).animate(_controller);
     super.initState();
   }
 
