@@ -38,7 +38,12 @@ class _FullExamPageState extends State<FullExamPage> with ExamMixin {
 
   void _checkAnswer(String answer) {
     if (!_mistakeMode) {
-      bool correct = isAnswerCorrect(_questions[_questions.length - 1].a, answer, test?.flipTerms ?? false);
+      bool correct = isAnswerCorrect(
+        _questions[_questions.length - 1].a,
+        answer,
+        test?.flipTerms ?? false,
+        test?.allowError ?? false
+      );
       _questions[_questions.length - 1].b = correct;
       _score = (_score * (_questions.length - 1) + (correct ? 1 : 0)) / _questions.length;
       if (correct) {

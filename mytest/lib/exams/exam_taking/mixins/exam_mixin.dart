@@ -16,33 +16,27 @@ mixin ExamMixin {
     int questionIndex = random.nextInt(test.questions.length);
     return test.questions.elementAt(questionIndex);
   }
-  
-  bool _matchStringWithinError(String s1, String s2, int error) {
-    int s1Index = 0;
-    int s2Index = 0;
 
-    bool openBrackets = false;
+  bool _matchWithinError(List<String> answers, String input) {
+    for (String answer in answers) {
+      bool match = true;
+      int allowedError = (answer.length * 0.1).toInt();
 
-    while (s1Index < s1.length && s2Index < s2.length) {
-      if ((!openBrackets && s1[s1Index] == '[') || (openBrackets && s1[s1Index] == ']')) {
-        if (s2[s2Index] == s1[s1Index]) s2Index++;
-        openBrackets = !openBrackets;
-      } else {
-        if (s1[s1Index] != s2[s2Index]) { return false; }
-        s2Index++;
+      for (int i = 0; i < input.length; i++) {
+        if (answer.length <= i || input[i] != answer[i]) {
+          allowedError--;
+          if (allowedError < 0) { match = false; }
+        }
       }
-      s1Index++;
-    }
 
-    while (openBrackets && s1Index < s1.length) {
-      if (s1[s1Index] == ']') { break; }
-      else {
-        s1Index++;
-        if (s1Index == s1.length) { return false; }
+      if (answer.length > input.length) {
+        allowedError -= (answer.length - input.length);
+        if (allowedError < 0) { match = false; }
       }
-    }
 
-    return !((s1Index < s1.length) || s2Index < s2.length);
+      if (match) { return true; }
+    }
+    return false;
   }
 
   void _addToAnswers(
@@ -100,12 +94,18 @@ mixin ExamMixin {
       }
     }
 
+    answers.add(answer); // Add full answer
+
     return answers;
   }
 
-  bool isAnswerCorrect(Question question, String answer, bool flipTerms) {
+  bool isAnswerCorrect(Question question, String answer, bool flipTerms, bool allowError) {
     List<String> answers = parseAnswer(flipTerms ? question.question : question.answer);
-    return answers.contains(answer);
+    if (allowError) {
+      return _matchWithinError(answers, answer);
+    } else {
+      return answers.contains(answer);
+    }
   }
 
 }

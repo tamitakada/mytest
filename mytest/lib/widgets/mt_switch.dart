@@ -50,7 +50,7 @@ class _MTSwitchState extends State<MTSwitch> with SingleTickerProviderStateMixin
     return GestureDetector(
       onTap: () {
         setState(() { _isOn = !_isOn; });
-        if (_isOn) { _controller.reverse(); }
+        if (widget.initialState && _isOn) { _controller.reverse(); }
         else { _controller.forward(); }
         if (widget.switchUpdated != null) {
           widget.switchUpdated!(_isOn);
