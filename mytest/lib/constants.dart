@@ -2,29 +2,28 @@ import 'package:flutter/material.dart';
 
 enum TestMode {
   lives,
-  infinite,
-  timed
+  full,
+  timed,
+  practice
 }
 
 class Constants {
 
-  static const darkBlue = Color.fromRGBO(27, 120, 150, 1);
-  static const blue = Color.fromRGBO(43, 174, 216, 1);
-  static const lightBlue = Color.fromRGBO(73, 194, 233, 1);
-  static const yellow = Color.fromRGBO(237, 202, 17, 1);
-  static const red = Color.fromRGBO(185, 85, 29, 1);
-  static const lightRed = Color.fromRGBO(225, 99, 28, 1);
-  static const green = Color.fromRGBO(49, 193, 64, 1);
-  static const lightGreen = Color.fromRGBO(59, 219, 75, 1);
+  static const salmon = Color.fromRGBO(239, 98, 108, 1);
+  static const sakura = Color.fromRGBO(246, 232, 234, 1);
+  static const white = Color.fromRGBO(255, 250, 251, 1);
+  static const charcoal = Color.fromRGBO(49, 47, 47, 1);
 
   static String modeRouteName(TestMode mode) {
     switch (mode) {
       case TestMode.lives:
         return 'lives';
-      case TestMode.infinite:
-        return 'infinite';
+      case TestMode.full:
+        return 'full';
       case TestMode.timed:
         return 'timed';
+      case TestMode.practice:
+        return 'practice';
     }
   }
 
@@ -32,11 +31,12 @@ class Constants {
     switch (mode) {
       case TestMode.lives:
         return '３アウト';
-      case TestMode.infinite:
-        return '力試し';
+      case TestMode.full:
+        return '全問テスト';
       case TestMode.timed:
         return 'タイムアタック';
+      case TestMode.practice:
+        return '無限練習';
     }
   }
-
 }
