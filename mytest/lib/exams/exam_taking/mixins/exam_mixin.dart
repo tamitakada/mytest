@@ -1,4 +1,5 @@
 import 'package:mytest/models/models.dart';
+import 'package:mytest/constants.dart';
 import 'dart:math';
 
 mixin ExamMixin {
@@ -11,10 +12,20 @@ mixin ExamMixin {
     return toReturn;
   }
 
-  Question generateRandomQuestion(Test test) {
-    Random random = Random();
-    int questionIndex = random.nextInt(test.questions.length);
-    return test.questions.elementAt(questionIndex);
+  Question generateRandomQuestion(TestMode mode, List<Question> questions) {
+    if (questions.length > 1) {
+      Random random = Random();
+      int questionIndex = random.nextInt(questions.length - 1);
+
+      // Swap to prevent same question from appearing twice in a row
+      Question temp = questions[questionIndex];
+      questions[questionIndex] = questions[questions.length - 1];
+      questions[questions.length - 1] = temp;
+
+      return temp;
+    } else {
+      return questions[0];
+    }
   }
 
   bool _matchWithinError(List<String> answers, String input) {
