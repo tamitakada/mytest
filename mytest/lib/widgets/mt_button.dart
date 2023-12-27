@@ -4,10 +4,11 @@ import 'package:mytest/constants.dart';
 class MTButton extends StatefulWidget {
 
   final void Function() onTap;
+  final Color color;
   final String text;
   final TextStyle? style;
 
-  const MTButton({ super.key, required this.onTap, required this.text, this.style });
+  const MTButton({ super.key, required this.onTap, required this.text, this.style, this.color = Constants.salmon });
 
   @override
   State<MTButton> createState() => _MTButtonState();
@@ -36,22 +37,16 @@ class _MTButtonState extends State<MTButton> with WidgetsBindingObserver {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 100),
         decoration: BoxDecoration(
-          color: Constants.lightBlue,
+          color: _isActive && _isPressed ? Constants.white.withOpacity(0.2) : Colors.transparent,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: Colors.white, width: 2),
-          boxShadow: [
-            _isActive && _isPressed
-              ? const BoxShadow()
-              : const BoxShadow(
-              color: Colors.white,
-              offset: Offset(0, 5)
-            )
-          ]
+          border: Border.all(color: Constants.white, width: 2),
         ),
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+        padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
         child: Text(
           widget.text,
-          style: widget.style ?? Theme.of(context).textTheme.bodySmall,
+          style: widget.style ?? Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: Constants.white
+          ),
         ),
       ),
     );

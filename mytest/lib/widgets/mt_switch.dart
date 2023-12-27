@@ -14,8 +14,8 @@ class MTSwitch extends StatefulWidget {
   const MTSwitch({
     super.key,
     this.height = 22,
-    this.onColor = Constants.lightGreen,
-    this.offColor = Constants.yellow,
+    this.onColor = Constants.sakura,
+    this.offColor = Constants.salmon,
     this.switchColor = Colors.white,
     this.initialState = true,
     this.switchUpdated

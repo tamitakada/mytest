@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import 'package:mytest/constants.dart';
+
+
 class MTTextField extends StatelessWidget {
 
   final void Function(String)? onSubmitted;
@@ -19,33 +22,22 @@ class MTTextField extends StatelessWidget {
       decoration: InputDecoration(
         hintText: hintText,
         hintStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
-          color: Colors.white.withOpacity(0.5)
+          color: Constants.charcoal.withOpacity(0.5)
         ),
         isDense: true,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(20),
-          borderSide: const BorderSide(
-            color: Colors.white,
-            width: 2
-          )
+        contentPadding: EdgeInsets.zero,
+        border: const UnderlineInputBorder(
+          borderSide: BorderSide(color: Constants.charcoal, width: 2)
         ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(20),
-          borderSide: const BorderSide(
-            color: Colors.white,
-            width: 2
-          )
+        focusedBorder: const UnderlineInputBorder(
+          borderSide: BorderSide(color: Constants.charcoal, width: 2)
         ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(20),
-          borderSide: const BorderSide(
-            color: Colors.white,
-            width: 2
-          )
+        enabledBorder: const UnderlineInputBorder(
+          borderSide: BorderSide(color: Constants.charcoal, width: 2)
         ),
-        suffixIcon: Icon(
+        suffixIcon: const Icon(
           Icons.arrow_forward_rounded,
-          color: Colors.white,
+          color: Constants.charcoal,
         )
       ),
     );
