@@ -49,12 +49,6 @@ class BaseExamView extends StatefulWidget {
 
 class _BaseExamViewState extends State<BaseExamView> with ExamMixin {
 
-  static const Map<TestMode, Map<String, Color>> _modeColors = {
-    TestMode.lives: {'dark': Constants.blue, 'light': Constants.lightBlue},
-    TestMode.infinite: {'dark': Constants.green, 'light': Constants.lightGreen},
-    TestMode.timed: {'dark': Constants.red, 'light': Constants.lightRed}
-  };
-
   final FocusNode _focusNode = FocusNode();
   final FocusNode _answerFocusNode = FocusNode();
 
@@ -83,7 +77,7 @@ class _BaseExamViewState extends State<BaseExamView> with ExamMixin {
 
     return Container(
       decoration: BoxDecoration(
-        color: _modeColors[widget.mode]?['light'],
+        color: Constants.sakura,
         borderRadius: BorderRadius.circular(20)
       ),
       padding: const EdgeInsets.all(40),
@@ -95,19 +89,19 @@ class _BaseExamViewState extends State<BaseExamView> with ExamMixin {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               IconButton(
-                icon: const Icon(Icons.exit_to_app, color: Colors.white),
+                icon: const Icon(Icons.exit_to_app, color: Constants.salmon),
                 onPressed: () => Navigator.of(context).pop(),
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: IconButton(
-                  icon: const Icon(Icons.play_arrow_rounded, color: Colors.white, size: 50),
+                  icon: const Icon(Icons.play_arrow_rounded, color: Constants.salmon, size: 50),
                   onPressed: widget.unpause,
                 ),
               ),
               IconButton(
-                icon: const Icon(Icons.replay, color: Colors.white,),
-                onPressed: () => Navigator.of(context).popAndPushNamed(
+                icon: const Icon(Icons.replay, color: Constants.salmon,),
+                onPressed: () => Navigator.of(context, rootNavigator: true).popAndPushNamed(
                   '/exams/${Constants.modeRouteName(widget.mode)}',
                   arguments: {'test': widget.test}
                 ),
@@ -150,7 +144,7 @@ class _BaseExamViewState extends State<BaseExamView> with ExamMixin {
               padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20),
-                color: Constants.lightRed
+                color: Constants.salmon
               ),
               child: Text(
                 widget.test.flipTerms ?
@@ -174,8 +168,8 @@ class _BaseExamViewState extends State<BaseExamView> with ExamMixin {
                   hintStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: Colors.white.withOpacity(0.7)
                   ),
-                  hoverColor: widget.mistakeMode ? Constants.yellow : _modeColors[widget.mode]?['dark'],
-                  fillColor: widget.mistakeMode ? Constants.yellow : _modeColors[widget.mode]?['dark'],
+                  // hoverColor: widget.mistakeMode ? Constants.yellow : _modeColors[widget.mode]?['dark'],
+                  // fillColor: widget.mistakeMode ? Constants.yellow : _modeColors[widget.mode]?['dark'],
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(20),
                     borderSide: const BorderSide(width: 0, style: BorderStyle.none)

@@ -32,7 +32,7 @@ class _QuestionViewState extends State<QuestionView> {
       children: [
         Icon(
           widget.correct ? Icons.circle_outlined : Icons.close,
-          color: widget.correct? Constants.lightGreen : Constants.yellow,
+     //     color: widget.correct? Constants.lightGreen : Constants.yellow,
         ),
         const SizedBox(width: 20),
         Expanded(
@@ -41,7 +41,7 @@ class _QuestionViewState extends State<QuestionView> {
             padding: const EdgeInsets.all(10),
             margin: const EdgeInsets.symmetric(vertical: 5),
             decoration: BoxDecoration(
-              color: _questionSide ? Constants.lightBlue : Constants.darkBlue,
+          //    color: _questionSide ? Constants.lightBlue : Constants.darkBlue,
               borderRadius: BorderRadius.circular(10)
             ),
             child: Row(
@@ -65,7 +65,7 @@ class _QuestionViewState extends State<QuestionView> {
                     width: 70,
                     height: 30,
                     decoration: BoxDecoration(
-                      color: _questionSide ? Constants.darkBlue : Constants.lightBlue,
+                   //   color: _questionSide ? Constants.darkBlue : Constants.lightBlue,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Center(
