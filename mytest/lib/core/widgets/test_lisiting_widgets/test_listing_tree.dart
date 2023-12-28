@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 
 import 'package:mytest/models/models.dart';
 
+import 'package:mytest/global_mixins/alert_mixin.dart';
+
 import 'test_listing.dart';
-import 'new_test_listing_editor.dart';
 
 import 'package:mytest/constants.dart';
 import 'package:mytest/app_state.dart';
@@ -11,46 +12,64 @@ import 'package:mytest/app_state.dart';
 
 class TestListingTree extends StatefulWidget {
 
-  final Test selectedTest;
+  final ValueNotifier<Test?> selectedTest;
 
   final void Function(Test) onSelect;
-  final void Function(Test) onDelete;
 
   const TestListingTree({
     super.key,
     required this.selectedTest,
-    required this.onSelect,
-    required this.onDelete
+    required this.onSelect
   });
 
   @override
   State<TestListingTree> createState() => _TestListingTreeState();
 }
 
-class _TestListingTreeState extends State<TestListingTree> {
+class _TestListingTreeState extends State<TestListingTree> with AlertMixin {
 
   List<Test> _testsToDelete = [];
 
-  bool _isAdding = false;
   bool _isEditing = false;
+  int _lastChanged = -1;
 
   /* ADD/UPDATE TEST ======================================================== */
 
-  void _addTest(String name, int order) {
-    Test test = Test(title: name, order: order);
-    setState(() { AppState.allTests.add(test); });
+  void _addTest(BuildContext context) {
+    Test test = Test(title: "無題", order: AppState.getAllTests().length);
+    AppState.addTest(test).then((success) {
+      if (success) { setState((){}); }
+      else { showErrorDialog(context, ErrorType.save); }
+    });
+  }
+
+  void _editTestName(String name, int index) {
+    _lastChanged = index;
+    AppState.allTests[index].title = name;
   }
 
   void _reorderTest(int oldIndex, int newIndex) {
-    Test test = AppState.getAllTests()[oldIndex];
+    Test test = AppState.allTests[oldIndex];
     test.order = newIndex;
-    AppState.allTests.removeAt(oldIndex);
-    AppState.allTests.insert(newIndex - (oldIndex < newIndex ? 1 : 0), test);
+    setState(() {
+      AppState.allTests.removeAt(oldIndex);
+      AppState.allTests.insert(newIndex - (oldIndex < newIndex ? 1 : 0), test);
+    });
   }
 
   void _deleteTest(int index) {
-    _testsToDelete.add(AppState.getAllTests()[index]);
+    _testsToDelete.add(AppState.allTests[index]);
     setState(() { AppState.allTests.removeAt(index); });
+  }
+
+  void _validateTests(BuildContext context) {
+    if (_lastChanged < 0 || AppState.getAllTests()[_lastChanged].title.trim().isNotEmpty) {
+      AppState.saveTests(_testsToDelete).then((success) {
+        _testsToDelete = [];
+        if (!success) { showErrorDialog(context, ErrorType.save); }
+      });
+      setState(() => _isEditing = false);
+    }
   }
 
   /* INIT/BUILD ============================================================= */
@@ -79,7 +98,7 @@ class _TestListingTreeState extends State<TestListingTree> {
                       color: Constants.charcoal,
                       size: 20,
                     ),
-                    onPressed: () => setState(() => _isAdding = true),
+                    onPressed: () => _addTest(context),
                   )
                   : Container(),
                 IconButton(
@@ -89,13 +108,8 @@ class _TestListingTreeState extends State<TestListingTree> {
                     size: 18,
                   ),
                   onPressed:  () {
-                    if (_isEditing) {
-                      AppState.saveTests(_testsToDelete).then((success) {
-                        _testsToDelete = [];
-                        if (!success) { print("error"); }
-                      });
-                      setState(() => _isEditing = false);
-                    } else { setState(() => _isEditing = true); }
+                    if (_isEditing) { _validateTests(context); }
+                    else { setState(() => _isEditing = true); }
                   },
                 )
               ],
@@ -108,29 +122,22 @@ class _TestListingTreeState extends State<TestListingTree> {
               itemBuilder: (BuildContext context, int index) {
                 return Padding(
                   key: Key('$index'),
-                  padding: EdgeInsets.fromLTRB(
-                      0, index == 0 ? 10 : 0, 0, 0
-                  ),
-                  child: index < AppState.getAllTests().length
-                    ? TestListing(
-                      test: AppState.getAllTests()[index],
-                      index: index,
-                      isEditing: _isEditing,
-                      isSelected: AppState.getAllTests()[index] == widget.selectedTest,
-                      onSelect: () {
-                        if (!_isAdding) {
-                          widget.onSelect(AppState.getAllTests()[index]);
-                        }
-                      },
-                      onDelete: () => _deleteTest(index),
-                    )
-                    : NewTestListingEditor(
-                      key: Key('$index'),
-                      createNewDocument: (name) => _addTest(name, index)
-                    )
+                  padding: EdgeInsets.fromLTRB(0, index == 0 ? 10 : 0, 0, 0),
+                  child: TestListing(
+                    key: UniqueKey(),
+                    testTitle: AppState.allTests[index].title,
+                    index: index,
+                    isEditing: _isEditing,
+                    isSelected: AppState.allTests[index] == widget.selectedTest.value,
+                    onSelect: () {
+                      if (!_isEditing) { widget.onSelect(AppState.allTests[index]); }
+                    },
+                    onEdit: (name) => _editTestName(name, index),
+                    onDelete: () => _deleteTest(index),
+                  )
                 );
               },
-              itemCount: AppState.getAllTests().length + (_isAdding ? 1 : 0),
+              itemCount: AppState.allTests.length,
               shrinkWrap: true,
               onReorder: _reorderTest
             ),

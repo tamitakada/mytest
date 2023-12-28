@@ -17,6 +17,7 @@ class QuestionView extends StatefulWidget {
   final void Function(bool) updateDisplayState;
   final void Function(String) onChangedQuestion;
   final void Function(String) onChangedAnswer;
+  final void Function(int) onDeleteImage;
 
   final Color? color;
 
@@ -29,6 +30,7 @@ class QuestionView extends StatefulWidget {
     required this.updateDisplayState,
     required this.onChangedQuestion,
     required this.onChangedAnswer,
+    required this.onDeleteImage,
     this.color,
     this.animate = false
   }) : super(key: key);
@@ -81,6 +83,7 @@ class _QuestionViewState extends State<QuestionView> with SingleTickerProviderSt
           updateDisplayState: widget.updateDisplayState,
           onChangedQuestion: widget.onChangedQuestion,
           onChangedAnswer: widget.onChangedAnswer,
+          onDeleteImage: widget.onDeleteImage,
           color: widget.color,
         )
     )
@@ -93,6 +96,7 @@ class _QuestionViewState extends State<QuestionView> with SingleTickerProviderSt
       updateDisplayState: widget.updateDisplayState,
       onChangedQuestion: widget.onChangedQuestion,
       onChangedAnswer: widget.onChangedAnswer,
+      onDeleteImage: widget.onDeleteImage,
       color: widget.color,
     );
   }
@@ -107,6 +111,7 @@ class QuestionEditView extends StatefulWidget {
   final void Function(bool) updateDisplayState;
   final void Function(String) onChangedQuestion;
   final void Function(String) onChangedAnswer;
+  final void Function(int) onDeleteImage;
   final Color? color;
 
   const QuestionEditView({
@@ -118,6 +123,7 @@ class QuestionEditView extends StatefulWidget {
     required this.updateDisplayState,
     required this.onChangedQuestion,
     required this.onChangedAnswer,
+    required this.onDeleteImage,
     this.color,
   }) : super(key: key);
 
@@ -247,11 +253,11 @@ class _QuestionEditViewState extends State<QuestionEditView> {
                 ),
                 _showQuestion && (widget.question.images?.isNotEmpty ?? false)
                   ? Container(
-                    height: 100,
+                    height: 200,
                     padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
                     child: ScrollableImageDisplay(
-                      images: widget.question.images ?? [],
-                      onDelete: widget.enableEditing ? (_) => print("dekete") : null,
+                      images: widget.question.images,
+                      onDelete: widget.enableEditing ? widget.onDeleteImage : null,
                     ),
                   )
                   : Container()

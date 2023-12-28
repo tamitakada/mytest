@@ -9,13 +9,15 @@ class AnimatedEditorView extends StatelessWidget {
   final int index;
   final bool isEditing;
   final void Function() onDelete;
+  final void Function()? onImageUpload;
 
   const AnimatedEditorView({
     super.key,
     required this.index,
     required this.isEditing,
     required this.child,
-    required this.onDelete
+    required this.onDelete,
+    this.onImageUpload
   });
 
   @override
@@ -23,11 +25,13 @@ class AnimatedEditorView extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 5),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           AnimatedSwitcher(
             duration: const Duration(milliseconds: 100),
             child: isEditing ?
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 ReorderableDragStartListener(
                   index: index,
@@ -55,6 +59,30 @@ class AnimatedEditorView extends StatelessWidget {
                     ),
                   ),
                 ),
+                onImageUpload != null
+                  ? Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 0, 10, 0),
+                    child: GestureDetector(
+                      onTap: onImageUpload,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Constants.white,
+                          border: Border.all(
+                            color: Constants.salmon,
+                            width: 2
+                          )
+                        ),
+                        padding: const EdgeInsets.all(3),
+                        child: const Icon(
+                          Icons.image_outlined,
+                          color: Constants.salmon,
+                          size: 14,
+                        ),
+                      ),
+                    ),
+                  )
+                  : Container(),
               ],
             ) : Container(),
             transitionBuilder: (child, position) {

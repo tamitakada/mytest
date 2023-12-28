@@ -14,7 +14,7 @@ import 'package:mytest/widgets/scrollable_image_display.dart';
 
 import 'package:mytest/pair.dart';
 
-import '../widgets/shakeable_view.dart';
+import '../../../widgets/shakeable_view.dart';
 
 
 class TestPage extends StatefulWidget {
@@ -166,6 +166,7 @@ class _TestPageState extends State<TestPage> with ExamMixin {
   @override
   void dispose() {
     _answerController.dispose();
+    _answerNode.dispose();
     super.dispose();
   }
 
@@ -263,15 +264,13 @@ class _TestPageState extends State<TestPage> with ExamMixin {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              _testQuestions.last.a.question,
+                              _test!.flipTerms ? _testQuestions.last.a.answer : _testQuestions.last.a.question,
                               style: Theme.of(context).textTheme.bodyLarge,
                             ),
                             _testQuestions.last.a.images?.isNotEmpty ?? false
                                ? Expanded(
                                  child: ScrollableImageDisplay(
-                                   images: _testQuestions.last.a.images!.map(
-                                     (i) => Pair<String, bool>(a: i, b: true)
-                                   ).toList()
+                                   images: _testQuestions.last.a.images ?? []
                                  ),
                                )
                                : Container()
@@ -279,7 +278,7 @@ class _TestPageState extends State<TestPage> with ExamMixin {
                         ),
                       ),
                       _isInMistakeMode
-                        ? AnswerView(answer: _testQuestions.last.a.answer)
+                        ? AnswerView(answer: !_test!.flipTerms ? _testQuestions.last.a.answer : _testQuestions.last.a.question)
                         : Container()
                     ],
                   ),

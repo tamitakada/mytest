@@ -1,14 +1,23 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+
+import 'package:file_selector/file_selector.dart';
+
 import 'package:mytest/models/models.dart';
-import 'package:mytest/constants.dart';
-import 'package:mytest/widgets/mt_text_field.dart';
-import 'package:mytest/widgets/mt_button.dart';
-import '../widgets/question_edit_view.dart';
-import 'package:mytest/pair.dart';
+
+import 'package:mytest/utils/file_utils.dart';
 import 'package:mytest/utils/data_manager.dart';
+
+import 'package:mytest/global_mixins/alert_mixin.dart';
+
+import 'package:mytest/pair.dart';
+import 'package:mytest/constants.dart';
+
 import 'package:mytest/widgets/spaced_group.dart';
+import 'package:mytest/widgets/mt_text_field.dart';
+import '../widgets/test_home_widgets/widgets.dart';
 import '../widgets/animated_editor_view.dart';
-import '../widgets/test_options_menu.dart';
 
 
 class TestHomeSubpage extends StatefulWidget {
@@ -21,14 +30,14 @@ class TestHomeSubpage extends StatefulWidget {
   State<TestHomeSubpage> createState() => _TestHomeSubpageState();
 }
 
-class _TestHomeSubpageState extends State<TestHomeSubpage> {
+class _TestHomeSubpageState extends State<TestHomeSubpage> with AlertMixin {
 
   Test? _currentTest;
   String _query = "";
   int _toAnimate = -1;
   bool _isEditing = false;
 
-  late List<Pair<Question, bool>> _questions;
+  late List<Pair<Question, bool>> _questions; // Question, showing question (vs. answer) side
   List<Question> _questionsToDelete = [];
 
   final ScrollController _scrollController = ScrollController();
@@ -39,7 +48,7 @@ class _TestHomeSubpageState extends State<TestHomeSubpage> {
     setState(() { // Trigger animation for added item
       _questions.add(
         Pair(
-          a: Question(order: _questions.length, question: "", answer: ""),
+          a: Question(order: _questions.length, question: "", answer: "", images: List<String>.empty(growable: true)),
           b: true
         )
       );
@@ -59,9 +68,51 @@ class _TestHomeSubpageState extends State<TestHomeSubpage> {
     setState(() { _questions.removeAt(index); });
   }
 
+  /* IMAGE UPLOAD =========================================================== */
+
+  void _selectNewImageSync(BuildContext context, int index) {
+    _selectNewImage(index).then((success) {
+      if (!success) { showErrorDialog(context, ErrorType.save); }
+    });
+  }
+
+  Future<bool> _selectNewImage(int index) async {
+    try {
+      const XTypeGroup typeGroup = XTypeGroup(
+        label: 'images',
+        extensions: <String>['jpg', 'png'],
+      );
+      XFile? file = await openFile(acceptedTypeGroups: <XTypeGroup>[typeGroup]);
+      if (file != null) {
+        String filename = "${_questions[index].a.id}-${_questions[index].a.images.length}";
+        File? copied = await FileUtils.copyFile(
+          File(file.path), filename
+        );
+        if (copied != null) {
+          setState(() => _questions[index].a.images.add(filename));
+          return true;
+        }
+      }
+    } catch (e) {
+      print(e);
+    }
+    return false;
+  }
+  
+  void _deleteImage(BuildContext context, int questionIndex, int imageIndex) {
+    if (imageIndex < _questions[questionIndex].a.images.length) {
+      FileUtils.deleteFile(_questions[questionIndex].a.images[imageIndex]).then((success) {
+        if (success) {
+          setState(() => _questions[questionIndex].a.images.removeAt(imageIndex));
+        }
+        else { showErrorDialog(context, ErrorType.save); }
+      });
+    }
+  }
+
   /* WRITING QUESTION CHANGES =============================================== */
 
-  void _saveChanges() {
+  void _saveChanges(BuildContext context) {
     List<Question> questions = [];
     for (int i = 0; i < _questions.length; i++) {
       _questions[i].a.order = i;
@@ -72,7 +123,7 @@ class _TestHomeSubpageState extends State<TestHomeSubpage> {
         if (_questionsToDelete.isNotEmpty) { // Delete iff pending deletes
           DataManager.deleteQuestions(_questionsToDelete).then((success) {
             _questionsToDelete = []; // Reset delete queue REGARDLESS of success
-            if (!success) { print("error"); }
+            if (!success) { showErrorDialog(context, ErrorType.save); }
           });
         }
       }
@@ -164,7 +215,7 @@ class _TestHomeSubpageState extends State<TestHomeSubpage> {
                     ),
                     _isEditing
                       ? IconButton(
-                        icon: Icon(Icons.add, color: Constants.charcoal),
+                        icon: const Icon(Icons.add, color: Constants.charcoal),
                         onPressed: _addQuestion
                       )
                       : Container(),
@@ -174,14 +225,8 @@ class _TestHomeSubpageState extends State<TestHomeSubpage> {
                         color: Constants.charcoal
                       ),
                       onPressed: () {
-                        if (_isEditing) {
-                          _saveChanges();
-                        }
-                        else {
-                          setState(() {
-                            _isEditing = true;
-                          });
-                        }
+                        if (_isEditing) { _saveChanges(context); }
+                        else { setState(() => _isEditing = true); }
                       }
                     )
                   ]
@@ -203,6 +248,7 @@ class _TestHomeSubpageState extends State<TestHomeSubpage> {
                           index: index,
                           isEditing: _isEditing,
                           onDelete: () => _deleteQuestion(index),
+                          onImageUpload: () => _selectNewImageSync(context, index),
                           child: QuestionView(
                             index: index,
                             question: _questions[index].a,
@@ -212,10 +258,11 @@ class _TestHomeSubpageState extends State<TestHomeSubpage> {
                             updateDisplayState: (displayQuestion) => _questions[index].b = displayQuestion,
                             onChangedQuestion: (updated) => _questions[index].a.question = updated,
                             onChangedAnswer: (updated) => _questions[index].a.answer = updated,
+                            onDeleteImage: (imageIndex) => _deleteImage(context, index, imageIndex),
                           )
                         );
                       }
-                      return Container(key: Key('$index'),);
+                      return Container(key: Key('$index'));
                     },
                     itemCount: _questions.length,
                     shrinkWrap: true,

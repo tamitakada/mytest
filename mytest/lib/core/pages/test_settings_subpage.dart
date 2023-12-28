@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+
 import 'package:mytest/constants.dart';
-import 'package:mytest/utils/data_manager.dart';
+
 import 'package:mytest/models/models.dart';
+import 'package:mytest/utils/data_manager.dart';
+
+import 'package:mytest/global_mixins/alert_mixin.dart';
+
 import 'package:mytest/widgets/mt_switch.dart';
 import 'package:mytest/widgets/spaced_group.dart';
 
@@ -14,7 +19,7 @@ class TestSettingsSubpage extends StatefulWidget {
   State<TestSettingsSubpage> createState() => _TestSettingsSubpageState();
 }
 
-class _TestSettingsSubpageState extends State<TestSettingsSubpage> {
+class _TestSettingsSubpageState extends State<TestSettingsSubpage> with AlertMixin {
 
   Test? test;
 
@@ -31,7 +36,7 @@ class _TestSettingsSubpageState extends State<TestSettingsSubpage> {
         scrolledUnderElevation: 0,
         centerTitle: false,
         title: Text(
-          "${test!.title}　設定",
+          "設定",
           style: Theme.of(context).textTheme.displayLarge,
         ),
       ),
@@ -60,7 +65,9 @@ class _TestSettingsSubpageState extends State<TestSettingsSubpage> {
                     switchUpdated: (isOn) {
                       _mistakeMode = isOn;
                       test!.allowError = isOn;
-                      DataManager.upsertTest(test!);
+                      DataManager.upsertTest(test!).then((success) {
+                        if (!success) { showErrorDialog(context, ErrorType.save); }
+                      });
                     },
                   ),
                 ],
@@ -85,7 +92,9 @@ class _TestSettingsSubpageState extends State<TestSettingsSubpage> {
                     switchUpdated: (isOn) {
                       _flipped = isOn;
                       test!.flipTerms = isOn;
-                      DataManager.upsertTest(test!);
+                      DataManager.upsertTest(test!).then((success) {
+                        if (!success) { showErrorDialog(context, ErrorType.save); }
+                      });
                     },
                   ),
                 ],

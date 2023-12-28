@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mytest/models/record.dart';
-import '../mixins/record_mixin.dart';
+import '../../mixins/record_mixin.dart';
 import 'package:mytest/constants.dart';
 
 class RecordView extends StatelessWidget with RecordMixin {

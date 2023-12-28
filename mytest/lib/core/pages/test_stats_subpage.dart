@@ -1,14 +1,20 @@
 import 'package:flutter/material.dart';
 
-import 'package:mytest/models/models.dart';
-import '../mixins/record_mixin.dart';
-import 'package:mytest/utils/data_manager.dart';
-import 'package:mytest/widgets/spaced_group.dart';
 import 'package:mytest/constants.dart';
-import '../widgets/stats_column.dart';
+
+import 'package:mytest/models/models.dart';
+import 'package:mytest/utils/data_manager.dart';
+
+import 'package:mytest/global_mixins/alert_mixin.dart';
+
+import '../mixins/record_mixin.dart';
+
+import 'package:mytest/widgets/spaced_group.dart';
+import '../widgets/test_stats_widgets/stats_column.dart';
+import 'error_page.dart';
 
 
-class TestStatsSubpage extends StatelessWidget with RecordMixin {
+class TestStatsSubpage extends StatelessWidget with RecordMixin, AlertMixin {
 
   const TestStatsSubpage({super.key});
 
@@ -20,7 +26,7 @@ class TestStatsSubpage extends StatelessWidget with RecordMixin {
         scrolledUnderElevation: 0,
         centerTitle: false,
         title: Text(
-          "${test.title}　記録",
+          "記録",
           style: Theme.of(context).textTheme.displayLarge,
         ),
       ),
@@ -29,37 +35,43 @@ class TestStatsSubpage extends StatelessWidget with RecordMixin {
         future: DataManager.getAllRecords(test),
         builder: (BuildContext context, AsyncSnapshot<List<Record>?> snapshot) {
           if (snapshot.hasData) {
-            List<Record> records = snapshot.data ?? [];
-            Map<TestMode, List<Record>> sortedRecords = sortRecordsByType(records);
-            return Padding(
-              padding: const EdgeInsets.fromLTRB(0, 20, 20, 0),
-              child: SpacedGroup(
-                axis: Axis.horizontal,
-                spacing: 10,
-                children: [
-                  Expanded(
-                    child: StatsColumn(
-                      mode: TestMode.full,
-                      records: sortedRecords[TestMode.full] ?? [],
-                    )
-                  ),
-                  Expanded(
-                    child: StatsColumn(
-                      mode: TestMode.lives,
-                      records: sortedRecords[TestMode.lives] ?? [],
-                    )
-                  ),
-                  Expanded(
-                    child: StatsColumn(
-                      mode: TestMode.practice,
-                      records: sortedRecords[TestMode.practice] ?? [],
-                    )
-                  ),
-                ],
-              ),
-            );
+            if (snapshot.data != null) {
+              List<Record> records = snapshot.data!;
+              Map<TestMode, List<Record>> sortedRecords = sortRecordsByType(records);
+              return Padding(
+                padding: const EdgeInsets.fromLTRB(0, 20, 20, 0),
+                child: SpacedGroup(
+                  axis: Axis.horizontal,
+                  spacing: 10,
+                  children: [
+                    Expanded(
+                      child: StatsColumn(
+                        mode: TestMode.full,
+                        records: sortedRecords[TestMode.full] ?? [],
+                      )
+                    ),
+                    Expanded(
+                      child: StatsColumn(
+                        mode: TestMode.lives,
+                        records: sortedRecords[TestMode.lives] ?? [],
+                      )
+                    ),
+                    Expanded(
+                      child: StatsColumn(
+                        mode: TestMode.practice,
+                        records: sortedRecords[TestMode.practice] ?? [],
+                      )
+                    ),
+                  ],
+                ),
+              );
+            }
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              showErrorDialog(context, ErrorType.fetch);
+            });
+            return const ErrorPage(margin: EdgeInsets.fromLTRB(0, 20, 20, 0));
           }
-          return Container();
+          return Container(); // TODO: loading
         },
       ),
     );

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:mytest/models/models.dart';
 import 'package:mytest/constants.dart';
-import '../widgets/test_listing_tree.dart';
+import '../widgets/test_lisiting_widgets/test_listing_tree.dart';
 import 'package:mytest/app_state.dart';
 import 'test_detail_navigator.dart';
+import 'package:mytest/global_mixins/alert_mixin.dart';
+import 'error_page.dart';
 
 
 class HomePage extends StatefulWidget {
@@ -13,9 +15,10 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> with AlertMixin {
 
   final ValueNotifier<Test?> _selectedTest = ValueNotifier(null);
+  bool _isShowingDialog = false;
 
   @override
   Widget build(BuildContext context) {
@@ -28,9 +31,8 @@ class _HomePageState extends State<HomePage> {
         ? Row(
           children: [
             TestListingTree(
-              selectedTest: _selectedTest.value!,
-              onSelect: (test) => setState(() => _selectedTest.value = test),
-              onDelete: (_) {},
+              selectedTest: _selectedTest,
+              onSelect: (test) => setState(() => _selectedTest.value = test)
             ),
             Expanded(
               child: Padding(
@@ -40,7 +42,7 @@ class _HomePageState extends State<HomePage> {
             )
           ],
         )
-        : FutureBuilder<bool>(
+         : FutureBuilder<bool>(
           future: AppState.fetchTests(),
           builder: (context, snapshot) {
             if (snapshot.hasData) {
@@ -51,16 +53,23 @@ class _HomePageState extends State<HomePage> {
                 return Row(
                   children: [
                     TestListingTree(
-                      selectedTest: _selectedTest.value!,
-                      onSelect: (test) => setState(() => _selectedTest.value = test),
-                      onDelete: (_) {},
+                      selectedTest: _selectedTest,
+                      onSelect: (test) => setState(() => _selectedTest.value = test)
                     ),
                     Expanded(child: TestDetailNavigator(selectedTest: _selectedTest,))
                   ],
                 );
               }
               else {
-                return Text("error");
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (!_isShowingDialog) {
+                    showErrorDialog(context, ErrorType.fetch).then((_) {
+                      _isShowingDialog = false;
+                    });
+                    _isShowingDialog = true;
+                  }
+                });
+                return const ErrorPage();
               }
             } else {
               return Text("loading");
