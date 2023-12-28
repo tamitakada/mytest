@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:mytest/pair.dart';
 import 'package:mytest/utils/file_utils.dart';
-import 'dart:io';
 import 'static_loader.dart';
-import 'dart:async';
+import 'package:mytest/constants.dart';
 
 
 class ScrollableImageDisplay extends StatelessWidget {
 
-  final List<Pair<String, bool>> images; // File name, local
+  final List<String> images; // File names
   final void Function(int)? onDelete;
 
   const ScrollableImageDisplay({ super.key, required this.images, this.onDelete });
@@ -23,51 +21,47 @@ class ScrollableImageDisplay extends StatelessWidget {
           margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
           clipBehavior: Clip.antiAlias,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10)
+            borderRadius: BorderRadius.circular(5)
           ),
           child: Stack(
             children: [
-              images[index].b
-                ? FutureBuilder<Image?>(
-                  future: FileUtils.readImageFile(images[index].a ?? ""),
-                  builder: (BuildContext context, AsyncSnapshot<Image?> snapshot) {
-                    imageCache.clear();
-                    imageCache.clearLiveImages();
-                    if (snapshot.hasData) {
-                      return snapshot.data ?? Text("エラー");
-                    } else {
-                      return const SizedBox(
-                        width: 160,
-                        height: double.infinity,
-                        child: StaticLoader(),
-                      );
-                    }
+              FutureBuilder<Image?>(
+                future: FileUtils.readImageFile(images[index] ?? ""),
+                builder: (BuildContext context, AsyncSnapshot<Image?> snapshot) {
+                  imageCache.clear();
+                  imageCache.clearLiveImages();
+                  if (snapshot.hasData) {
+                    return snapshot.data ?? Text("エラー");
+                  } else {
+                    return const SizedBox(
+                      width: 160,
+                      height: double.infinity,
+                      child: StaticLoader(),
+                    );
                   }
-                )
-                : Image.file(
-                  File(images[index].a),
-                  fit: BoxFit.cover,
-                  height: double.infinity
-                ),
-              onDelete != null ? Align(
-                alignment: Alignment.topRight,
-                child: GestureDetector(
-                  onTap: () {
-                    print('tap');
-                    onDelete!(index);
-                  },
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                    ),
-                    padding: const EdgeInsets.all(5),
-                    child: Icon(
-                      Icons.close,
-                      color: Colors.black,
+                }
+              ),
+              onDelete != null
+                ? Align(
+                  alignment: Alignment.topRight,
+                  child: GestureDetector(
+                    onTap: () => onDelete!(index),
+                    child: Container(
+                      margin: const EdgeInsets.all(5),
+                      padding: const EdgeInsets.all(5),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Constants.salmon.withOpacity(0.5),
+                      ),
+                      child: const Icon(
+                        Icons.close,
+                        color: Constants.salmon,
+                        size: 12,
+                      ),
                     ),
                   ),
-                ),
-              ) : Container()
+                )
+                : Container()
             ],
           )
         );

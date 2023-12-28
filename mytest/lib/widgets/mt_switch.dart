@@ -14,9 +14,9 @@ class MTSwitch extends StatefulWidget {
   const MTSwitch({
     super.key,
     this.height = 22,
-    this.onColor = Constants.sakura,
-    this.offColor = Constants.salmon,
-    this.switchColor = Colors.white,
+    this.onColor = Constants.salmon,
+    this.offColor = Constants.charcoal,
+    this.switchColor = Constants.white,
     this.initialState = true,
     this.switchUpdated
   });
@@ -36,7 +36,7 @@ class _MTSwitchState extends State<MTSwitch> with SingleTickerProviderStateMixin
   void initState() {
     _isOn = widget.initialState;
     _controller = AnimationController(
-      vsync: this, duration: const Duration(milliseconds: 240)
+      vsync: this, duration: const Duration(milliseconds: 200)
     );
     _animation = Tween<Offset>(
       begin: _isOn ? Offset(0, 0) : Offset(1, 0),
@@ -72,11 +72,17 @@ class _MTSwitchState extends State<MTSwitch> with SingleTickerProviderStateMixin
               children: [
                 Text(
                   'オフ',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 10),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Constants.white,
+                    fontSize: 10
+                  ),
                 ),
                 Text(
                   'オン',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 10),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Constants.white,
+                    fontSize: 10
+                  ),
                 ),
               ],
             ),
