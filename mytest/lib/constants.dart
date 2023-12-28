@@ -3,8 +3,12 @@ import 'package:flutter/material.dart';
 enum TestMode {
   lives,
   full,
-  timed,
   practice
+}
+
+enum ErrorType {
+  fetch,
+  save
 }
 
 class Constants {
@@ -20,8 +24,6 @@ class Constants {
         return 'lives';
       case TestMode.full:
         return 'full';
-      case TestMode.timed:
-        return 'timed';
       case TestMode.practice:
         return 'practice';
     }
@@ -33,10 +35,18 @@ class Constants {
         return '３アウト';
       case TestMode.full:
         return '全問テスト';
-      case TestMode.timed:
-        return 'タイムアタック';
       case TestMode.practice:
         return '無限練習';
     }
   }
+
+  static String errorDescription(ErrorType type) {
+    switch (type) {
+      case ErrorType.fetch:
+        return 'データ取得に失敗しました。';
+      case ErrorType.save:
+        return 'データ保存に失敗しました。ストレージの空き容量をご確認の上、再試行をお願いいたします。';
+    }
+  }
+
 }
