@@ -2,6 +2,7 @@ import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'package:mytest/models/models.dart';
+import 'file_utils.dart';
 
 
 class DataManager {
@@ -21,15 +22,7 @@ class DataManager {
     return _isar!;
   }
 
-  static Future<List<Test>?> getAllTests() async {
-    try {
-      return await (await isar).tests
-        .where()
-        .sortByLastTestDate()
-        .findAll();
-    }
-    catch (e) { return null; }
-  }
+  // GETTERS ===================================================================
 
   static Future<List<Record>?> getAllRecords(Test test) async {
     try {
@@ -40,6 +33,27 @@ class DataManager {
         .findAll();
     }
     catch (e) { return null; }
+  }
+
+  static Future<List<Test>?> getAllTests() async {
+    try {
+      return await (await isar).tests
+        .where()
+        .sortByOrder()
+        .findAll();
+    }
+    catch (e) { return null; }
+  }
+
+  // SETTERS ===================================================================
+
+  static Future<bool> upsertTests(List<Test> tests) async {
+    try {
+      await (await isar).writeTxn(() async {
+        await (await isar).tests.putAll(tests);
+      });
+      return true;
+    } catch (e) { return false; }
   }
 
   static Future<bool> upsertTest(Test test) async {
@@ -57,6 +71,19 @@ class DataManager {
         await (await isar).questions.put(question);
         test.questions.add(question);
         await test.questions.save();
+        await test.questions.load();
+      });
+      return true;
+    } catch (e) { print(e); return false; }
+  }
+
+  static Future<bool> upsertQuestions(List<Question> questions, Test test) async {
+    try {
+      await (await isar).writeTxn(() async {
+        await (await isar).questions.putAll(questions);
+        test.questions.addAll(questions);
+        await test.questions.save();
+        await test.questions.load();
       });
       return true;
     } catch (e) { print(e); return false; }
@@ -75,22 +102,38 @@ class DataManager {
     } catch (e) { return false; }
   }
 
-  static Future<bool> deleteTest(Test test) async {
+  // DELETES ===================================================================
+
+  static Future<bool> deleteTests(List<Test> tests) async {
     try {
       await (await isar).writeTxn(() async {
-        await (await isar).tests.delete(test.id);
+        await (await isar).tests.deleteAll(tests.map((t) => t.id).toList());
       });
       return true;
     } catch (e) { return false; }
   }
 
-  static Future<bool> deleteQuestion(Question question) async {
+  static Future<bool> deleteQuestions(List<Question> questions) async {
     try {
+      for (Question q in questions) {
+        for (String i in q.images) {
+          if (!await FileUtils.deleteFile(i)) {
+            return false;
+          }
+        }
+      }
+      questions.first.test.value?.questions.removeAll(questions);
       await (await isar).writeTxn(() async {
-        await (await isar).questions.delete(question.id);
+        await questions.first.test.save();
+        await (await isar).questions.deleteAll(
+          questions.map((q) => q.id).toList()
+        );
       });
       return true;
-    } catch (e) { return false; }
+    } catch (e) {
+      print(e);
+      return false;
+    }
   }
 
 }
