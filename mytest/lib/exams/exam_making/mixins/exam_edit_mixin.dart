@@ -20,6 +20,7 @@ mixin ExamEditMixin {
     question?.allowedMistakes = mistakes;
 
     Question toEdit = question ?? Question(
+      order: 1,
       question: questionText,
       answer: answerText,
       allowedMistakes: mistakes

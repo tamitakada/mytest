@@ -49,6 +49,17 @@ class _ExamHomePageState extends State<ExamHomePage> with TickerProviderStateMix
   Widget? _overlayChild;
   Test? test;
 
+  void _updateTitle(String title) {
+    if (test != null) {
+      test?.title = title;
+      DataManager.upsertTest(test!).then((success) {
+        if (success) {
+          setState(() {});
+        }
+      });
+    }
+  }
+
   void _setExamMakingPage(ExamMakingPage page) {
     if (_page != page) {
       setState(() { _page = page; });
@@ -65,11 +76,11 @@ class _ExamHomePageState extends State<ExamHomePage> with TickerProviderStateMix
   }
 
   void _deleteTest() {
-    DataManager.deleteTest(test!).then((success) {
-      if (success) {
-        Navigator.of(context).pop();
-      }
-    });
+    // DataManager.deleteTest(test!).then((success) {
+    //   if (success) {
+    //     Navigator.of(context).pop();
+    //   }
+    // });
   }
 
   @override
@@ -137,7 +148,7 @@ class _ExamHomePageState extends State<ExamHomePage> with TickerProviderStateMix
     test = args['test'];
 
     return Scaffold(
-      backgroundColor: Constants.blue,
+    //  backgroundColor: Constants.blue,
       body: Stack(
         children: [
           Padding(
@@ -182,7 +193,7 @@ class _ExamHomePageState extends State<ExamHomePage> with TickerProviderStateMix
                       Expanded(
                         child: MTButton(
                           onTap: () => Navigator.of(context).pushNamed('/exams/full', arguments: {'test': test}),
-                          text: '力試し',
+                          text: '全問テスト',
                           style:  Theme.of(context).textTheme.bodyMedium,
                         ),
                       )
@@ -191,24 +202,24 @@ class _ExamHomePageState extends State<ExamHomePage> with TickerProviderStateMix
                 ),
                 Row(
                   children: [
-                    TabButton(
-                      text: '問題集',
-                      color: Constants.lightBlue,
-                      onTap: () => _setExamMakingPage(ExamMakingPage.problems),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
-                      child: TabButton(
-                        text: '設定',
-                        color: Constants.green,
-                        onTap: () => _setExamMakingPage(ExamMakingPage.settings),
-                      ),
-                    ),
-                    TabButton(
-                      text: '記録',
-                      color: Constants.yellow,
-                      onTap: () => _setExamMakingPage(ExamMakingPage.stats),
-                    )
+                    // TabButton(
+                    //   text: '問題集',
+                    //   color: Constants.lightBlue,
+                    //   onTap: () => _setExamMakingPage(ExamMakingPage.problems),
+                    // ),
+                    // Padding(
+                    //   padding: const EdgeInsets.symmetric(horizontal: 10),
+                    //   child: TabButton(
+                    //     text: '設定',
+                    //     color: Constants.green,
+                    //     onTap: () => _setExamMakingPage(ExamMakingPage.settings),
+                    //   ),
+                    // ),
+                    // TabButton(
+                    //   text: '記録',
+                    //   color: Constants.yellow,
+                    //   onTap: () => _setExamMakingPage(ExamMakingPage.stats),
+                    // )
                   ]
                 ),
                 const SizedBox(height: 10),
@@ -216,7 +227,7 @@ class _ExamHomePageState extends State<ExamHomePage> with TickerProviderStateMix
                   child: _page == ExamMakingPage.problems
                     ? ExamProblemsSubpage(editProblem: _openProblemEditOverlay)
                     : _page == ExamMakingPage.settings
-                    ? ExamSettingsSubpage(test: test!, onDelete: _deleteTest)
+                    ? ExamSettingsSubpage(test: test!, onDelete: _deleteTest, onUpdateTitle: _updateTitle)
                     : ExamStatsSubpage(test: test!)
                 )
               ],
@@ -247,7 +258,7 @@ class _ExamHomePageState extends State<ExamHomePage> with TickerProviderStateMix
                     child: Container(
                       padding: const EdgeInsets.all(20),
                       decoration: const BoxDecoration(
-                        color: Constants.blue,
+                      //  color: Constants.blue,
                         borderRadius: BorderRadius.only(
                           topLeft: Radius.circular(20),
                           topRight: Radius.circular(20)

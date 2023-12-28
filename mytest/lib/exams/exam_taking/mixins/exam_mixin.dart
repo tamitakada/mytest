@@ -3,26 +3,35 @@ import 'package:mytest/constants.dart';
 import 'dart:math';
 
 mixin ExamMixin {
+
+  Random random = Random();
+
   // NR = No Replacement
-  Question generateRandomQuestionNR(List<Question> questions) {
-    Random random = Random();
+  Question _generateRandomQuestionNR(List<Question> questions) {
     int questionIndex = random.nextInt(questions.length);
     Question toReturn = questions[questionIndex];
     questions.removeAt(questionIndex);
     return toReturn;
   }
 
+  // WR = With Replacement
+  Question _generateRandomQuestionWR(List<Question> questions) {
+    int questionIndex = random.nextInt(questions.length - 1);
+
+    // Swap to prevent same question from appearing twice in a row
+    Question temp = questions[questionIndex];
+    questions[questionIndex] = questions[questions.length - 1];
+    questions[questions.length - 1] = temp;
+
+    return temp;
+  }
+
   Question generateRandomQuestion(TestMode mode, List<Question> questions) {
-    if (questions.length > 1) {
-      Random random = Random();
-      int questionIndex = random.nextInt(questions.length - 1);
-
-      // Swap to prevent same question from appearing twice in a row
-      Question temp = questions[questionIndex];
-      questions[questionIndex] = questions[questions.length - 1];
-      questions[questions.length - 1] = temp;
-
-      return temp;
+    if (mode == TestMode.full) {
+      return _generateRandomQuestionNR(questions);
+    }
+    else if (questions.length > 1) {
+      return _generateRandomQuestionWR(questions);
     } else {
       return questions[0];
     }

@@ -17,7 +17,7 @@ mixin RecordMixin {
 
   Map<TestMode, List<Record>> sortRecordsByType(List<Record> allRecords) {
     Map<TestMode, List<Record>> map = {
-      TestMode.infinite: [],
+      TestMode.full: [],
       TestMode.lives: [],
       TestMode.timed: []
     };

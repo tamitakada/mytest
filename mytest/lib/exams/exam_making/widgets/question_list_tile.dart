@@ -34,7 +34,7 @@ class QuestionListTile extends StatelessWidget {
           margin: const EdgeInsets.symmetric(vertical: 5),
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: Constants.blue,
+         //   color: Constants.blue,
             borderRadius: BorderRadius.circular(10)
           ),
           child: Column(

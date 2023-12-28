@@ -20,7 +20,7 @@ class ExamStatsSubpage extends StatelessWidget with RecordMixin {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Constants.yellow,
+      //  color: Constants.yellow,
         borderRadius: BorderRadius.circular(10)
       ),
       child: FutureBuilder<List<Record>?>(
@@ -47,8 +47,8 @@ class ExamStatsSubpage extends StatelessWidget with RecordMixin {
                 const SizedBox(width: 10),
                 Expanded(
                   child: StatsColumn(
-                    mode: TestMode.infinite,
-                    records: sortedRecords[TestMode.infinite] ?? [],
+                    mode: TestMode.full,
+                    records: sortedRecords[TestMode.full] ?? [],
                   )
                 ),
               ],

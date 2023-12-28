@@ -33,7 +33,7 @@ class _ExamProblemsSubpageState extends State<ExamProblemsSubpage>  {
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
       decoration: BoxDecoration(
-        color: Constants.lightBlue,
+       // color: Constants.lightBlue,
         borderRadius: BorderRadius.circular(10)
       ),
       clipBehavior: Clip.hardEdge,
@@ -67,15 +67,7 @@ class _ExamProblemsSubpageState extends State<ExamProblemsSubpage>  {
                     question: _test!.questions.elementAt(index),
                     onTap: () => widget.editProblem(_test!.questions.elementAt(index)),
                     onDismissed: () {
-                      DataManager.deleteQuestion(_test!.questions.elementAt(index)).then(
-                        (success) {
-                          if (success) {
-                            _test!.questions.load().then(
-                              (_) => setState((){})
-                            );
-                          }
-                        }
-                      );
+
                     },
                   );
                 }

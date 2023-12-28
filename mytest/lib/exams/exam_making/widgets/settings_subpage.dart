@@ -14,8 +14,14 @@ class ExamSettingsSubpage extends StatefulWidget {
 
   final Test test;
   final void Function() onDelete;
+  final void Function(String) onUpdateTitle;
 
-  const ExamSettingsSubpage({ super.key, required this.test, required this.onDelete });
+  const ExamSettingsSubpage({
+    super.key,
+    required this.test,
+    required this.onDelete,
+    required this.onUpdateTitle
+  });
 
   @override
   State<ExamSettingsSubpage> createState() => _ExamSettingsSubpageState();
@@ -41,7 +47,7 @@ class _ExamSettingsSubpageState extends State<ExamSettingsSubpage> {
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 30, 20, 0),
       decoration: BoxDecoration(
-        color: Constants.green,
+        color: Constants.salmon,
         borderRadius: BorderRadius.circular(10)
       ),
       child: Column(
@@ -49,6 +55,7 @@ class _ExamSettingsSubpageState extends State<ExamSettingsSubpage> {
           MTTextField(
             hintText: 'テスト名',
             controller: _titleController,
+            onSubmitted: widget.onUpdateTitle,
           ),
           const SizedBox(height: 20),
           Row(
