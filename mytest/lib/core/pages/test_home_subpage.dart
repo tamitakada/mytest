@@ -95,7 +95,7 @@ class _TestHomeSubpageState extends State<TestHomeSubpage> {
     return Scaffold(
       backgroundColor: Constants.white,
       body: Padding(
-        padding: const EdgeInsets.fromLTRB(10, 20, 20, 20),
+        padding: const EdgeInsets.fromLTRB(10, 0, 20, 0),
         child: ValueListenableBuilder<Test?>(
           valueListenable: widget.test,
           builder: (context, test, widget) {
@@ -110,9 +110,46 @@ class _TestHomeSubpageState extends State<TestHomeSubpage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               spacing: 20,
               children: [
-                Text(
-                  test!.title,
-                  style: Theme.of(context).textTheme.displayLarge,
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        test!.title,
+                        style: Theme.of(context).textTheme.displayLarge,
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 3,
+                      ),
+                    ),
+                    const SizedBox(width: 20),
+                    SpacedGroup(
+                      axis: Axis.horizontal,
+                      spacing: 10,
+                      children: [
+                        IconButton(
+                          onPressed: () => Navigator.of(context).pushNamed(
+                            "test_detail/settings",
+                            arguments: {"test": test}
+                          ),
+                          icon: const Icon(
+                            Icons.settings,
+                            color: Constants.charcoal,
+                            size: 20,
+                          )
+                        ),
+                        IconButton(
+                          onPressed: () => Navigator.of(context).pushNamed(
+                            "test_detail/stats",
+                            arguments: {"test": test}
+                          ),
+                          icon: const Icon(
+                            Icons.bar_chart_rounded,
+                            color: Constants.charcoal,
+                            size: 20,
+                          )
+                        )
+                      ],
+                    )
+                  ],
                 ),
                 TestOptionsMenu(test: test),
                 SpacedGroup(

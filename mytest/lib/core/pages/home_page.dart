@@ -19,17 +19,25 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    if (_selectedTest.value == null && AppState.testsInitialized && AppState.getAllTests().isNotEmpty) {
+      _selectedTest.value = AppState.getAllTests()[0];
+    }
     return Scaffold(
       backgroundColor: Constants.white,
       body: AppState.testsInitialized
         ? Row(
           children: [
-          TestListingTree(
-            selectedTest: _selectedTest.value!,
-            onSelect: (test) => setState(() => _selectedTest.value = test),
-            onDelete: (_) {},
-          ),
-          Expanded(child: TestDetailNavigator(selectedTest: _selectedTest))
+            TestListingTree(
+              selectedTest: _selectedTest.value!,
+              onSelect: (test) => setState(() => _selectedTest.value = test),
+              onDelete: (_) {},
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 20),
+                child: TestDetailNavigator(selectedTest: _selectedTest),
+              )
+            )
           ],
         )
         : FutureBuilder<bool>(

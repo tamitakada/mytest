@@ -23,7 +23,9 @@ class TestOptionsMenu extends StatelessWidget {
         children: [
           Text(
             "勉強する",
-            style: Theme.of(context).textTheme.displaySmall,
+            style: Theme.of(context).textTheme.displaySmall?.copyWith(
+              color: Constants.white
+            ),
           ),
           SpacedGroup(
             axis: Axis.horizontal,
@@ -37,22 +39,16 @@ class TestOptionsMenu extends StatelessWidget {
               ),
               MTButton(
                 onTap: () => Navigator.of(context, rootNavigator: true).pushNamed(
-                  '/exams/infinite', arguments: {'test': test}
-                ),
-                text: "無限練習"
-              ),
-              MTButton(
-                onTap: () => Navigator.of(context, rootNavigator: true).pushNamed(
                   '/exams/lives', arguments: {'test': test}
                 ),
                 text: "３アウト"
               ),
               MTButton(
                 onTap: () => Navigator.of(context, rootNavigator: true).pushNamed(
-                  '/exams/timed', arguments: {'test': test}
+                  '/exams/infinite', arguments: {'test': test}
                 ),
-                text: "タイムアタック"
-              )
+                text: "無限練習"
+              ),
             ],
           )
         ],

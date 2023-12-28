@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:mytest/constants.dart';
 import 'package:mytest/models/question.dart';
 import 'package:mytest/widgets/spaced_group.dart';
+import 'package:mytest/widgets/scrollable_image_display.dart';
 
 
 class QuestionView extends StatefulWidget {
@@ -231,16 +232,30 @@ class _QuestionEditViewState extends State<QuestionEditView> {
               borderRadius: BorderRadius.circular(10)
             ),
             padding: const EdgeInsets.fromLTRB(10, 12, 10, 16),
-            child: TextField(
-              focusNode: _showQuestion ? _questionFocus : _answerFocus,
-              controller: _showQuestion ? _questionController : _answerController,
-              style: Theme.of(context).textTheme.bodyMedium,
-              decoration: null,
-              expands: true,
-              onChanged: _showQuestion ? widget.onChangedQuestion : widget.onChangedAnswer,
-              maxLines: null,
-              minLines: null,
-              enabled: widget.enableEditing,
+            child: Column(
+              children: [
+                TextField(
+                  focusNode: _showQuestion ? _questionFocus : _answerFocus,
+                  controller: _showQuestion ? _questionController : _answerController,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                  decoration: null,
+                  expands: true,
+                  onChanged: _showQuestion ? widget.onChangedQuestion : widget.onChangedAnswer,
+                  maxLines: null,
+                  minLines: null,
+                  enabled: widget.enableEditing,
+                ),
+                _showQuestion && (widget.question.images?.isNotEmpty ?? false)
+                  ? Container(
+                    height: 100,
+                    padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+                    child: ScrollableImageDisplay(
+                      images: widget.question.images ?? [],
+                      onDelete: widget.enableEditing ? (_) => print("dekete") : null,
+                    ),
+                  )
+                  : Container()
+              ],
             ),
           )
         ),

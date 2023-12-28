@@ -11,7 +11,10 @@ mixin RecordMixin {
   }
 
   int getScore(Record record) {
-    double score = record.correctQuestions.length / (record.correctQuestions.length + 3);
+    double score = 0;
+    if (record.correctQuestions.isNotEmpty || record.incorrectQuestions.isNotEmpty) {
+      score = record.correctQuestions.length / (record.correctQuestions.length + record.incorrectQuestions.length);
+    }
     return (score * 100).toInt();
   }
 
@@ -19,7 +22,7 @@ mixin RecordMixin {
     Map<TestMode, List<Record>> map = {
       TestMode.full: [],
       TestMode.lives: [],
-      TestMode.timed: []
+      TestMode.practice: []
     };
 
     for (var record in allRecords) {

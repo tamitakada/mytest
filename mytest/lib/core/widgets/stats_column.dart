@@ -14,14 +14,26 @@ class StatsColumn extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(Constants.modeName(mode), style: Theme.of(context).textTheme.bodySmall,),
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            color: Constants.sakura
+          ),
+          child: Text(
+            Constants.modeName(mode),
+            style: Theme.of(context).textTheme.bodyMedium,
+            textAlign: TextAlign.center,
+          )
+        ),
         const SizedBox(height: 10),
         Expanded(
           child: Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.3),
+              color: Constants.salmon,
               borderRadius: BorderRadius.circular(10)
             ),
             child: ListView.builder(
