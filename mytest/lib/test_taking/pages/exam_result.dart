@@ -45,16 +45,16 @@ class _TestResultPageState extends State<TestResultPage> with ExamResultMixin, A
           Text(
             "$_correct",
             style: Theme.of(context).textTheme.displayLarge?.copyWith(
-              color: Constants.sakura
+              color: Constants.charcoal
             ),
           ),
           Container(
             width: 50,
             height: 3,
-            margin: const EdgeInsets.symmetric(vertical: 5),
+            margin: const EdgeInsets.symmetric(vertical: 10),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(5),
-              color: Constants.sakura
+              color: Constants.charcoal
             ),
           ),
           Text(
@@ -122,11 +122,11 @@ class _TestResultPageState extends State<TestResultPage> with ExamResultMixin, A
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 IconButton(
-                    icon: const Icon(Icons.replay, color: Constants.white, size: 20,),
-                    onPressed: () => Navigator.of(context).popAndPushNamed(
-                      '/exams/${Constants.modeRouteName(_mode!)}',
-                      arguments: {'test': _questions?.first.a.test.value}
-                    )
+                  icon: const Icon(Icons.replay, color: Constants.white, size: 20,),
+                  onPressed: () => Navigator.of(context).pushReplacementNamed(
+                    '/exams/${Constants.modeRouteName(_mode)}',
+                    arguments: {'test': _questions.first.a.test.value}
+                  )
                 ),
                 IconButton(
                   icon: const Icon(Icons.close, color: Constants.white, size: 20,),

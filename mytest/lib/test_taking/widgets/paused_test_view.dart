@@ -25,7 +25,9 @@ class PausedTestView extends StatelessWidget {
         children: [
           IconButton(
             icon: const Icon(Icons.exit_to_app, color: Constants.salmon),
-            onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
+            onPressed: () => Navigator.of(context, rootNavigator: true).popUntil(
+              ModalRoute.withName("/")
+            ),
           ),
           IconButton(
             icon: const Icon(Icons.play_arrow_rounded, color: Constants.salmon, size: 50),

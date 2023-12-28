@@ -72,7 +72,7 @@ class _HomePageState extends State<HomePage> with AlertMixin {
                 return const ErrorPage();
               }
             } else {
-              return Text("loading");
+              return Text("loading"); // TODO: load
             }
           }
         ),

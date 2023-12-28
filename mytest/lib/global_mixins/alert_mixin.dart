@@ -48,7 +48,6 @@ mixin AlertMixin {
 
   Future<void> showDeletionConfirmationDialog(
     BuildContext context,
-    String title,
     void Function() onConfirm,
     void Function() onCancel
   ) async {
@@ -60,18 +59,18 @@ mixin AlertMixin {
           actionsAlignment: MainAxisAlignment.center,
           backgroundColor: Constants.salmon,
           title: Text(
-            '$titleを削除しますか？',
+            '削除しますか？',
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.displaySmall?.copyWith(
                 color: Constants.white
             ),
           ),
           content: SizedBox(
-            width: 150,
-            height: 100,
+            width: 100,
+            height: 80,
             child: Center(
               child: Text(
-                '$titleは完全に削除されます。復元は不可能になります。',
+                '復元は不可能になります。',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Constants.white

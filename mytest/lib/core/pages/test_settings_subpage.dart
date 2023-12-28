@@ -7,7 +7,6 @@ import 'package:mytest/utils/data_manager.dart';
 
 import 'package:mytest/global_mixins/alert_mixin.dart';
 
-import 'package:mytest/widgets/mt_switch.dart';
 import 'package:mytest/widgets/spaced_group.dart';
 
 
@@ -59,14 +58,18 @@ class _TestSettingsSubpageState extends State<TestSettingsSubpage> with AlertMix
                     '一定の誤差まで許容する',
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
-                  MTSwitch(
-                    height: 26,
-                    initialState: _mistakeMode,
-                    switchUpdated: (isOn) {
-                      _mistakeMode = isOn;
-                      test!.allowError = isOn;
+                  Switch(
+                    value: _mistakeMode,
+                    activeColor: Constants.salmon,
+                    inactiveThumbColor: Constants.charcoal,
+                    onChanged: (bool value) {
+                      setState(() => _mistakeMode = value);
+                      test!.allowError = _mistakeMode;
                       DataManager.upsertTest(test!).then((success) {
-                        if (!success) { showErrorDialog(context, ErrorType.save); }
+                        if (!success) {
+                          setState(() => _mistakeMode = !value); // Reverse changes
+                          showErrorDialog(context, ErrorType.save);
+                        }
                       });
                     },
                   ),
@@ -86,14 +89,18 @@ class _TestSettingsSubpageState extends State<TestSettingsSubpage> with AlertMix
                     '問題と解答を逆にする',
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
-                  MTSwitch(
-                    height: 26,
-                    initialState: _flipped,
-                    switchUpdated: (isOn) {
-                      _flipped = isOn;
-                      test!.flipTerms = isOn;
+                  Switch(
+                    value: _flipped,
+                    activeColor: Constants.salmon,
+                    inactiveThumbColor: Constants.charcoal,
+                    onChanged: (bool value) {
+                      setState(() => _flipped = value);
+                      test!.flipTerms = _flipped;
                       DataManager.upsertTest(test!).then((success) {
-                        if (!success) { showErrorDialog(context, ErrorType.save); }
+                        if (!success) {
+                          setState(() => _flipped = !value); // Reverse changes
+                          showErrorDialog(context, ErrorType.save);
+                        }
                       });
                     },
                   ),

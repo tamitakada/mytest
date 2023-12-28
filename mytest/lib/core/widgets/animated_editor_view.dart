@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 
 import 'package:mytest/constants.dart';
 
+import 'package:mytest/global_mixins/alert_mixin.dart';
 
-class AnimatedEditorView extends StatelessWidget {
+
+class AnimatedEditorView extends StatelessWidget with AlertMixin {
 
   final Widget child;
   final int index;
@@ -44,7 +46,9 @@ class AnimatedEditorView extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 10),
                   child: GestureDetector(
-                    onTap: onDelete,
+                    onTap: () {
+                      showDeletionConfirmationDialog(context, onDelete, () {});
+                    },
                     child: Container(
                       decoration: const BoxDecoration(
                         shape: BoxShape.circle,
