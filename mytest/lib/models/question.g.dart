@@ -37,8 +37,13 @@ const QuestionSchema = CollectionSchema(
       name: r'images',
       type: IsarType.stringList,
     ),
-    r'question': PropertySchema(
+    r'order': PropertySchema(
       id: 4,
+      name: r'order',
+      type: IsarType.long,
+    ),
+    r'question': PropertySchema(
+      id: 5,
       name: r'question',
       type: IsarType.string,
     )
@@ -71,16 +76,11 @@ int _questionEstimateSize(
 ) {
   var bytesCount = offsets.last;
   bytesCount += 3 + object.answer.length * 3;
+  bytesCount += 3 + object.images.length * 3;
   {
-    final list = object.images;
-    if (list != null) {
-      bytesCount += 3 + list.length * 3;
-      {
-        for (var i = 0; i < list.length; i++) {
-          final value = list[i];
-          bytesCount += value.length * 3;
-        }
-      }
+    for (var i = 0; i < object.images.length; i++) {
+      final value = object.images[i];
+      bytesCount += value.length * 3;
     }
   }
   bytesCount += 3 + object.question.length * 3;
@@ -97,7 +97,8 @@ void _questionSerialize(
   writer.writeString(offsets[1], object.answer);
   writer.writeBool(offsets[2], object.archived);
   writer.writeStringList(offsets[3], object.images);
-  writer.writeString(offsets[4], object.question);
+  writer.writeLong(offsets[4], object.order);
+  writer.writeString(offsets[5], object.question);
 }
 
 Question _questionDeserialize(
@@ -110,8 +111,9 @@ Question _questionDeserialize(
     allowedMistakes: reader.readLongOrNull(offsets[0]) ?? 0,
     answer: reader.readString(offsets[1]),
     archived: reader.readBoolOrNull(offsets[2]) ?? false,
-    images: reader.readStringList(offsets[3]),
-    question: reader.readString(offsets[4]),
+    images: reader.readStringList(offsets[3]) ?? [],
+    order: reader.readLong(offsets[4]),
+    question: reader.readString(offsets[5]),
   );
   object.id = id;
   return object;
@@ -131,8 +133,10 @@ P _questionDeserializeProp<P>(
     case 2:
       return (reader.readBoolOrNull(offset) ?? false) as P;
     case 3:
-      return (reader.readStringList(offset)) as P;
+      return (reader.readStringList(offset) ?? []) as P;
     case 4:
+      return (reader.readLong(offset)) as P;
+    case 5:
       return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -477,22 +481,6 @@ extension QuestionQueryFilter
     });
   }
 
-  QueryBuilder<Question, Question, QAfterFilterCondition> imagesIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'images',
-      ));
-    });
-  }
-
-  QueryBuilder<Question, Question, QAfterFilterCondition> imagesIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'images',
-      ));
-    });
-  }
-
   QueryBuilder<Question, Question, QAfterFilterCondition> imagesElementEqualTo(
     String value, {
     bool caseSensitive = true,
@@ -712,6 +700,59 @@ extension QuestionQueryFilter
     });
   }
 
+  QueryBuilder<Question, Question, QAfterFilterCondition> orderEqualTo(
+      int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'order',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Question, Question, QAfterFilterCondition> orderGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'order',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Question, Question, QAfterFilterCondition> orderLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'order',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Question, Question, QAfterFilterCondition> orderBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'order',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
   QueryBuilder<Question, Question, QAfterFilterCondition> questionEqualTo(
     String value, {
     bool caseSensitive = true,
@@ -899,6 +940,18 @@ extension QuestionQuerySortBy on QueryBuilder<Question, Question, QSortBy> {
     });
   }
 
+  QueryBuilder<Question, Question, QAfterSortBy> sortByOrder() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'order', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Question, Question, QAfterSortBy> sortByOrderDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'order', Sort.desc);
+    });
+  }
+
   QueryBuilder<Question, Question, QAfterSortBy> sortByQuestion() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'question', Sort.asc);
@@ -962,6 +1015,18 @@ extension QuestionQuerySortThenBy
     });
   }
 
+  QueryBuilder<Question, Question, QAfterSortBy> thenByOrder() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'order', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Question, Question, QAfterSortBy> thenByOrderDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'order', Sort.desc);
+    });
+  }
+
   QueryBuilder<Question, Question, QAfterSortBy> thenByQuestion() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'question', Sort.asc);
@@ -1002,6 +1067,12 @@ extension QuestionQueryWhereDistinct
     });
   }
 
+  QueryBuilder<Question, Question, QDistinct> distinctByOrder() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'order');
+    });
+  }
+
   QueryBuilder<Question, Question, QDistinct> distinctByQuestion(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -1036,9 +1107,15 @@ extension QuestionQueryProperty
     });
   }
 
-  QueryBuilder<Question, List<String>?, QQueryOperations> imagesProperty() {
+  QueryBuilder<Question, List<String>, QQueryOperations> imagesProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'images');
+    });
+  }
+
+  QueryBuilder<Question, int, QQueryOperations> orderProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'order');
     });
   }
 

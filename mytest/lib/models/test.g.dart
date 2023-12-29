@@ -27,13 +27,23 @@ const TestSchema = CollectionSchema(
       name: r'flipTerms',
       type: IsarType.bool,
     ),
-    r'lastTestDate': PropertySchema(
+    r'hashCode': PropertySchema(
       id: 2,
+      name: r'hashCode',
+      type: IsarType.long,
+    ),
+    r'lastTestDate': PropertySchema(
+      id: 3,
       name: r'lastTestDate',
       type: IsarType.dateTime,
     ),
+    r'order': PropertySchema(
+      id: 4,
+      name: r'order',
+      type: IsarType.long,
+    ),
     r'title': PropertySchema(
-      id: 3,
+      id: 5,
       name: r'title',
       type: IsarType.string,
     )
@@ -99,8 +109,10 @@ void _testSerialize(
 ) {
   writer.writeBool(offsets[0], object.allowError);
   writer.writeBool(offsets[1], object.flipTerms);
-  writer.writeDateTime(offsets[2], object.lastTestDate);
-  writer.writeString(offsets[3], object.title);
+  writer.writeLong(offsets[2], object.hashCode);
+  writer.writeDateTime(offsets[3], object.lastTestDate);
+  writer.writeLong(offsets[4], object.order);
+  writer.writeString(offsets[5], object.title);
 }
 
 Test _testDeserialize(
@@ -112,10 +124,11 @@ Test _testDeserialize(
   final object = Test(
     allowError: reader.readBoolOrNull(offsets[0]) ?? false,
     flipTerms: reader.readBoolOrNull(offsets[1]) ?? false,
-    title: reader.readString(offsets[3]),
+    order: reader.readLong(offsets[4]),
+    title: reader.readString(offsets[5]),
   );
   object.id = id;
-  object.lastTestDate = reader.readDateTimeOrNull(offsets[2]);
+  object.lastTestDate = reader.readDateTimeOrNull(offsets[3]);
   return object;
 }
 
@@ -131,8 +144,12 @@ P _testDeserializeProp<P>(
     case 1:
       return (reader.readBoolOrNull(offset) ?? false) as P;
     case 2:
-      return (reader.readDateTimeOrNull(offset)) as P;
+      return (reader.readLong(offset)) as P;
     case 3:
+      return (reader.readDateTimeOrNull(offset)) as P;
+    case 4:
+      return (reader.readLong(offset)) as P;
+    case 5:
       return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -367,6 +384,58 @@ extension TestQueryFilter on QueryBuilder<Test, Test, QFilterCondition> {
     });
   }
 
+  QueryBuilder<Test, Test, QAfterFilterCondition> hashCodeEqualTo(int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'hashCode',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Test, Test, QAfterFilterCondition> hashCodeGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'hashCode',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Test, Test, QAfterFilterCondition> hashCodeLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'hashCode',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Test, Test, QAfterFilterCondition> hashCodeBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'hashCode',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
   QueryBuilder<Test, Test, QAfterFilterCondition> idEqualTo(Id value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -480,6 +549,58 @@ extension TestQueryFilter on QueryBuilder<Test, Test, QFilterCondition> {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
         property: r'lastTestDate',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<Test, Test, QAfterFilterCondition> orderEqualTo(int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'order',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Test, Test, QAfterFilterCondition> orderGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'order',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Test, Test, QAfterFilterCondition> orderLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'order',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Test, Test, QAfterFilterCondition> orderBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'order',
         lower: lower,
         includeLower: includeLower,
         upper: upper,
@@ -758,6 +879,18 @@ extension TestQuerySortBy on QueryBuilder<Test, Test, QSortBy> {
     });
   }
 
+  QueryBuilder<Test, Test, QAfterSortBy> sortByHashCode() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'hashCode', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Test, Test, QAfterSortBy> sortByHashCodeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'hashCode', Sort.desc);
+    });
+  }
+
   QueryBuilder<Test, Test, QAfterSortBy> sortByLastTestDate() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'lastTestDate', Sort.asc);
@@ -767,6 +900,18 @@ extension TestQuerySortBy on QueryBuilder<Test, Test, QSortBy> {
   QueryBuilder<Test, Test, QAfterSortBy> sortByLastTestDateDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'lastTestDate', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Test, Test, QAfterSortBy> sortByOrder() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'order', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Test, Test, QAfterSortBy> sortByOrderDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'order', Sort.desc);
     });
   }
 
@@ -808,6 +953,18 @@ extension TestQuerySortThenBy on QueryBuilder<Test, Test, QSortThenBy> {
     });
   }
 
+  QueryBuilder<Test, Test, QAfterSortBy> thenByHashCode() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'hashCode', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Test, Test, QAfterSortBy> thenByHashCodeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'hashCode', Sort.desc);
+    });
+  }
+
   QueryBuilder<Test, Test, QAfterSortBy> thenById() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.asc);
@@ -829,6 +986,18 @@ extension TestQuerySortThenBy on QueryBuilder<Test, Test, QSortThenBy> {
   QueryBuilder<Test, Test, QAfterSortBy> thenByLastTestDateDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'lastTestDate', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Test, Test, QAfterSortBy> thenByOrder() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'order', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Test, Test, QAfterSortBy> thenByOrderDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'order', Sort.desc);
     });
   }
 
@@ -858,9 +1027,21 @@ extension TestQueryWhereDistinct on QueryBuilder<Test, Test, QDistinct> {
     });
   }
 
+  QueryBuilder<Test, Test, QDistinct> distinctByHashCode() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'hashCode');
+    });
+  }
+
   QueryBuilder<Test, Test, QDistinct> distinctByLastTestDate() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'lastTestDate');
+    });
+  }
+
+  QueryBuilder<Test, Test, QDistinct> distinctByOrder() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'order');
     });
   }
 
@@ -891,9 +1072,21 @@ extension TestQueryProperty on QueryBuilder<Test, Test, QQueryProperty> {
     });
   }
 
+  QueryBuilder<Test, int, QQueryOperations> hashCodeProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'hashCode');
+    });
+  }
+
   QueryBuilder<Test, DateTime?, QQueryOperations> lastTestDateProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'lastTestDate');
+    });
+  }
+
+  QueryBuilder<Test, int, QQueryOperations> orderProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'order');
     });
   }
 

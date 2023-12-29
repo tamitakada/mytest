@@ -122,9 +122,10 @@ class DataManager {
           }
         }
       }
-      questions.first.test.value?.questions.removeAll(questions);
+      Test? test = questions.first.test.value;
+      test?.questions.removeAll(questions);
       await (await isar).writeTxn(() async {
-        await questions.first.test.save();
+        await test?.questions.save();
         await (await isar).questions.deleteAll(
           questions.map((q) => q.id).toList()
         );

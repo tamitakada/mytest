@@ -45,48 +45,50 @@ class AnimatedEditorView extends StatelessWidget with AlertMixin {
                 ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: GestureDetector(
-                    onTap: () {
-                      showDeletionConfirmationDialog(context, onDelete, () {});
-                    },
-                    child: Container(
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Constants.salmon
+                  child: Column(
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          showDeletionConfirmationDialog(context, onDelete, () {});
+                        },
+                        child: Container(
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Constants.salmon
+                          ),
+                          padding: const EdgeInsets.all(5),
+                          child: const Icon(
+                            Icons.delete_outline_rounded,
+                            color: Constants.white,
+                            size: 14,
+                          ),
+                        ),
                       ),
-                      padding: const EdgeInsets.all(5),
-                      child: const Icon(
-                        Icons.delete_outline_rounded,
-                        color: Constants.white,
-                        size: 14,
-                      ),
-                    ),
+                      onImageUpload != null
+                        ? GestureDetector(
+                          onTap: onImageUpload,
+                          child: Container(
+                            margin: const EdgeInsets.fromLTRB(0, 5, 0, 0),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Constants.white,
+                              border: Border.all(
+                                color: Constants.salmon,
+                                width: 2
+                              )
+                            ),
+                            padding: const EdgeInsets.all(3),
+                            child: const Icon(
+                              Icons.image_outlined,
+                              color: Constants.salmon,
+                              size: 14,
+                            ),
+                          ),
+                        )
+                        : Container(),
+                    ],
                   ),
                 ),
-                onImageUpload != null
-                  ? Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 0, 10, 0),
-                    child: GestureDetector(
-                      onTap: onImageUpload,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Constants.white,
-                          border: Border.all(
-                            color: Constants.salmon,
-                            width: 2
-                          )
-                        ),
-                        padding: const EdgeInsets.all(3),
-                        child: const Icon(
-                          Icons.image_outlined,
-                          color: Constants.salmon,
-                          size: 14,
-                        ),
-                      ),
-                    ),
-                  )
-                  : Container(),
               ],
             ) : Container(),
             transitionBuilder: (child, position) {

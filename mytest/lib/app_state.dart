@@ -1,10 +1,11 @@
+import 'package:flutter/material.dart';
 import 'utils/data_manager.dart';
 import 'models/models.dart';
 
 class AppState {
 
   static List<Test> allTests = [];
-  static bool testsInitialized = false;
+  static ValueNotifier<Test?> selectedTest = ValueNotifier(null);
 
   static List<Test> getAllTests() => allTests;
 
@@ -12,7 +13,6 @@ class AppState {
     List<Test>? allTestsTemp = await DataManager.getAllTests();
     if (allTestsTemp != null) {
       allTests = allTestsTemp;
-      testsInitialized = true;
       return true;
     }
     return false;

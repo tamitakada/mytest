@@ -7,12 +7,7 @@ import 'test_stats_subpage.dart';
 
 class TestDetailNavigator extends StatelessWidget {
 
-  final ValueNotifier<Test?> selectedTest;
-
-  const TestDetailNavigator({
-    super.key,
-    required this.selectedTest
-  });
+  const TestDetailNavigator({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -22,13 +17,13 @@ class TestDetailNavigator extends StatelessWidget {
         WidgetBuilder builder;
         switch (settings.name) {
           case 'test_detail/home':
-            builder = (context) => TestHomeSubpage(test: selectedTest);
+            builder = (context) => TestHomeSubpage();
             break;
           case 'test_detail/stats':
-            builder = (BuildContext context) => const TestStatsSubpage();
+            builder = (BuildContext context) => TestStatsSubpage();
             break;
           case 'test_detail/settings':
-            builder = (BuildContext context) => const TestSettingsSubpage();
+            builder = (BuildContext context) => TestSettingsSubpage();
             break;
           default:
             throw Exception('Invalid route: ${settings.name}');

@@ -12,19 +12,21 @@ class Question {
 
   String question;
   String answer;
+  int order;
 
   int allowedMistakes;
 
   bool archived;
 
-  List<String>? images;
+  List<String> images;
 
   Question({
     required this.question,
     required this.answer,
+    required this.order,
+    required this.images,
     this.allowedMistakes = 0,
-    this.archived = false,
-    this.images
+    this.archived = false
   });
 
 }

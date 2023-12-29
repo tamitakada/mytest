@@ -5,8 +5,13 @@ import 'package:mytest/constants.dart';
 class ErrorPage extends StatelessWidget {
 
   final EdgeInsets margin;
+  final String message;
 
-  const ErrorPage({super.key, this.margin = const EdgeInsets.all(20)});
+  const ErrorPage({
+    super.key,
+    this.message = "エラーが発生しました",
+    this.margin = const EdgeInsets.all(20)
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -21,14 +26,15 @@ class ErrorPage extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const Icon(
-            Icons.error_outline,
-            color: Constants.salmon,
-            size: 30,
+          Text(
+            '└[☉ロ☉]┘',
+            style: Theme.of(context).textTheme.displayLarge?.copyWith(
+              color: Constants.salmon,
+            ),
           ),
           const SizedBox(height: 20),
           Text(
-            'エラーが発生しました',
+            message,
             style: Theme.of(context).textTheme.displaySmall?.copyWith(
               color: Constants.salmon
             ),

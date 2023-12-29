@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+
 import 'package:mytest/constants.dart';
-import 'package:mytest/widgets/mt_button.dart';
-import 'package:mytest/widgets/spaced_group.dart';
+
 import 'package:mytest/models/test.dart';
+
+import 'package:mytest/widgets/mt_button.dart';
+
 
 class TestOptionsMenu extends StatelessWidget {
 
@@ -27,30 +30,30 @@ class TestOptionsMenu extends StatelessWidget {
               color: Constants.white
             ),
           ),
-          SpacedGroup(
-            axis: Axis.horizontal,
-            spacing: 10,
-            children: [
-              MTButton(
-                onTap: () => Navigator.of(context, rootNavigator: true).pushNamed(
-                  '/exams/full', arguments: {'test': test}
-                ),
-                text: "全問テスト"
-              ),
-              MTButton(
-                onTap: () => Navigator.of(context, rootNavigator: true).pushNamed(
-                  '/exams/lives', arguments: {'test': test}
-                ),
-                text: "３アウト"
-              ),
-              MTButton(
-                onTap: () => Navigator.of(context, rootNavigator: true).pushNamed(
-                  '/exams/infinite', arguments: {'test': test}
-                ),
-                text: "無限練習"
-              ),
-            ],
-          )
+          SizedBox(
+            height: 40,
+            child: ListView.builder(
+              physics: const NeverScrollableScrollPhysics(),
+              scrollDirection: Axis.horizontal,
+              shrinkWrap: true,
+              itemCount: TestMode.values.length,
+              itemBuilder: (context, index) {
+                return Padding(
+                  padding: EdgeInsets.fromLTRB(
+                    0, 0, index < TestMode.values.length - 1 ? 10 : 0, 0
+                  ),
+                  child: MTButton(
+                    onTap: () => Navigator.of(context, rootNavigator: true).pushNamed(
+                      '/exams/${Constants.modeRouteName(TestMode.values[index])}',
+                      arguments: {'test': test}
+                    ),
+                    text: Constants.modeName(TestMode.values[index]),
+                    enabled: test.questions.isNotEmpty,
+                  ),
+                );
+              }
+            ),
+          ),
         ],
       ),
     );

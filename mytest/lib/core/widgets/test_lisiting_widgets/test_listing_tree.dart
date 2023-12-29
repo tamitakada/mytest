@@ -12,15 +12,7 @@ import 'package:mytest/app_state.dart';
 
 class TestListingTree extends StatefulWidget {
 
-  final ValueNotifier<Test?> selectedTest;
-
-  final void Function(Test) onSelect;
-
-  const TestListingTree({
-    super.key,
-    required this.selectedTest,
-    required this.onSelect
-  });
+  const TestListingTree({super.key});
 
   @override
   State<TestListingTree> createState() => _TestListingTreeState();
@@ -30,8 +22,8 @@ class _TestListingTreeState extends State<TestListingTree> with AlertMixin {
 
   List<Test> _testsToDelete = [];
 
+  int _selectedTestIndex = -1;
   bool _isEditing = false;
-  int _lastChanged = -1;
 
   /* ADD/UPDATE TEST ======================================================== */
 
@@ -44,35 +36,58 @@ class _TestListingTreeState extends State<TestListingTree> with AlertMixin {
   }
 
   void _editTestName(String name, int index) {
-    _lastChanged = index;
     AppState.allTests[index].title = name;
   }
 
   void _reorderTest(int oldIndex, int newIndex) {
     Test test = AppState.allTests[oldIndex];
-    test.order = newIndex;
+    int trueIndex = newIndex - (oldIndex < newIndex ? 1 : 0);
     setState(() {
       AppState.allTests.removeAt(oldIndex);
-      AppState.allTests.insert(newIndex - (oldIndex < newIndex ? 1 : 0), test);
+      AppState.allTests.insert(trueIndex, test);
+
+      if (oldIndex < _selectedTestIndex && newIndex >= _selectedTestIndex) {
+        _selectedTestIndex--;
+      }
+      else if (oldIndex > _selectedTestIndex && newIndex <= _selectedTestIndex) {
+        _selectedTestIndex++;
+      }
+      else if (oldIndex == _selectedTestIndex) {
+        _selectedTestIndex = trueIndex;
+      }
     });
   }
 
   void _deleteTest(int index) {
     _testsToDelete.add(AppState.allTests[index]);
-    setState(() { AppState.allTests.removeAt(index); });
+    if (index == _selectedTestIndex) {
+      // If deleting selected test, change selection
+      AppState.selectedTest.value = index > 0 ? AppState.allTests[index - 1] : null;
+      setState(() => _selectedTestIndex = index - 1);
+    }
+    setState(() {
+      AppState.allTests.removeAt(index);
+      if (index < _selectedTestIndex) {
+        _selectedTestIndex--;
+      }
+    });
   }
 
   void _validateTests(BuildContext context) {
-    if (_lastChanged < 0 || AppState.getAllTests()[_lastChanged].title.trim().isNotEmpty) {
-      AppState.saveTests(_testsToDelete).then((success) {
-        _testsToDelete = [];
-        if (!success) { showErrorDialog(context, ErrorType.save); }
-      });
-      setState(() => _isEditing = false);
-    }
+    AppState.saveTests(_testsToDelete).then((success) {
+      _testsToDelete = [];
+      if (!success) { showErrorDialog(context, ErrorType.save); }
+    });
+    setState(() => _isEditing = false);
   }
 
   /* INIT/BUILD ============================================================= */
+
+  @override
+  void initState() {
+    _selectedTestIndex = AppState.selectedTest.value?.order ?? -1;
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -128,9 +143,12 @@ class _TestListingTreeState extends State<TestListingTree> with AlertMixin {
                     testTitle: AppState.allTests[index].title,
                     index: index,
                     isEditing: _isEditing,
-                    isSelected: AppState.allTests[index] == widget.selectedTest.value,
+                    isSelected: index == _selectedTestIndex,
                     onSelect: () {
-                      if (!_isEditing) { widget.onSelect(AppState.allTests[index]); }
+                      if (!_isEditing) {
+                        AppState.selectedTest.value = AppState.allTests[index];
+                        setState(() => _selectedTestIndex = index);
+                      }
                     },
                     onEdit: (name) => _editTestName(name, index),
                     onDelete: () => _deleteTest(index),

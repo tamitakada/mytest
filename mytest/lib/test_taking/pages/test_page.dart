@@ -42,6 +42,7 @@ class _TestPageState extends State<TestPage> with ExamMixin {
 
   bool _isPaused = false;
   bool _isInMistakeMode = false;
+  bool _showMistakeAnimation = false;
 
   void _checkAnswer(String answer) {
     _answerController.clear();
@@ -55,6 +56,7 @@ class _TestPageState extends State<TestPage> with ExamMixin {
     }
     else {
       setState(() {
+        _showMistakeAnimation = true;
         _mistakeCount += _isInMistakeMode ? 0 : 1; // Only add once per question
         _isInMistakeMode = true;
         _answerNode.requestFocus();
@@ -80,6 +82,11 @@ class _TestPageState extends State<TestPage> with ExamMixin {
       '/exams/result',
       arguments: {'questions': _testQuestions, 'mode': widget.mode}
     );
+  }
+
+  void _unpause() {
+    setState(() => _isPaused = false);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _answerNode.requestFocus());
   }
 
   // TEST MODE BASED VIEW BUILDERS =============================================
@@ -187,6 +194,11 @@ class _TestPageState extends State<TestPage> with ExamMixin {
       }
       _answerNode.requestFocus();
     }
+
+    // Only show animation once per mistake
+    bool showMistakeAnimation = _showMistakeAnimation;
+    _showMistakeAnimation = false;
+
     return Scaffold(
       backgroundColor: Constants.white,
       body: Padding(
@@ -252,7 +264,7 @@ class _TestPageState extends State<TestPage> with ExamMixin {
                   ? PausedTestView(
                     test: _test!,
                     mode: widget.mode,
-                    unpause: () => setState(() => _isPaused = false)
+                    unpause: _unpause
                   )
                   : SpacedGroup(
                     axis: Axis.vertical,
@@ -267,10 +279,10 @@ class _TestPageState extends State<TestPage> with ExamMixin {
                               _test!.flipTerms ? _testQuestions.last.a.answer : _testQuestions.last.a.question,
                               style: Theme.of(context).textTheme.bodyLarge,
                             ),
-                            _testQuestions.last.a.images?.isNotEmpty ?? false
+                            _testQuestions.last.a.images.isNotEmpty
                                ? Expanded(
                                  child: ScrollableImageDisplay(
-                                   images: _testQuestions.last.a.images ?? []
+                                   images: _testQuestions.last.a.images
                                  ),
                                )
                                : Container()
@@ -287,22 +299,12 @@ class _TestPageState extends State<TestPage> with ExamMixin {
             FractionallySizedBox(
               widthFactor: 0.8,
               child: ShakeableView(
-                animated: _isInMistakeMode,
-                child: TextField(
+                animated: showMistakeAnimation,
+                child: MTTextField(
                   enabled: !_isPaused,
                   controller: _answerController,
                   focusNode: _answerNode,
-                  decoration: InputDecoration(
-                    hintText: _isInMistakeMode ? "答えを入力" : "正しい答えを入力",
-                    contentPadding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
-                    border: const UnderlineInputBorder(borderSide: BorderSide(color: Constants.charcoal, width: 2)),
-                    focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Constants.charcoal, width: 2)),
-                    enabledBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Constants.charcoal, width: 2)),
-                    focusedErrorBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Constants.charcoal, width: 2)),
-                    disabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Constants.charcoal.withOpacity(0.4), width: 2)),
-                    errorBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Constants.charcoal, width: 2))
-                  ),
-                  style: Theme.of(context).textTheme.bodyMedium,
+                  hintText: !_isInMistakeMode ? "答えを入力" : "正しい答えを入力",
                   onSubmitted: _checkAnswer,
                 ),
               ),
