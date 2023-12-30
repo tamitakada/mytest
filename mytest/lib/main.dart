@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:mytest/exams/exam_taking/pages/exam_result.dart';
+import 'package:mytest/test_taking/pages/exam_result.dart';
 
 import 'core/pages/home_page.dart';
-import 'exams/exam_making/pages/pages.dart';
-import 'exams/exam_taking/pages/pages.dart';
+
+import 'test_taking/pages/test_page.dart';
 
 import 'constants.dart';
+import 'app_state.dart';
 
 
 void main() {
@@ -32,17 +33,17 @@ class MyApp extends StatelessWidget {
           displayMedium: TextStyle(
             fontFamily: 'Smart',
             fontSize: 30,
-            color: Colors.white,
+            color: Constants.charcoal,
           ),
           displaySmall: TextStyle(
             fontFamily: 'Smart',
             fontSize: 20,
-            color: Constants.white,
+            color: Constants.charcoal,
           ),
           bodyLarge: TextStyle(
             fontFamily: 'Smart',
             fontSize: 18,
-            color: Colors.white
+            color: Constants.charcoal
           ),
           bodyMedium: TextStyle(
             fontFamily: 'Smart',
@@ -58,12 +59,10 @@ class MyApp extends StatelessWidget {
       ),
       routes: {
         '/': (context) => const HomePage(),
-        '/exams/home': (context) => const ExamHomePage(),
-        '/exams/lives': (context) => const LivesExamPage(),
-        '/exams/full': (context) => const FullExamPage(),
-        '/exams/infinite': (context) => const FullExamPage(),
-        '/exams/result': (context) => const ExamResultPage(),
-        '/exams/timed': (context) => const TimedExamPage()
+        '/exams/lives': (context) => const TestPage(mode: TestMode.lives),
+        '/exams/full': (context) => const TestPage(mode: TestMode.full),
+        '/exams/infinite': (context) => const TestPage(mode: TestMode.practice),
+        '/exams/result': (context) => const TestResultPage(),
       },
     );
   }
