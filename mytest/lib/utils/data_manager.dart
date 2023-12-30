@@ -104,10 +104,10 @@ class DataManager {
 
   // DELETES ===================================================================
 
-  static Future<bool> deleteTests(List<Test> tests) async {
+  static Future<bool> deleteTest(Test test) async {
     try {
       await (await isar).writeTxn(() async {
-        await (await isar).tests.deleteAll(tests.map((t) => t.id).toList());
+        await (await isar).tests.delete(test.id);
       });
       return true;
     } catch (e) { return false; }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:mytest/models/models.dart';
+import 'package:mytest/models/editing_test.dart';
 
 import 'package:mytest/global_mixins/alert_mixin.dart';
 
@@ -20,32 +21,29 @@ class TestListingTree extends StatefulWidget {
 
 class _TestListingTreeState extends State<TestListingTree> with AlertMixin {
 
-  List<Test> _testsToDelete = [];
+  late List<EditingTest> _editingTests;
 
   int _selectedTestIndex = -1;
   bool _isEditing = false;
 
-  /* ADD/UPDATE TEST ======================================================== */
+  /* CREATE NEW TEST ======================================================== */
 
-  void _addTest(BuildContext context) {
-    Test test = Test(title: "無題", order: AppState.getAllTests().length);
+  void _addTest(BuildContext context, String title) {
+    Test test = Test(title: title, order: AppState.getAllTests().length);
     AppState.addTest(test).then((success) {
-      if (success) { setState((){}); }
+      if (success) { setState(() {}); }
       else { showErrorDialog(context, ErrorType.save); }
     });
   }
 
-  void _editTestName(String name, int index) {
-    AppState.allTests[index].title = name;
-  }
+  /* REORDER TEST =========================================================== */
 
   void _reorderTest(int oldIndex, int newIndex) {
-    Test test = AppState.allTests[oldIndex];
+    EditingTest test = _editingTests[oldIndex];
     int trueIndex = newIndex - (oldIndex < newIndex ? 1 : 0);
     setState(() {
-      AppState.allTests.removeAt(oldIndex);
-      AppState.allTests.insert(trueIndex, test);
-
+      _editingTests.removeAt(oldIndex);
+      _editingTests.insert(trueIndex, test);
       if (oldIndex < _selectedTestIndex && newIndex >= _selectedTestIndex) {
         _selectedTestIndex--;
       }
@@ -58,24 +56,9 @@ class _TestListingTreeState extends State<TestListingTree> with AlertMixin {
     });
   }
 
-  void _deleteTest(int index) {
-    _testsToDelete.add(AppState.allTests[index]);
-    if (index == _selectedTestIndex) {
-      // If deleting selected test, change selection
-      AppState.selectedTest.value = index > 0 ? AppState.allTests[index - 1] : null;
-      setState(() => _selectedTestIndex = index - 1);
-    }
-    setState(() {
-      AppState.allTests.removeAt(index);
-      if (index < _selectedTestIndex) {
-        _selectedTestIndex--;
-      }
-    });
-  }
-
-  void _validateTests(BuildContext context) {
-    AppState.saveTests(_testsToDelete).then((success) {
-      _testsToDelete = [];
+  void _saveTests(BuildContext context) {
+    AppState.saveEditedTests(_editingTests).then((success) {
+      setState(() => _editingTests = []);
       if (!success) { showErrorDialog(context, ErrorType.save); }
     });
     setState(() => _isEditing = false);
@@ -106,14 +89,19 @@ class _TestListingTreeState extends State<TestListingTree> with AlertMixin {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                _isEditing
+                !_isEditing
                   ? IconButton(
                     icon: const Icon(
                       Icons.add,
                       color: Constants.charcoal,
                       size: 20,
                     ),
-                    onPressed: () => _addTest(context),
+                    onPressed: () =>
+                      showTitleEditDialog(
+                        context,
+                        '新テスト作成',
+                        (title) => _addTest(context, title)
+                      ),
                   )
                   : Container(),
                 IconButton(
@@ -123,41 +111,88 @@ class _TestListingTreeState extends State<TestListingTree> with AlertMixin {
                     size: 18,
                   ),
                   onPressed:  () {
-                    if (_isEditing) { _validateTests(context); }
-                    else { setState(() => _isEditing = true); }
+                    if (_isEditing) { _saveTests(context); }
+                    else {
+                      setState(() {
+                        _editingTests = AppState.getEditingCopy();
+                        _isEditing = true;
+                      });
+                    }
                   },
                 )
               ],
             ),
           ),
           Expanded(
-            child: ReorderableListView.builder(
-              buildDefaultDragHandles: false,
-              proxyDecorator: (child, _, __) => Material(color: Colors.transparent, child: child,),
-              itemBuilder: (BuildContext context, int index) {
-                return Padding(
-                  key: Key('$index'),
-                  padding: EdgeInsets.fromLTRB(0, index == 0 ? 10 : 0, 0, 0),
-                  child: TestListing(
-                    key: UniqueKey(),
-                    testTitle: AppState.allTests[index].title,
-                    index: index,
-                    isEditing: _isEditing,
-                    isSelected: index == _selectedTestIndex,
-                    onSelect: () {
-                      if (!_isEditing) {
-                        AppState.selectedTest.value = AppState.allTests[index];
-                        setState(() => _selectedTestIndex = index);
-                      }
-                    },
-                    onEdit: (name) => _editTestName(name, index),
-                    onDelete: () => _deleteTest(index),
+            child: ValueListenableBuilder(
+              valueListenable: AppState.selectedTest,
+              builder: (context, test, child) {
+                if (test?.order != _selectedTestIndex) {
+                  _selectedTestIndex = test?.order ?? -1;
+                }
+                return AppState.selectedTest.value != null
+                  ? ListenableBuilder(
+                    listenable: AppState.selectedTest.value!,
+                    builder: (context, child) {
+                      return ReorderableListView.builder(
+                        buildDefaultDragHandles: false,
+                        proxyDecorator: (child, _, __) => Material(color: Colors.transparent, child: child,),
+                        itemBuilder: (BuildContext context, int index) {
+                          return Padding(
+                            key: Key('$index'),
+                            padding: EdgeInsets.fromLTRB(0, index == 0 ? 10 : 0, 0, 0),
+                            child: TestListing(
+                              key: UniqueKey(),
+                              testTitle: _isEditing
+                                ? _editingTests[index].title
+                                : (index == _selectedTestIndex ? test!.title : AppState.allTests[index].title),
+                              index: index,
+                              isEditing: _isEditing,
+                              isSelected: index == _selectedTestIndex,
+                              onSelect: () {
+                                if (!_isEditing) {
+                                  AppState.selectedTest.value = AppState.allTests[index];
+                                  setState(() => _selectedTestIndex = index);
+                                }
+                              },
+                            )
+                          );
+                        },
+                        itemCount: _isEditing ? _editingTests.length : AppState.allTests.length,
+                        shrinkWrap: true,
+                        onReorder: _reorderTest
+                      );
+                    }
                   )
-                );
-              },
-              itemCount: AppState.allTests.length,
-              shrinkWrap: true,
-              onReorder: _reorderTest
+                  : ReorderableListView.builder(
+                    buildDefaultDragHandles: false,
+                    proxyDecorator: (child, _, __) => Material(color: Colors.transparent, child: child,),
+                    itemBuilder: (BuildContext context, int index) {
+                      return Padding(
+                          key: Key('$index'),
+                          padding: EdgeInsets.fromLTRB(0, index == 0 ? 10 : 0, 0, 0),
+                          child: TestListing(
+                            key: UniqueKey(),
+                            testTitle: _isEditing
+                                ? _editingTests[index].title
+                                : (index == _selectedTestIndex ? test!.title : AppState.allTests[index].title),
+                            index: index,
+                            isEditing: _isEditing,
+                            isSelected: index == _selectedTestIndex,
+                            onSelect: () {
+                              if (!_isEditing) {
+                                AppState.selectedTest.value = AppState.allTests[index];
+                                setState(() => _selectedTestIndex = index);
+                              }
+                            },
+                          )
+                      );
+                    },
+                    itemCount: _isEditing ? _editingTests.length : AppState.allTests.length,
+                    shrinkWrap: true,
+                    onReorder: _reorderTest
+                  );
+              }
             ),
           )
         ],

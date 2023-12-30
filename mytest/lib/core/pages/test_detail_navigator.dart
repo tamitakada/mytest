@@ -17,13 +17,15 @@ class TestDetailNavigator extends StatelessWidget {
         WidgetBuilder builder;
         switch (settings.name) {
           case 'test_detail/home':
-            builder = (context) => TestHomeSubpage();
+            builder = (BuildContext context) => const TestHomeSubpage();
             break;
           case 'test_detail/stats':
-            builder = (BuildContext context) => TestStatsSubpage();
+            builder = (BuildContext context) => const TestStatsSubpage();
             break;
           case 'test_detail/settings':
-            builder = (BuildContext context) => TestSettingsSubpage();
+            builder = (BuildContext context) => TestSettingsSubpage(
+              onDeleteTest: (){}
+            );
             break;
           default:
             throw Exception('Invalid route: ${settings.name}');

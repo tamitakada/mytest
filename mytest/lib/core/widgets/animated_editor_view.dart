@@ -10,7 +10,7 @@ class AnimatedEditorView extends StatelessWidget with AlertMixin {
   final Widget child;
   final int index;
   final bool isEditing;
-  final void Function() onDelete;
+  final void Function()? onDelete;
   final void Function()? onImageUpload;
 
   const AnimatedEditorView({
@@ -18,7 +18,7 @@ class AnimatedEditorView extends StatelessWidget with AlertMixin {
     required this.index,
     required this.isEditing,
     required this.child,
-    required this.onDelete,
+    this.onDelete,
     this.onImageUpload
   });
 
@@ -47,9 +47,10 @@ class AnimatedEditorView extends StatelessWidget with AlertMixin {
                   padding: const EdgeInsets.symmetric(horizontal: 10),
                   child: Column(
                     children: [
-                      GestureDetector(
+                      onDelete != null
+                       ? GestureDetector(
                         onTap: () {
-                          showDeletionConfirmationDialog(context, onDelete, () {});
+                          showDeletionConfirmationDialog(context, onDelete!);
                         },
                         child: Container(
                           decoration: const BoxDecoration(
@@ -63,7 +64,7 @@ class AnimatedEditorView extends StatelessWidget with AlertMixin {
                             size: 14,
                           ),
                         ),
-                      ),
+                      ) : Container(),
                       onImageUpload != null
                         ? GestureDetector(
                           onTap: onImageUpload,

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mytest/constants.dart';
+import 'package:mytest/widgets/mt_text_field.dart';
+import 'package:mytest/widgets/mt_button.dart';
+import 'package:mytest/widgets/shakeable_view.dart';
 
 
 mixin AlertMixin {
@@ -49,7 +52,7 @@ mixin AlertMixin {
   Future<void> showDeletionConfirmationDialog(
     BuildContext context,
     void Function() onConfirm,
-    void Function() onCancel
+    { void Function()? onCancel }
   ) async {
     return showDialog<void>(
       context: context,
@@ -85,7 +88,7 @@ mixin AlertMixin {
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               onPressed: () {
-                onCancel();
+                if (onCancel != null) { onCancel(); }
                 Navigator.of(context).pop();
               },
             ),
@@ -106,7 +109,75 @@ mixin AlertMixin {
     );
   }
 
-
-
+  Future<void> showTitleEditDialog(
+    BuildContext context,
+    String title,
+    void Function(String) onSubmitted,
+    { String? initialValue }
+  ) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        TextEditingController controller = TextEditingController();
+        controller.text = initialValue ?? "";
+        FocusNode focusNode = FocusNode();
+        focusNode.requestFocus();
+        bool showInvalidAnimation = false;
+        return StatefulBuilder(
+          builder: (context, setState) {
+            bool showInvalidAnimationOnBuild = showInvalidAnimation;
+            showInvalidAnimation = false;
+            return AlertDialog(
+              actionsAlignment: MainAxisAlignment.center,
+              backgroundColor: Constants.salmon,
+              title: Text(
+                title,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                  color: Constants.white
+                ),
+              ),
+              content: SizedBox(
+                width: 150,
+                height: 80,
+                child: Center(
+                  child: ShakeableView(
+                    animated: showInvalidAnimationOnBuild,
+                    child: MTTextField(
+                      color: Constants.white,
+                      hintText: 'テスト名',
+                      controller: controller,
+                      focusNode: focusNode,
+                      onSubmitted: (String text) {
+                        if (text.trim().isEmpty) {
+                          setState(() {
+                            showInvalidAnimation = true;
+                            focusNode.requestFocus();
+                          });
+                        }
+                        else {
+                          onSubmitted(text);
+                          controller.dispose();
+                          focusNode.dispose();
+                          Navigator.of(context).pop();
+                        }
+                      }
+                    ),
+                  ),
+                ),
+              ),
+              actions: [
+                MTButton(
+                  onTap: () => Navigator.of(context).pop(),
+                  text: 'キャンセル'
+                )
+              ],
+            );
+          }
+        );
+      },
+    );
+  }
 
 }

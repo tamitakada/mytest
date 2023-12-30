@@ -6,11 +6,16 @@ import 'record.dart';
 part 'test.g.dart';
 
 @collection
-class Test {
+class Test with ChangeNotifier {
 
   Id id = Isar.autoIncrement;
 
-  String title;
+  String _title;
+  String get title => _title;
+  set title(String value) {
+    _title = value;
+    notifyListeners();
+  }
 
   int order;
 
@@ -26,7 +31,8 @@ class Test {
   @Backlink(to: 'test')
   final records = IsarLinks<Record>();
 
-  Test({ required this.title, required this.order, this.flipTerms = false, this.allowError = false });
+  Test({ required String title, required this.order, this.flipTerms = false, this.allowError = false })
+    : _title = title;
 
   @override
   int get hashCode => super.hashCode;

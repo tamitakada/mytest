@@ -31,7 +31,7 @@ class TestOptionsMenu extends StatelessWidget {
             ),
           ),
           SizedBox(
-            height: 40,
+            height: 35,
             child: ListView.builder(
               physics: const NeverScrollableScrollPhysics(),
               scrollDirection: Axis.horizontal,
