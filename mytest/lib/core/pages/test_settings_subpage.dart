@@ -30,9 +30,6 @@ class _TestSettingsSubpageState extends State<TestSettingsSubpage> with AlertMix
 
   Test? _currentTest;
 
-  late bool _mistakeMode;
-  late bool _flipped;
-
   void _editTestTitle(BuildContext context, String title) {
     if (AppState.selectedTest.value != null) {
       AppState.selectedTest.value!.title = title;
@@ -66,119 +63,128 @@ class _TestSettingsSubpageState extends State<TestSettingsSubpage> with AlertMix
     }
   }
 
+  void _pushNewTestDetail() {
+    if (_currentTest != AppState.selectedTest.value) {
+      Navigator.of(context).pushNamedAndRemoveUntil(
+        "test_detail/home", (route) => false
+      );
+    }
+  }
+
+  @override
+  void initState() {
+    _currentTest = AppState.selectedTest.value;
+    AppState.selectedTest.addListener(_pushNewTestDetail);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    AppState.selectedTest.removeListener(_pushNewTestDetail);
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder(
-      valueListenable: AppState.selectedTest,
-      builder: (context, test, child) {
-        if (_currentTest != test) {
-          _mistakeMode = test?.allowError ?? false;
-          _flipped = test?.flipTerms ?? false;
-          _currentTest = test;
-        }
-        return test != null
-          ? Scaffold(
-            appBar: AppBar(
-              automaticallyImplyLeading: false,
-              scrolledUnderElevation: 0,
-              toolbarHeight: 80,
-              centerTitle: false,
-              title: Padding(
-                padding: const EdgeInsets.fromLTRB(0, 0, 0, 20),
-                child: Text(
-                  "設定",
-                  style: Theme.of(context).textTheme.displayLarge,
+    return AppState.selectedTest.value != null
+      ? Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          scrolledUnderElevation: 0,
+          toolbarHeight: 80,
+          centerTitle: false,
+          title: Padding(
+            padding: const EdgeInsets.fromLTRB(0, 0, 0, 20),
+            child: Text(
+              "設定",
+              style: Theme.of(context).textTheme.displayLarge,
+            ),
+          ),
+          leading: Padding(
+            padding: const EdgeInsets.fromLTRB(0, 0, 0, 20),
+            child: IconButton(
+              onPressed: () => Navigator.of(context).pop(),
+              icon: const Icon(
+                Icons.arrow_back_ios_new_rounded,
+                color: Constants.charcoal,
+                size: 20,
+              ),
+            ),
+          ),
+        ),
+        body: Padding(
+          padding: const EdgeInsets.fromLTRB(0, 0, 20, 20),
+          child: SpacedGroup(
+            axis: Axis.vertical,
+            spacing: 10,
+            children: [
+              TestSettingListing(
+                description: 'テスト名を変える',
+                settingChild: IconButton(
+                  onPressed: () =>  showTitleEditDialog(
+                    context,
+                    'テスト改名',
+                    (title) => _editTestTitle(context, title),
+                    initialValue: AppState.selectedTest.value!.title
+                  ),
+                  icon: const Icon(
+                    Icons.change_circle_outlined,
+                    color: Constants.charcoal,
+                    size: 24,
+                  ),
                 ),
               ),
-              leading: Padding(
-                padding: const EdgeInsets.fromLTRB(0, 0, 0, 20),
-                child: IconButton(
-                  onPressed: () => Navigator.of(context).pop(),
+              TestSettingListing(
+                description: '一定の誤差まで許容する',
+                settingChild: Switch(
+                  value: AppState.selectedTest.value!.allowError,
+                  activeColor: Constants.salmon,
+                  inactiveThumbColor: Constants.charcoal,
+                  onChanged: (bool value) {
+                    setState(() => AppState.selectedTest.value!.allowError = value);
+                    DataManager.upsertTest(AppState.selectedTest.value!).then((success) {
+                      if (!success) {
+                        setState(() => AppState.selectedTest.value!.allowError = !value); // Reverse changes
+                        showErrorDialog(context, ErrorType.save);
+                      }
+                    });
+                  },
+                ),
+              ),
+              TestSettingListing(
+                description: '問題と答えを逆にする',
+                settingChild: Switch(
+                  value: AppState.selectedTest.value!.flipTerms,
+                  activeColor: Constants.salmon,
+                  inactiveThumbColor: Constants.charcoal,
+                  onChanged: (bool value) {
+                    setState(() => AppState.selectedTest.value!.flipTerms = value);
+                    DataManager.upsertTest(AppState.selectedTest.value!).then((success) {
+                      if (!success) {
+                        setState(() => AppState.selectedTest.value!.flipTerms = !value); // Reverse changes
+                        showErrorDialog(context, ErrorType.save);
+                      }
+                    });
+                  },
+                ),
+              ),
+              TestSettingListing(
+                description: 'テストを削除する',
+                settingChild: IconButton(
+                  onPressed: () => showDeletionConfirmationDialog(
+                    context, () => _deleteTest(context)
+                  ),
                   icon: const Icon(
-                    Icons.arrow_back_ios_new_rounded,
+                    Icons.delete_outline_rounded,
                     color: Constants.charcoal,
                     size: 20,
                   ),
                 ),
               ),
-            ),
-            body: Padding(
-              padding: const EdgeInsets.fromLTRB(0, 0, 20, 20),
-              child: SpacedGroup(
-                axis: Axis.vertical,
-                spacing: 10,
-                children: [
-                  TestSettingListing(
-                    description: 'テスト名を変える',
-                    settingChild: IconButton(
-                      onPressed: () =>  showTitleEditDialog(
-                        context,
-                        'テスト改名',
-                        (title) => _editTestTitle(context, title),
-                        initialValue: test.title
-                      ),
-                      icon: const Icon(
-                        Icons.change_circle_outlined,
-                        color: Constants.charcoal,
-                        size: 24,
-                      ),
-                    ),
-                  ),
-                  TestSettingListing(
-                    description: '一定の誤差まで許容する',
-                    settingChild: Switch(
-                      value: _mistakeMode,
-                      activeColor: Constants.salmon,
-                      inactiveThumbColor: Constants.charcoal,
-                      onChanged: (bool value) {
-                        setState(() => _mistakeMode = value);
-                        test.allowError = _mistakeMode;
-                        DataManager.upsertTest(test).then((success) {
-                          if (!success) {
-                            setState(() => _mistakeMode = !value); // Reverse changes
-                            showErrorDialog(context, ErrorType.save);
-                          }
-                        });
-                      },
-                    ),
-                  ),
-                  TestSettingListing(
-                    description: '問題と答えを逆にする',
-                    settingChild: Switch(
-                      value: _flipped,
-                      activeColor: Constants.salmon,
-                      inactiveThumbColor: Constants.charcoal,
-                      onChanged: (bool value) {
-                        setState(() => _flipped = value);
-                        test.flipTerms = _flipped;
-                        DataManager.upsertTest(test).then((success) {
-                          if (!success) {
-                            setState(() => _flipped = !value); // Reverse changes
-                            showErrorDialog(context, ErrorType.save);
-                          }
-                        });
-                      },
-                    ),
-                  ),
-                  TestSettingListing(
-                    description: 'テストを削除する',
-                    settingChild: IconButton(
-                      onPressed: () => showDeletionConfirmationDialog(
-                        context, () => _deleteTest(context)
-                      ),
-                      icon: const Icon(
-                        Icons.delete_outline_rounded,
-                        color: Constants.charcoal,
-                        size: 20,
-                      ),
-                    ),
-                  ),
-                ]
-              ),
-            ),
-          )
-          : const ErrorPage(margin: EdgeInsets.fromLTRB(0, 0, 20, 0), message: "表示できるテストがありません");
-      }
-    );
+            ]
+          ),
+        ),
+      )
+      : const ErrorPage(margin: EdgeInsets.fromLTRB(0, 0, 20, 0), message: "表示できるテストがありません");
   }
 }

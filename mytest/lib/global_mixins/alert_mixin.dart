@@ -158,8 +158,6 @@ mixin AlertMixin {
                         }
                         else {
                           onSubmitted(text);
-                          controller.dispose();
-                          focusNode.dispose();
                           Navigator.of(context).pop();
                         }
                       }

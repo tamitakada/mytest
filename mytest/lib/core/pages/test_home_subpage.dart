@@ -116,9 +116,14 @@ class _TestHomeSubpageState extends State<TestHomeSubpage> with AlertMixin {
 
   /* WRITING QUESTION CHANGES =============================================== */
 
-  void _saveChanges(BuildContext context) {
+  void _validateChanges(BuildContext context) {
     List<Question> questions = [];
     for (int i = 0; i < _questions.length; i++) {
+      if (_questions[i].a.question.trim().isEmpty
+          || _questions[i].a.answer.trim().isEmpty) {
+        showErrorDialog(context, ErrorType.emptyInput);
+        return;
+      }
       _questions[i].a.order = i;
       questions.add(_questions[i].a);
     }
@@ -139,162 +144,173 @@ class _TestHomeSubpageState extends State<TestHomeSubpage> with AlertMixin {
 
   /* BUILD ================================================================== */
 
+  void _pushNewTestDetail() {
+    if (_currentTest != AppState.selectedTest.value) {
+      Navigator.of(context).pushReplacementNamed("test_detail/home");
+    }
+  }
+
+  @override
+  void initState() {
+    _currentTest = AppState.selectedTest.value;
+    _questions = AppState.selectedTest.value?.questions.map(
+      (q) => Pair(a: q, b: true)
+    ).toList() ?? [];
+    AppState.selectedTest.addListener(_pushNewTestDetail);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    AppState.selectedTest.removeListener(_pushNewTestDetail);
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder(
-      valueListenable: AppState.selectedTest,
-      builder: (context, test, child) {
-        if (_currentTest != test) {
-          _currentTest = test;
-          _questions = test?.getOrderedQuestions().map(
-            (e) => Pair<Question, bool>(a: e, b: true)
-          ).toList() ?? [];
-        }
-        return test != null
-          ? ListenableBuilder(
-            listenable: test,
-            builder: (context, child) {
-              return Scaffold(
-                appBar: AppBar(
-                  centerTitle: false,
-                  title: Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 0, 0, 20),
-                    child: Text(
-                      test.title,
-                      style: Theme.of(context).textTheme.displayLarge,
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 2,
+    return AppState.selectedTest.value != null
+      ? ListenableBuilder(
+        listenable: AppState.selectedTest.value!,
+        builder: (context, child) {
+          return Scaffold(
+            appBar: AppBar(
+              centerTitle: false,
+              title: Padding(
+                padding: const EdgeInsets.fromLTRB(0, 0, 0, 20),
+                child: Text(
+                  AppState.selectedTest.value!.title,
+                  style: Theme.of(context).textTheme.displayLarge,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 2,
+                ),
+              ),
+              toolbarHeight: 80,
+              scrolledUnderElevation: 0,
+              actions: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 0, 0, 20),
+                  child: IconButton(
+                    onPressed: () => Navigator.of(context).pushNamed(
+                      "test_detail/settings",
+                      arguments: {"test": AppState.selectedTest.value}
                     ),
+                    icon: const Icon(
+                      Icons.settings,
+                      color: Constants.charcoal,
+                      size: 20,
+                    )
                   ),
-                  toolbarHeight: 80,
-                  scrolledUnderElevation: 0,
-                  actions: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(0, 0, 0, 20),
-                      child: IconButton(
-                        onPressed: () => Navigator.of(context).pushNamed(
-                          "test_detail/settings",
-                          arguments: {"test": test}
-                        ),
-                        icon: const Icon(
-                          Icons.settings,
-                          color: Constants.charcoal,
-                          size: 20,
-                        )
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(0, 0, 20, 20),
-                      child: IconButton(
-                        onPressed: () => Navigator.of(context).pushNamed(
-                          "test_detail/stats",
-                          arguments: {"test": test}
-                        ),
-                        icon: const Icon(
-                          Icons.bar_chart_rounded,
-                          color: Constants.charcoal,
-                          size: 20,
-                        )
-                      ),
-                    ),
-                  ],
                 ),
-                backgroundColor: Constants.white,
-                body: Padding(
-                  padding: const EdgeInsets.fromLTRB(10, 0, 20, 0),
-                  child: SpacedGroup(
-                    axis: Axis.vertical,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    spacing: 20,
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 0, 20, 20),
+                  child: IconButton(
+                    onPressed: () => Navigator.of(context).pushNamed(
+                      "test_detail/stats",
+                      arguments: {"test": AppState.selectedTest.value}
+                    ),
+                    icon: const Icon(
+                      Icons.bar_chart_rounded,
+                      color: Constants.charcoal,
+                      size: 20,
+                    )
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: Constants.white,
+            body: Padding(
+              padding: const EdgeInsets.fromLTRB(10, 0, 20, 0),
+              child: SpacedGroup(
+                axis: Axis.vertical,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: 20,
+                children: [
+                  TestOptionsMenu(test: AppState.selectedTest.value!),
+                  SpacedGroup(
+                    axis: Axis.horizontal,
+                    spacing: 10,
                     children: [
-                      TestOptionsMenu(test: test),
-                      SpacedGroup(
-                        axis: Axis.horizontal,
-                        spacing: 10,
-                        children: [
-                          Expanded(
-                            child: MTTextField(
-                              enabled: !_isEditing,
-                              hintText: '問題を検索',
-                              controller: _queryController,
-                              onChanged: (query) => setState(() { _query = query; }),
-                            )
-                          ),
-                          _isEditing
-                            ? IconButton(
-                              icon: const Icon(Icons.add, color: Constants.charcoal),
-                              onPressed: _addQuestion
-                            )
-                            : Container(),
-                          IconButton(
-                            icon: Icon(
-                              _isEditing ? Icons.check : Icons.edit,
-                              color: Constants.charcoal
-                            ),
-                            onPressed: () {
-                              if (_isEditing) { _saveChanges(context); }
-                              else {
-                                setState(() {
-                                  _queryController.clear();
-                                  _query = "";
-                                  _isEditing = true;
-                                });
-                              }
-                            }
-                          )
-                        ]
-                      ),
                       Expanded(
-                        child: _questions.isNotEmpty || _isEditing
-                          ? ReorderableListView.builder(
-                            buildDefaultDragHandles: false,
-                            proxyDecorator: (child, _, __) => Material(color: Colors.transparent, child: child,),
-                            itemBuilder: (BuildContext context, int index) {
-                              if (_query.isEmpty
-                                  || test.questions.elementAt(index).question.toLowerCase().contains(_query.toLowerCase())
-                                  || test.questions.elementAt(index).answer.toLowerCase().contains(_query.toLowerCase())
-                              ) {
-                                bool animate = index == _toAnimate;
-                                _toAnimate = animate ? -1 : _toAnimate; // Reset to prevent double animation
-                                return AnimatedEditorView(
-                                  key: Key('$index'),
-                                  index: index,
-                                  isEditing: _isEditing,
-                                  onDelete: () => _deleteQuestion(index),
-                                  onImageUpload: _questions[index].b
-                                    ? () => _selectNewImageSync(context, index) : null,
-                                  child: QuestionView(
-                                    index: index,
-                                    question: _questions[index].a,
-                                    enableEditing: _isEditing,
-                                    displayQuestion: _questions[index].b,
-                                    animate: animate,
-                                    updateDisplayState: (displayQuestion) => _questions[index].b = displayQuestion,
-                                    onChangedQuestion: (updated) => _questions[index].a.question = updated,
-                                    onChangedAnswer: (updated) => _questions[index].a.answer = updated,
-                                    onDeleteImage: (imageIndex) => _deleteImage(context, index, imageIndex),
-                                  )
-                                );
-                              }
-                              return Container(key: Key('$index'));
-                            },
-                            itemCount: _questions.length,
-                            shrinkWrap: true,
-                            onReorder: _reorderQuestion
-                          )
-                          : const ErrorPage(margin: EdgeInsets.zero, message: "問題集が空です")
+                        child: MTTextField(
+                          enabled: !_isEditing,
+                          hintText: '問題を検索',
+                          controller: _queryController,
+                          onChanged: (query) => setState(() { _query = query; }),
+                        )
+                      ),
+                      _isEditing
+                        ? IconButton(
+                          icon: const Icon(Icons.add, color: Constants.charcoal),
+                          onPressed: _addQuestion
+                        )
+                        : Container(),
+                      IconButton(
+                        icon: Icon(
+                          _isEditing ? Icons.check : Icons.edit,
+                          color: Constants.charcoal
+                        ),
+                        onPressed: () {
+                          if (_isEditing) { _validateChanges(context); }
+                          else {
+                            setState(() {
+                              _queryController.clear();
+                              _query = "";
+                              _isEditing = true;
+                            });
+                          }
+                        }
                       )
-                    ],
+                    ]
+                  ),
+                  Expanded(
+                    child: _questions.isNotEmpty || _isEditing
+                      ? ReorderableListView.builder(
+                        buildDefaultDragHandles: false,
+                        proxyDecorator: (child, _, __) => Material(color: Colors.transparent, child: child,),
+                        itemBuilder: (BuildContext context, int index) {
+                          if (_query.isEmpty
+                              || AppState.selectedTest.value!.questions.elementAt(index).question.toLowerCase().contains(_query.toLowerCase())
+                              || AppState.selectedTest.value!.questions.elementAt(index).answer.toLowerCase().contains(_query.toLowerCase())
+                          ) {
+                            bool animate = index == _toAnimate;
+                            _toAnimate = animate ? -1 : _toAnimate; // Reset to prevent double animation
+                            return AnimatedEditorView(
+                              key: Key('$index'),
+                              index: index,
+                              isEditing: _isEditing,
+                              onDelete: () => _deleteQuestion(index),
+                              onImageUpload: _questions[index].b
+                                ? () => _selectNewImageSync(context, index) : null,
+                              child: QuestionView(
+                                index: index,
+                                question: _questions[index].a,
+                                enableEditing: _isEditing,
+                                displayQuestion: _questions[index].b,
+                                animate: animate,
+                                updateDisplayState: (displayQuestion) => _questions[index].b = displayQuestion,
+                                onChangedQuestion: (updated) => _questions[index].a.question = updated,
+                                onChangedAnswer: (updated) => _questions[index].a.answer = updated,
+                                onDeleteImage: (imageIndex) => _deleteImage(context, index, imageIndex),
+                              )
+                            );
+                          }
+                          return Container(key: Key('$index'));
+                        },
+                        itemCount: _questions.length,
+                        shrinkWrap: true,
+                        onReorder: _reorderQuestion
+                      )
+                      : const ErrorPage(margin: EdgeInsets.zero, message: "問題集が空です")
                   )
-                ),
-              );
-            }
-          )
-          : const ErrorPage(
-            margin: EdgeInsets.fromLTRB(0, 0, 20, 0),
-            message: "表示できるテストがありません"
+                ],
+              )
+            ),
           );
-      }
-    );
+        }
+      )
+      : const ErrorPage(
+        margin: EdgeInsets.fromLTRB(0, 0, 20, 0),
+        message: "表示できるテストがありません"
+      );
   }
 }

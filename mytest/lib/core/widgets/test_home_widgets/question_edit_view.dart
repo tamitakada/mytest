@@ -175,92 +175,63 @@ class _QuestionEditViewState extends State<QuestionEditView> {
       spacing: 10,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            GestureDetector(
-              onTap: () {
-                setState(() => _showQuestion = true);
-                widget.updateDisplayState(true);
-              },
-              child: Container(
-                width: 22, height: 22,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(5),
-                  color: _showQuestion ? Constants.sakura : Constants.white,
-                  border: Border.all(
-                    color: _showQuestion ? Constants.sakura : Constants.charcoal,
-                    width: 2
-                  )
-                ),
-                child: Center(
-                  child: Text(
-                    "問",
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: _showQuestion ? Constants.salmon : Constants.charcoal
-                    )
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 5),
-            GestureDetector(
-              onTap: () {
-                setState(() => _showQuestion = false);
-                widget.updateDisplayState(false);
-              },
-              child: Container(
-                width: 22, height: 22,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(5),
-                  color: !_showQuestion ? Constants.sakura : Constants.white,
-                  border: Border.all(
-                    color: !_showQuestion ? Constants.sakura : Constants.charcoal,
-                    width: 2
-                  )
-                ),
-                child: Center(
-                  child: Text(
-                    "答",
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: !_showQuestion ? Constants.salmon : Constants.charcoal
-                    )
-                  ),
-                ),
-              ),
-            )
-          ],
+        IconButton(
+          onPressed: () {
+            widget.updateDisplayState(!_showQuestion);
+            setState(() => _showQuestion = !_showQuestion);
+          },
+          icon: const Icon(
+            Icons.restart_alt_rounded,
+            color: Constants.charcoal,
+            size: 20,
+          ),
         ),
         Expanded(
           child: Container(
             decoration: BoxDecoration(
-              color: Constants.sakura,
+              color: _showQuestion ? Constants.sakura : Constants.salmon,
               borderRadius: BorderRadius.circular(10)
             ),
-            padding: const EdgeInsets.fromLTRB(10, 12, 10, 16),
-            child: Column(
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                TextField(
-                  focusNode: _showQuestion ? _questionFocus : _answerFocus,
-                  controller: _showQuestion ? _questionController : _answerController,
-                  style: Theme.of(context).textTheme.bodyMedium,
-                  decoration: null,
-                  expands: true,
-                  onChanged: _showQuestion ? widget.onChangedQuestion : widget.onChangedAnswer,
-                  maxLines: null,
-                  minLines: null,
-                  enabled: widget.enableEditing,
+                Text(
+                  _showQuestion ? "問" : "答",
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: _showQuestion ? Constants.salmon : Constants.white
+                  ),
                 ),
-                _showQuestion && (widget.question.images?.isNotEmpty ?? false)
-                  ? Container(
-                    height: 200,
-                    padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                    child: ScrollableImageDisplay(
-                      images: widget.question.images,
-                      onDelete: widget.enableEditing ? widget.onDeleteImage : null,
-                    ),
-                  )
-                  : Container()
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    children: [
+                      TextField(
+                        focusNode: _showQuestion ? _questionFocus : _answerFocus,
+                        controller: _showQuestion ? _questionController : _answerController,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: _showQuestion ? Constants.charcoal : Constants.white
+                        ),
+                        decoration: null,
+                        expands: true,
+                        onChanged: _showQuestion ? widget.onChangedQuestion : widget.onChangedAnswer,
+                        maxLines: null,
+                        minLines: null,
+                        enabled: widget.enableEditing,
+                      ),
+                      _showQuestion && widget.question.images.isNotEmpty
+                        ? Container(
+                          height: 200,
+                          padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+                          child: ScrollableImageDisplay(
+                            images: widget.question.images,
+                            onDelete: widget.enableEditing ? widget.onDeleteImage : null,
+                          ),
+                        )
+                        : Container()
+                    ],
+                  ),
+                ),
               ],
             ),
           )

@@ -9,7 +9,8 @@ enum TestMode {
 
 enum ErrorType {
   fetch,
-  save
+  save,
+  emptyInput
 }
 
 class Constants {
@@ -49,6 +50,8 @@ class Constants {
         return 'データ取得に失敗しました。';
       case ErrorType.save:
         return 'データ保存に失敗しました。ストレージの空き容量をご確認の上、再試行をお願いいたします。';
+      case ErrorType.emptyInput:
+        return '問題・解答のどちらかが欠けているカードがあるため、テストは保存できません。';
     }
   }
 
