@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:uuid/uuid.dart';
 
 enum TestMode {
   lives,
@@ -12,6 +13,8 @@ enum ErrorType {
 }
 
 class Constants {
+
+  static const uuid = Uuid();
 
   static const salmon = Color.fromRGBO(239, 98, 108, 1);
   static const sakura = Color.fromRGBO(246, 232, 234, 1);

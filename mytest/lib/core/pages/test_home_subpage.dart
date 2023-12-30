@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 import 'package:file_selector/file_selector.dart';
+import 'package:uuid/uuid.dart';
 
 import 'package:mytest/app_state.dart';
 
@@ -85,7 +86,7 @@ class _TestHomeSubpageState extends State<TestHomeSubpage> with AlertMixin {
       );
       XFile? file = await openFile(acceptedTypeGroups: <XTypeGroup>[typeGroup]);
       if (file != null) {
-        String filename = "${_questions[index].a.id}-${_questions[index].a.images.length}";
+        String filename = Constants.uuid.v1();
         File? copied = await FileUtils.copyFile(
           File(file.path), filename
         );

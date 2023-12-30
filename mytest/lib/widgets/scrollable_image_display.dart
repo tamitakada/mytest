@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mytest/utils/file_utils.dart';
 import 'static_loader.dart';
 import 'package:mytest/constants.dart';
+import 'package:mytest/widgets/error_page.dart';
 
 
 class ScrollableImageDisplay extends StatelessWidget {
@@ -31,7 +32,7 @@ class ScrollableImageDisplay extends StatelessWidget {
                   imageCache.clear();
                   imageCache.clearLiveImages();
                   if (snapshot.hasData) {
-                    return snapshot.data ?? Text("エラー");
+                    return snapshot.data ?? const ErrorPage(margin: EdgeInsets.zero);
                   } else {
                     return const SizedBox(
                       width: 160,
