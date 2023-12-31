@@ -6,8 +6,8 @@ import 'package:mytest/models/test.dart';
 import 'package:mytest/constants.dart';
 import 'package:mytest/global_mixins/alert_mixin.dart';
 
-import 'package:mytest/widgets/scale_button.dart';
-import 'package:mytest/widgets/spaced_group.dart';
+import 'package:mytest/global_widgets/scale_button.dart';
+import 'package:mytest/global_widgets/spaced_group.dart';
 
 
 class PausedTestView extends StatelessWidget with AlertMixin {

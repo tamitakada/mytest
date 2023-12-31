@@ -9,7 +9,7 @@ import 'package:mytest/pair.dart';
 import 'package:mytest/global_mixins/alert_mixin.dart';
 import '../mixins/result_mixin.dart';
 
-import 'package:mytest/widgets/spaced_group.dart';
+import 'package:mytest/global_widgets/spaced_group.dart';
 
 
 class TestResultPage extends StatefulWidget {

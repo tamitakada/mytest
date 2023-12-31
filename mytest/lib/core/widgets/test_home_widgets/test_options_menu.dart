@@ -1,17 +1,55 @@
 import 'package:flutter/material.dart';
 
 import 'package:mytest/constants.dart';
+import 'package:mytest/app_state.dart';
 
-import 'package:mytest/models/test.dart';
+import 'package:mytest/global_mixins/alert_mixin.dart';
 
-import 'package:mytest/widgets/mt_button.dart';
+import 'package:mytest/global_widgets/mt_button.dart';
 
 
-class TestOptionsMenu extends StatelessWidget {
+class TestOptionsMenu extends StatelessWidget with AlertMixin {
 
-  final Test test;
+  final void Function() resetState;
 
-  const TestOptionsMenu({super.key, required this.test});
+  const TestOptionsMenu({
+    super.key, required this.resetState
+  });
+
+  void _onOptionSelect(BuildContext context, void Function() navigateToTest) {
+    switch (AppState.editingState.value) {
+      case EditingState.editingTest:
+        showConfirmationDialog(
+          context: context,
+          title: "練習を開始しますか？",
+          description: "保存されていない変更があります。変更を放棄してテストを開始しますか？",
+          confirmText: "開始する",
+          onConfirm: navigateToTest
+        );
+        break;
+      case EditingState.editingTestListing:
+        showConfirmationDialog(
+          context: context,
+          title: "練習を開始しますか？",
+          description: "保存されていない変更があります。変更を放棄してテストを開始しますか？",
+          confirmText: "開始する",
+          onConfirm: navigateToTest
+        );
+        break;
+      case EditingState.editingBoth:
+        showConfirmationDialog(
+            context: context,
+            title: "練習を開始しますか？",
+            description: "保存されていない変更があります。変更を放棄してテストを開始しますか？",
+            confirmText: "開始する",
+            onConfirm: navigateToTest
+        );
+        break;
+      case EditingState.notEditing:
+        navigateToTest();
+        break;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,12 +81,14 @@ class TestOptionsMenu extends StatelessWidget {
                     0, 0, index < TestMode.values.length - 1 ? 10 : 0, 0
                   ),
                   child: MTButton(
-                    onTap: () => Navigator.of(context, rootNavigator: true).pushNamed(
-                      '/exams/${Constants.modeRouteName(TestMode.values[index])}',
-                      arguments: {'test': test}
-                    ),
+                    onTap: () => _onOptionSelect(context, () {
+                      resetState();
+                      Navigator.of(context, rootNavigator: true).pushNamed(
+                        '/exams/${Constants.modeRouteName(TestMode.values[index])}',
+                      );
+                    }),
                     text: Constants.modeName(TestMode.values[index]),
-                    enabled: test.questions.isNotEmpty,
+                    enabled: AppState.selectedTest.value!.questions.isNotEmpty,
                   ),
                 );
               }

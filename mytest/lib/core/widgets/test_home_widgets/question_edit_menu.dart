@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mytest/constants.dart';
-import 'package:mytest/widgets/scale_button.dart';
+import 'package:mytest/global_widgets/scale_button.dart';
 
 class QuestionEditMenu extends StatelessWidget {
 

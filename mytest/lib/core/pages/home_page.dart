@@ -7,8 +7,9 @@ import 'package:mytest/global_mixins/alert_mixin.dart';
 
 import 'test_detail_navigator.dart';
 import '../widgets/test_lisiting_widgets/test_listing_tree.dart';
-import '../../widgets/error_page.dart';
-import 'package:mytest/widgets/static_loader.dart';
+
+import 'package:mytest/global_widgets/error_page.dart';
+import 'package:mytest/global_widgets/static_loader.dart';
 
 
 class HomePage extends StatefulWidget {
@@ -20,7 +21,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> with AlertMixin {
 
-  bool _isShowingDialog = false;
+  bool _isShowingDialog = false; // Prevent duplicate errors
 
   @override
   Widget build(BuildContext context) {
@@ -44,13 +45,12 @@ class _HomePageState extends State<HomePage> with AlertMixin {
             else {
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 if (!_isShowingDialog) {
-                  showErrorDialog(context, ErrorType.fetch).then((_) {
-                    _isShowingDialog = false;
-                  });
+                  showErrorDialog(context, ErrorType.fetch)
+                    .then((_) => _isShowingDialog = false);
                   _isShowingDialog = true;
                 }
               });
-              return const ErrorPage();
+              return const ErrorPage(margin: EdgeInsets.all(20));
             }
           } else {
             return const StaticLoader();

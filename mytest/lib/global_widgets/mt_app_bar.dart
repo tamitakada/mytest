@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mytest/constants.dart';
-import 'package:mytest/widgets/spaced_group.dart';
+import 'package:mytest/global_widgets/spaced_group.dart';
 
 class MTAppBar extends StatelessWidget {
 

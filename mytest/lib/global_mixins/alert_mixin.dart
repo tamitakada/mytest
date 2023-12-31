@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mytest/constants.dart';
-import 'package:mytest/widgets/mt_text_field.dart';
-import 'package:mytest/widgets/mt_button.dart';
-import 'package:mytest/widgets/shakeable_view.dart';
+import 'package:mytest/global_widgets/global_widgets.dart';
 
 
 mixin AlertMixin {

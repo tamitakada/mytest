@@ -11,13 +11,9 @@ import 'package:mytest/global_mixins/alert_mixin.dart';
 
 import '../mixins/record_mixin.dart';
 
-import 'package:mytest/widgets/spaced_group.dart';
-import 'package:mytest/widgets/scale_button.dart';
+import 'package:mytest/global_widgets/global_widgets.dart';
 import '../widgets/test_stats_widgets/stats_column.dart';
-import 'package:mytest/widgets/error_page.dart';
 import 'package:mytest/app_state.dart';
-import 'package:mytest/widgets/mt_app_bar.dart';
-import 'package:mytest/widgets/static_loader.dart';
 
 
 class TestStatsSubpage extends StatefulWidget {

@@ -10,11 +10,8 @@ import 'package:mytest/utils/data_manager.dart';
 
 import 'package:mytest/global_mixins/alert_mixin.dart';
 
-import 'package:mytest/widgets/error_page.dart';
-import 'package:mytest/widgets/spaced_group.dart';
-import 'package:mytest/widgets/scale_button.dart';
+import 'package:mytest/global_widgets/global_widgets.dart';
 import '../widgets/test_setting_listing.dart';
-import 'package:mytest/widgets/mt_app_bar.dart';
 
 
 class TestSettingsSubpage extends StatefulWidget {

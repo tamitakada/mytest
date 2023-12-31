@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mytest/utils/file_utils.dart';
 import 'static_loader.dart';
 import 'package:mytest/constants.dart';
-import 'package:mytest/widgets/error_page.dart';
+import 'package:mytest/global_widgets/error_page.dart';
 
 
 class ScrollableImageDisplay extends StatelessWidget {

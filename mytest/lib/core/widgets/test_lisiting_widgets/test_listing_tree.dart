@@ -6,10 +6,10 @@ import 'package:mytest/models/models.dart';
 import 'package:mytest/models/editing_test.dart';
 
 import 'package:mytest/global_mixins/alert_mixin.dart';
-import 'package:mytest/widgets/spaced_group.dart';
 
+import 'package:mytest/global_widgets/spaced_group.dart';
+import 'package:mytest/global_widgets/scale_button.dart';
 import 'test_listing.dart';
-import 'package:mytest/widgets/scale_button.dart';
 
 import 'package:mytest/constants.dart';
 import 'package:mytest/app_state.dart';
@@ -28,7 +28,6 @@ class _TestListingTreeState extends State<TestListingTree> with AlertMixin {
   late List<EditingTest> _editingTests;
 
   int _selectedTestIndex = -1;
-  bool _isEditing = false;
 
   /* CREATE NEW TEST ======================================================== */
 
@@ -65,7 +64,29 @@ class _TestListingTreeState extends State<TestListingTree> with AlertMixin {
       setState(() => _editingTests = []);
       if (!success) { showErrorDialog(context, ErrorType.save); }
     });
-    setState(() => _isEditing = false);
+    setState(() => AppState.updateEditingState(EditingAction.endEditingTestListing));
+  }
+
+  void _onSelect(BuildContext context, int index) {
+    if (!AppState.isEditing(EditingType.listing)) { // Only allow selection if NOT editing
+      if (AppState.editingState.value != EditingState.notEditing) {
+        showConfirmationDialog(
+            context: context,
+            title: "変更は保存されません",
+            description: "保存されていない変更があります。変更を放棄して次の画面に進みますか？",
+            confirmText: "進む",
+            onConfirm: () {
+              AppState.updateEditingState(EditingAction.endEditingTest);
+              AppState.updateEditingState(EditingAction.endEditingTestListing);
+              AppState.selectedTest.value = AppState.allTests[index];
+              setState(() => _selectedTestIndex = index);
+            }
+        );
+      } else {
+        AppState.selectedTest.value = AppState.allTests[index];
+        setState(() => _selectedTestIndex = index);
+      }
+    }
   }
 
   /* INIT/BUILD ============================================================= */
@@ -73,6 +94,13 @@ class _TestListingTreeState extends State<TestListingTree> with AlertMixin {
   @override
   void initState() {
     _selectedTestIndex = AppState.selectedTest.value?.order ?? -1;
+    AppState.editingState.addListener(() {
+      if (!AppState.isEditing(EditingType.listing)) {
+
+
+        setState(() {}); // Reload if editing was force stopped by detail nav
+      }
+    });
     super.initState();
   }
 
@@ -95,7 +123,7 @@ class _TestListingTreeState extends State<TestListingTree> with AlertMixin {
               spacing: 15,
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                !_isEditing
+                !AppState.isEditing(EditingType.listing)
                   ? ScaleButton(
                     child: SvgPicture.asset('assets/images/add.svg', height: 16),
                     onTap: () =>
@@ -108,15 +136,15 @@ class _TestListingTreeState extends State<TestListingTree> with AlertMixin {
                   : Container(),
                 ScaleButton(
                   child: SvgPicture.asset(
-                    'assets/images/${_isEditing ? 'save' : 'edit'}.svg',
+                    'assets/images/${AppState.isEditing(EditingType.listing) ? 'save' : 'edit'}.svg',
                     height: 16
                   ),
                   onTap: () {
-                    if (_isEditing) { _saveTests(context); }
+                    if (AppState.isEditing(EditingType.listing)) { _saveTests(context); }
                     else {
                       setState(() {
                         _editingTests = AppState.getEditingCopy();
-                        _isEditing = true;
+                        AppState.updateEditingState(EditingAction.beginEditingTestListing);
                       });
                     }
                   },
@@ -144,22 +172,17 @@ class _TestListingTreeState extends State<TestListingTree> with AlertMixin {
                             padding: EdgeInsets.fromLTRB(0, index == 0 ? 10 : 0, 0, 0),
                             child: TestListing(
                               key: UniqueKey(),
-                              testTitle: _isEditing
+                              testTitle: AppState.isEditing(EditingType.listing)
                                 ? _editingTests[index].title
                                 : (index == _selectedTestIndex ? test!.title : AppState.allTests[index].title),
                               index: index,
-                              isEditing: _isEditing,
+                              isEditing: AppState.isEditing(EditingType.listing),
                               isSelected: index == _selectedTestIndex,
-                              onSelect: () {
-                                if (!_isEditing) {
-                                  AppState.selectedTest.value = AppState.allTests[index];
-                                  setState(() => _selectedTestIndex = index);
-                                }
-                              },
+                              onSelect: () => _onSelect(context, index),
                             )
                           );
                         },
-                        itemCount: _isEditing ? _editingTests.length : AppState.allTests.length,
+                        itemCount: AppState.isEditing(EditingType.listing) ? _editingTests.length : AppState.allTests.length,
                         shrinkWrap: true,
                         onReorder: _reorderTest
                       );
@@ -174,14 +197,14 @@ class _TestListingTreeState extends State<TestListingTree> with AlertMixin {
                           padding: EdgeInsets.fromLTRB(0, index == 0 ? 10 : 0, 0, 0),
                           child: TestListing(
                             key: UniqueKey(),
-                            testTitle: _isEditing
+                            testTitle: AppState.isEditing(EditingType.listing)
                                 ? _editingTests[index].title
                                 : (index == _selectedTestIndex ? test!.title : AppState.allTests[index].title),
                             index: index,
-                            isEditing: _isEditing,
+                            isEditing: AppState.isEditing(EditingType.listing),
                             isSelected: index == _selectedTestIndex,
                             onSelect: () {
-                              if (!_isEditing) {
+                              if (!AppState.isEditing(EditingType.listing)) {
                                 AppState.selectedTest.value = AppState.allTests[index];
                                 setState(() => _selectedTestIndex = index);
                               }
@@ -189,7 +212,7 @@ class _TestListingTreeState extends State<TestListingTree> with AlertMixin {
                           )
                       );
                     },
-                    itemCount: _isEditing ? _editingTests.length : AppState.allTests.length,
+                    itemCount: AppState.isEditing(EditingType.listing) ? _editingTests.length : AppState.allTests.length,
                     shrinkWrap: true,
                     onReorder: _reorderTest
                   );

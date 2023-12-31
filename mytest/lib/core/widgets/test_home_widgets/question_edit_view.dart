@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:mytest/constants.dart';
 import 'package:mytest/models/question.dart';
-import 'package:mytest/widgets/spaced_group.dart';
-import 'package:mytest/widgets/scrollable_image_display.dart';
-import 'package:mytest/widgets/scale_button.dart';
+import 'package:mytest/global_widgets/global_widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 

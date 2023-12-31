@@ -17,13 +17,9 @@ import 'package:mytest/global_mixins/alert_mixin.dart';
 import 'package:mytest/pair.dart';
 import 'package:mytest/constants.dart';
 
-import 'package:mytest/widgets/error_page.dart';
-import 'package:mytest/widgets/spaced_group.dart';
-import 'package:mytest/widgets/mt_text_field.dart';
-import 'package:mytest/widgets/scale_button.dart';
+import 'package:mytest/global_widgets/global_widgets.dart';
 import '../widgets/test_home_widgets/widgets.dart';
 import '../widgets/animated_editor_view.dart';
-import 'package:mytest/widgets/mt_app_bar.dart';
 
 
 class TestHomeSubpage extends StatefulWidget {
@@ -36,10 +32,10 @@ class TestHomeSubpage extends StatefulWidget {
 
 class _TestHomeSubpageState extends State<TestHomeSubpage> with AlertMixin {
 
-  Test? _currentTest;
+  Test? _currentTest; // Detect true changes in selected test
+
   String _query = "";
   int _toAnimate = -1;
-  bool _isEditing = false;
 
   late List<Pair<Question, bool>> _questions; // Question, showing question (vs. answer) side
   List<Question> _questionsToDelete = [];
@@ -49,25 +45,29 @@ class _TestHomeSubpageState extends State<TestHomeSubpage> with AlertMixin {
   /* UNWRITTEN QUESTION CHANGES ============================================= */
 
   void _addQuestion() {
-    setState(() { // Trigger animation for added item
+    setState(() {
       _questions.add(
         Pair(
-          a: Question(order: _questions.length, question: "", answer: "", images: List<String>.empty(growable: true)),
-          b: true
+          a: Question(
+            order: _questions.length, question: "", answer: "",
+            images: List<String>.empty(growable: true) // Explicitly growable
+          ),
+          b: true // Start with question side
         )
       );
-      _toAnimate = _questions.length - 1;
+      _toAnimate = _questions.length - 1; // Mark to animate in
     });
   }
 
   void _reorderQuestion(int oldIndex, int newIndex) {
+    // Order property changed on validate; no need to update here
     Pair<Question, bool> entry = _questions[oldIndex];
-    entry.a.order = newIndex;
     _questions.removeAt(oldIndex);
     _questions.insert(newIndex - (oldIndex < newIndex ? 1 : 0), entry);
   }
 
   void _deleteQuestion(int index) {
+    AppState.selectedTest.value!.questions.remove(_questions[index]);
     _questionsToDelete.add(_questions[index].a);
     setState(() { _questions.removeAt(index); });
   }
@@ -83,28 +83,27 @@ class _TestHomeSubpageState extends State<TestHomeSubpage> with AlertMixin {
   Future<bool> _selectNewImage(int index) async {
     try {
       const XTypeGroup typeGroup = XTypeGroup(
-        label: 'images',
-        extensions: <String>['jpg', 'png'],
+        label: 'images', extensions: <String>['jpg', 'png'],
       );
       XFile? file = await openFile(acceptedTypeGroups: <XTypeGroup>[typeGroup]);
       if (file != null) {
-        String filename = Constants.uuid.v1();
+        String filename = Constants.uuid.v1(); // Copy image to unique filename
         File? copied = await FileUtils.copyFile(File(file.path), filename);
-        if (copied != null) {
+        if (copied != null) { // Add copied filename to images property
           setState(() => _questions[index].a.images.add(filename));
           return true;
         }
-        return false;
+        return false; // Error copying
       }
-      return true;
+      return true; // Cancelled image selection
     }
-    catch (e) { return false; }
+    catch (e) { return false; } // Error selecting image
   }
   
   void _deleteImage(BuildContext context, int questionIndex, int imageIndex) {
     if (imageIndex < _questions[questionIndex].a.images.length) {
       FileUtils.deleteFile(_questions[questionIndex].a.images[imageIndex]).then((success) {
-        if (success) {
+        if (success) { // Reload & update property on success deleting image file
           setState(() => _questions[questionIndex].a.images.removeAt(imageIndex));
         }
         else { showErrorDialog(context, ErrorType.save); }
@@ -115,14 +114,14 @@ class _TestHomeSubpageState extends State<TestHomeSubpage> with AlertMixin {
   /* WRITING QUESTION CHANGES =============================================== */
 
   void _validateChanges(BuildContext context) {
-    List<Question> questions = [];
+    List<Question> questions = []; // Isolate Questions from Pairs
     for (int i = 0; i < _questions.length; i++) {
-      if (_questions[i].a.question.trim().isEmpty
+      if (_questions[i].a.question.trim().isEmpty // DON'T save if empty inputs
           || _questions[i].a.answer.trim().isEmpty) {
         showErrorDialog(context, ErrorType.emptyInput);
         return;
       }
-      _questions[i].a.order = i;
+      _questions[i].a.order = i; // Order written
       questions.add(_questions[i].a);
     }
     DataManager.upsertQuestions(questions, AppState.selectedTest.value!).then((success) {
@@ -130,6 +129,7 @@ class _TestHomeSubpageState extends State<TestHomeSubpage> with AlertMixin {
         if (_questionsToDelete.isNotEmpty) { // Delete iff pending deletes
           DataManager.deleteQuestions(_questionsToDelete).then((success) {
             _questionsToDelete = []; // Reset delete queue REGARDLESS of success
+            // Load questions to update for deletes
             if (success) { AppState.selectedTest.value!.questions.load(); }
             else { showErrorDialog(context, ErrorType.save); }
           });
@@ -137,15 +137,24 @@ class _TestHomeSubpageState extends State<TestHomeSubpage> with AlertMixin {
       }
       else { showErrorDialog(context, ErrorType.save); }
     });
-    setState(() => _isEditing = false);
+    setState(() => AppState.updateEditingState(EditingAction.endEditingTest));
   }
 
   /* BUILD ================================================================== */
 
-  void _pushNewTestDetail() {
-    if (_currentTest != AppState.selectedTest.value) {
-      Navigator.of(context).pushReplacementNamed("test_detail/home");
-    }
+  void resetState() {
+    // Clear search
+    _query = "";
+    _queryController.clear();
+    // Reset edits
+    _toAnimate = -1;
+    AppState.updateEditingState(EditingAction.endEditingTest);
+    AppState.updateEditingState(EditingAction.endEditingTestListing);
+    _questions = AppState.selectedTest.value?.getOrderedQuestions().map(
+      (q) => Pair(a: q, b: true)
+    ).toList() ?? [];
+    _questionsToDelete = [];
+    setState(() {});
   }
 
   @override
@@ -154,18 +163,41 @@ class _TestHomeSubpageState extends State<TestHomeSubpage> with AlertMixin {
     _questions = AppState.selectedTest.value?.getOrderedQuestions().map(
       (q) => Pair(a: q, b: true)
     ).toList() ?? [];
-    AppState.selectedTest.addListener(_pushNewTestDetail);
     super.initState();
   }
 
-  @override
-  void dispose() {
-    AppState.selectedTest.removeListener(_pushNewTestDetail);
-    super.dispose();
-  }
+  bool _addedListener = false;
 
   @override
   Widget build(BuildContext context) {
+    pushNewTestDetail() { // Named to add/remove as listener (must be within context)
+      if (_currentTest != AppState.selectedTest.value) {
+        if (AppState.editingState.value != EditingState.notEditing) {
+          showConfirmationDialog(
+            context: context,
+            title: "変更は保存されません",
+            description: "保存されていない変更があります。変更を放棄して次の画面に進みますか？",
+            confirmText: "進む",
+            onConfirm: () {
+              AppState.updateEditingState(EditingAction.endEditingTest);
+              AppState.updateEditingState(EditingAction.endEditingTestListing);
+              AppState.selectedTest.removeListener(pushNewTestDetail);
+              Navigator.of(context).pushReplacementNamed("test_detail/home");
+            }
+          );
+        }
+        else {
+          AppState.selectedTest.removeListener(pushNewTestDetail);
+          Navigator.of(context).pushReplacementNamed("test_detail/home");
+        }
+      }
+    }
+
+    if (!_addedListener) {
+      AppState.selectedTest.addListener(pushNewTestDetail);
+      _addedListener = true;
+    }
+
     return AppState.selectedTest.value != null
       ? ListenableBuilder(
         listenable: AppState.selectedTest.value!,
@@ -178,23 +210,15 @@ class _TestHomeSubpageState extends State<TestHomeSubpage> with AlertMixin {
                   title: AppState.selectedTest.value!.title,
                   actions: [
                     ScaleButton(
-                      onTap: () => Navigator.of(context).pushNamed(
-                        "test_detail/settings",
-                        arguments: {"test": AppState.selectedTest.value}
-                      ),
+                      onTap: () => Navigator.of(context).pushNamed("test_detail/settings"),
                       child: SvgPicture.asset(
-                        'assets/images/settings.svg',
-                        height: 18,
+                        'assets/images/settings.svg', height: 18,
                       )
                     ),
                     ScaleButton(
-                      onTap: () => Navigator.of(context).pushNamed(
-                        "test_detail/stats",
-                        arguments: {"test": AppState.selectedTest.value}
-                      ),
+                      onTap: () => Navigator.of(context).pushNamed("test_detail/stats"),
                       child: SvgPicture.asset(
-                        'assets/images/stats.svg',
-                        height: 16,
+                        'assets/images/stats.svg', height: 16,
                       )
                     ),
                   ],
@@ -207,20 +231,20 @@ class _TestHomeSubpageState extends State<TestHomeSubpage> with AlertMixin {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       spacing: 20,
                       children: [
-                        TestOptionsMenu(test: AppState.selectedTest.value!),
+                        TestOptionsMenu(resetState: resetState),
                         SpacedGroup(
                           axis: Axis.horizontal,
                           spacing: 20,
                           children: [
                             Expanded(
                               child: MTTextField(
-                                enabled: !_isEditing,
+                                enabled: !AppState.isEditing(EditingType.test),
                                 hintText: '問題を検索',
                                 controller: _queryController,
                                 onChanged: (query) => setState(() { _query = query; }),
                               )
                             ),
-                            _isEditing
+                            AppState.isEditing(EditingType.test)
                               ? ScaleButton(
                                 onTap: _addQuestion,
                                 child: SvgPicture.asset(
@@ -231,24 +255,26 @@ class _TestHomeSubpageState extends State<TestHomeSubpage> with AlertMixin {
                               : Container(),
                             ScaleButton(
                               onTap: () {
-                                if (_isEditing) { _validateChanges(context); }
+                                if (AppState.isEditing(EditingType.test)) {
+                                  _validateChanges(context);
+                                }
                                 else {
                                   setState(() {
                                     _queryController.clear();
                                     _query = "";
-                                    _isEditing = true;
+                                    AppState.updateEditingState(EditingAction.beginEditingTest);
                                   });
                                 }
                               },
                               child: SvgPicture.asset(
-                                'assets/images/${_isEditing ? 'save' : 'edit'}.svg',
+                                'assets/images/${AppState.isEditing(EditingType.test) ? 'save' : 'edit'}.svg',
                                 height: 16
                               ),
                             ),
                           ]
                         ),
                         Expanded(
-                          child: _questions.isNotEmpty || _isEditing
+                          child: _questions.isNotEmpty || AppState.isEditing(EditingType.test)
                             ? ReorderableListView.builder(
                               buildDefaultDragHandles: false,
                               proxyDecorator: (child, _, __) => Material(color: Colors.transparent, child: child,),
@@ -262,14 +288,14 @@ class _TestHomeSubpageState extends State<TestHomeSubpage> with AlertMixin {
                                   return AnimatedEditorView(
                                     key: Key('$index'),
                                     index: index,
-                                    isEditing: _isEditing,
+                                    isEditing: AppState.isEditing(EditingType.test),
                                     onDelete: () => _deleteQuestion(index),
                                     onImageUpload: _questions[index].b
                                       ? () => _selectNewImageSync(context, index) : null,
                                     child: QuestionView(
                                       index: index,
                                       question: _questions[index].a,
-                                      enableEditing: _isEditing,
+                                      enableEditing: AppState.isEditing(EditingType.test),
                                       displayQuestion: _questions[index].b,
                                       animate: animate,
                                       updateDisplayState: (displayQuestion) => _questions[index].b = displayQuestion,

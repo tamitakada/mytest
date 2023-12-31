@@ -116,16 +116,18 @@ class DataManager {
   static Future<bool> deleteQuestions(List<Question> questions) async {
     try {
       for (Question q in questions) {
-        for (String i in q.images) {
+        for (String i in q.images) { // Delete all images
           if (!await FileUtils.deleteFile(i)) {
             return false;
           }
         }
       }
+
       Test? test = questions.first.test.value;
-      test?.questions.removeAll(questions);
-      await (await isar).writeTxn(() async {
-        await test?.questions.save();
+      // Save test property (assume questions have already been removed)
+      await test?.questions.save();
+
+      await (await isar).writeTxn(() async { // Delete questions
         await (await isar).questions.deleteAll(
           questions.map((q) => q.id).toList()
         );

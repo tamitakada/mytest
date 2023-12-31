@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'test_home_subpage.dart';
-import 'test_settings_subpage.dart';
-import 'test_stats_subpage.dart';
+import 'subpages.dart';
 
 
 class TestDetailNavigator extends StatelessWidget {
@@ -17,13 +15,13 @@ class TestDetailNavigator extends StatelessWidget {
         WidgetBuilder builder;
         switch (settings.name) {
           case 'test_detail/home':
-            builder = (BuildContext context) => const TestHomeSubpage();
+            builder = (context) => const TestHomeSubpage();
             break;
           case 'test_detail/stats':
-            builder = (BuildContext context) => const TestStatsSubpage();
+            builder = (context) => const TestStatsSubpage();
             break;
           case 'test_detail/settings':
-            builder = (BuildContext context) => const TestSettingsSubpage();
+            builder = (context) => const TestSettingsSubpage();
             break;
           default:
             throw Exception('Invalid route: ${settings.name}');

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:mytest/app_state.dart';
 import '../mixins/exam_mixin.dart';
 
 import '../widgets/paused_test_view.dart';
@@ -8,13 +9,9 @@ import '../widgets/answer_view.dart';
 import 'package:mytest/models/models.dart';
 
 import 'package:mytest/constants.dart';
-import 'package:mytest/widgets/spaced_group.dart';
-import 'package:mytest/widgets/mt_text_field.dart';
-import 'package:mytest/widgets/scrollable_image_display.dart';
+import 'package:mytest/global_widgets/global_widgets.dart';
 
 import 'package:mytest/pair.dart';
-
-import '../../../widgets/shakeable_view.dart';
 
 
 class TestPage extends StatefulWidget {
@@ -28,8 +25,6 @@ class TestPage extends StatefulWidget {
 }
 
 class _TestPageState extends State<TestPage> with ExamMixin {
-
-  Test? _test;
 
   final TextEditingController _answerController = TextEditingController();
   final FocusNode _answerNode = FocusNode();
@@ -46,7 +41,7 @@ class _TestPageState extends State<TestPage> with ExamMixin {
 
   void _checkAnswer(String answer) {
     _answerController.clear();
-    if (isAnswerCorrect(_testQuestions.last.a, answer, _test!.flipTerms, _test!.allowError)) {
+    if (isAnswerCorrect(_testQuestions.last.a, answer, AppState.selectedTest.value!.flipTerms, AppState.selectedTest.value!.allowError)) {
       _testQuestions.last.b = !_isInMistakeMode; // Only correct when not in mistake mode
       if (
         (widget.mode == TestMode.full && _questions.isEmpty)
@@ -171,6 +166,20 @@ class _TestPageState extends State<TestPage> with ExamMixin {
   // INIT / DISPOSE / BUILD ====================================================
 
   @override
+  void initState() {
+    _questions = AppState.selectedTest.value!.questions.toList();
+    _initialQuestionCount = _questions.length;
+    _testQuestions.add(
+      Pair<Question, bool>(
+        a: generateRandomQuestion(widget.mode, _questions),
+        b: false
+      )
+    );
+    _answerNode.requestFocus();
+    super.initState();
+  }
+
+  @override
   void dispose() {
     _answerController.dispose();
     _answerNode.dispose();
@@ -179,22 +188,6 @@ class _TestPageState extends State<TestPage> with ExamMixin {
 
   @override
   Widget build(BuildContext context) {
-    if (_test == null) {
-      Map<String, dynamic>? args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
-      if (args != null && args.containsKey("test")) {
-        _test = args["test"] as Test;
-        _questions = _test!.questions.toList();
-        _initialQuestionCount = _questions.length;
-        _testQuestions.add(
-          Pair<Question, bool>(
-            a: generateRandomQuestion(widget.mode, _questions),
-            b: false
-          )
-        );
-      }
-      _answerNode.requestFocus();
-    }
-
     // Only show animation once per mistake
     bool showMistakeAnimation = _showMistakeAnimation;
     _showMistakeAnimation = false;
@@ -227,7 +220,7 @@ class _TestPageState extends State<TestPage> with ExamMixin {
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Text(
-                      _test?.title ?? "",
+                      AppState.selectedTest.value!.title,
                       style: Theme.of(context).textTheme.displaySmall,
                       overflow: TextOverflow.ellipsis,
                       maxLines: 1,
@@ -262,7 +255,7 @@ class _TestPageState extends State<TestPage> with ExamMixin {
                 ),
                 child: _isPaused
                   ? PausedTestView(
-                    test: _test!,
+                    test: AppState.selectedTest.value!,
                     mode: widget.mode,
                     unpause: _unpause
                   )
@@ -276,7 +269,7 @@ class _TestPageState extends State<TestPage> with ExamMixin {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              _test!.flipTerms ? _testQuestions.last.a.answer : _testQuestions.last.a.question,
+                              AppState.selectedTest.value!.flipTerms ? _testQuestions.last.a.answer : _testQuestions.last.a.question,
                               style: Theme.of(context).textTheme.bodyLarge,
                             ),
                             _testQuestions.last.a.images.isNotEmpty
@@ -290,7 +283,7 @@ class _TestPageState extends State<TestPage> with ExamMixin {
                         ),
                       ),
                       _isInMistakeMode
-                        ? AnswerView(answer: !_test!.flipTerms ? _testQuestions.last.a.answer : _testQuestions.last.a.question)
+                        ? AnswerView(answer: !AppState.selectedTest.value!.flipTerms ? _testQuestions.last.a.answer : _testQuestions.last.a.question)
                         : Container()
                     ],
                   ),
