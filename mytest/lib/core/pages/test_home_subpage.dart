@@ -170,6 +170,25 @@ class _TestHomeSubpageState extends State<TestHomeSubpage> with AlertMixin {
 
   @override
   Widget build(BuildContext context) {
+    navigateWithEditConfirmation(String newRoute) {
+      if (AppState.editingState.value != EditingState.notEditing) {
+        showConfirmationDialog(
+          context: context,
+          title: "変更は保存されません",
+          description: "保存されていない変更があります。変更を放棄して次の画面に進みますか？",
+          confirmText: "進む",
+          onConfirm: () {
+            resetState();
+            Navigator.of(context).pushNamed(newRoute);
+          }
+        );
+      }
+      else {
+        resetState();
+        Navigator.of(context).pushNamed(newRoute);
+      }
+    }
+
     pushNewTestDetail() { // Named to add/remove as listener (must be within context)
       if (_currentTest != AppState.selectedTest.value) {
         if (AppState.editingState.value != EditingState.notEditing) {
@@ -179,14 +198,14 @@ class _TestHomeSubpageState extends State<TestHomeSubpage> with AlertMixin {
             description: "保存されていない変更があります。変更を放棄して次の画面に進みますか？",
             confirmText: "進む",
             onConfirm: () {
-              AppState.updateEditingState(EditingAction.endEditingTest);
-              AppState.updateEditingState(EditingAction.endEditingTestListing);
+              resetState();
               AppState.selectedTest.removeListener(pushNewTestDetail);
               Navigator.of(context).pushReplacementNamed("test_detail/home");
             }
           );
         }
         else {
+          resetState();
           AppState.selectedTest.removeListener(pushNewTestDetail);
           Navigator.of(context).pushReplacementNamed("test_detail/home");
         }
@@ -210,13 +229,13 @@ class _TestHomeSubpageState extends State<TestHomeSubpage> with AlertMixin {
                   title: AppState.selectedTest.value!.title,
                   actions: [
                     ScaleButton(
-                      onTap: () => Navigator.of(context).pushNamed("test_detail/settings"),
+                      onTap: () => navigateWithEditConfirmation("test_detail/settings"),
                       child: SvgPicture.asset(
                         'assets/images/settings.svg', height: 18,
                       )
                     ),
                     ScaleButton(
-                      onTap: () => Navigator.of(context).pushNamed("test_detail/stats"),
+                      onTap: () => navigateWithEditConfirmation("test_detail/stats"),
                       child: SvgPicture.asset(
                         'assets/images/stats.svg', height: 16,
                       )
@@ -227,6 +246,7 @@ class _TestHomeSubpageState extends State<TestHomeSubpage> with AlertMixin {
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(20, 20, 0, 0),
                     child: SpacedGroup(
+                      key: UniqueKey(),
                       axis: Axis.vertical,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       spacing: 20,
@@ -241,7 +261,7 @@ class _TestHomeSubpageState extends State<TestHomeSubpage> with AlertMixin {
                                 enabled: !AppState.isEditing(EditingType.test),
                                 hintText: '問題を検索',
                                 controller: _queryController,
-                                onChanged: (query) => setState(() { _query = query; }),
+                                onSubmitted: (query) => setState(() { _query = query; }),
                               )
                             ),
                             AppState.isEditing(EditingType.test)

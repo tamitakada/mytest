@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:mytest/test_taking/pages/exam_result.dart';
 
 import 'core/pages/home_page.dart';
-
+import 'test_taking/pages/exam_result.dart';
 import 'test_taking/pages/test_page.dart';
 
 import 'constants.dart';
-import 'app_state.dart';
 
 
 void main() {
@@ -16,7 +14,6 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(

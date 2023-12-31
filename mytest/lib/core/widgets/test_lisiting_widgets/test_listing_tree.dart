@@ -47,10 +47,10 @@ class _TestListingTreeState extends State<TestListingTree> with AlertMixin {
     setState(() {
       _editingTests.removeAt(oldIndex);
       _editingTests.insert(trueIndex, test);
-      if (oldIndex < _selectedTestIndex && newIndex >= _selectedTestIndex) {
+      if (oldIndex < _selectedTestIndex && trueIndex >= _selectedTestIndex) {
         _selectedTestIndex--;
       }
-      else if (oldIndex > _selectedTestIndex && newIndex <= _selectedTestIndex) {
+      else if (oldIndex > _selectedTestIndex && trueIndex <= _selectedTestIndex) {
         _selectedTestIndex++;
       }
       else if (oldIndex == _selectedTestIndex) {
@@ -65,6 +65,15 @@ class _TestListingTreeState extends State<TestListingTree> with AlertMixin {
       if (!success) { showErrorDialog(context, ErrorType.save); }
     });
     setState(() => AppState.updateEditingState(EditingAction.endEditingTestListing));
+  }
+
+  int _indexOfTest(Test test) {
+    for (int i = 0; i < _editingTests.length; i++) {
+      if (_editingTests[i].test == test) {
+        return i;
+      }
+    }
+    return -1;
   }
 
   void _onSelect(BuildContext context, int index) {
@@ -96,9 +105,9 @@ class _TestListingTreeState extends State<TestListingTree> with AlertMixin {
     _selectedTestIndex = AppState.selectedTest.value?.order ?? -1;
     AppState.editingState.addListener(() {
       if (!AppState.isEditing(EditingType.listing)) {
-
-
-        setState(() {}); // Reload if editing was force stopped by detail nav
+        setState(() {
+          _selectedTestIndex = AppState.selectedTest.value?.order ?? -1;
+        }); // Reload if editing was force stopped by detail nav
       }
     });
     super.initState();
@@ -156,8 +165,10 @@ class _TestListingTreeState extends State<TestListingTree> with AlertMixin {
             child: ValueListenableBuilder(
               valueListenable: AppState.selectedTest,
               builder: (context, test, child) {
-                if (test?.order != _selectedTestIndex) {
-                  _selectedTestIndex = test?.order ?? -1;
+                if (AppState.isEditing(EditingType.listing)) {
+                  if (test != null && test != _editingTests[_selectedTestIndex].test) {
+                    _selectedTestIndex = _indexOfTest(test);
+                  }
                 }
                 return AppState.selectedTest.value != null
                   ? ListenableBuilder(
@@ -174,7 +185,7 @@ class _TestListingTreeState extends State<TestListingTree> with AlertMixin {
                               key: UniqueKey(),
                               testTitle: AppState.isEditing(EditingType.listing)
                                 ? _editingTests[index].title
-                                : (index == _selectedTestIndex ? test!.title : AppState.allTests[index].title),
+                                : AppState.allTests[index].title,
                               index: index,
                               isEditing: AppState.isEditing(EditingType.listing),
                               isSelected: index == _selectedTestIndex,
