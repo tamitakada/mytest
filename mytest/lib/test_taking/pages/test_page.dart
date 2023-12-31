@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 
+import 'package:flutter_svg/flutter_svg.dart';
+
 import 'package:mytest/app_state.dart';
 import '../mixins/exam_mixin.dart';
+import 'package:mytest/global_mixins/alert_mixin.dart';
 
 import '../widgets/paused_test_view.dart';
 import '../widgets/answer_view.dart';
@@ -24,7 +27,7 @@ class TestPage extends StatefulWidget {
   State<TestPage> createState() => _TestPageState();
 }
 
-class _TestPageState extends State<TestPage> with ExamMixin {
+class _TestPageState extends State<TestPage> with ExamMixin, AlertMixin {
 
   final TextEditingController _answerController = TextEditingController();
   final FocusNode _answerNode = FocusNode();
@@ -119,7 +122,7 @@ class _TestPageState extends State<TestPage> with ExamMixin {
         const SizedBox(height: 5),
         Text(
           _testQuestions.length > 1
-            ? "${(( _testQuestions.length - _mistakeCount) / _testQuestions.length * 100).toInt()}%"
+            ? "${(( _testQuestions.length - _mistakeCount - (_isInMistakeMode ? 0 : 1)) / (_testQuestions.length - (_isInMistakeMode ? 0 : 1)) * 100).toInt()}%"
             : "- %",
           style: Theme.of(context).textTheme.bodyLarge,
         )
@@ -231,13 +234,21 @@ class _TestPageState extends State<TestPage> with ExamMixin {
                   axis: Axis.horizontal,
                   spacing: 20,
                   children: [
-                    !_isPaused
-                      ? IconButton(
-                        onPressed: () => setState(() => _isPaused = true),
-                        icon: const Icon(
-                          Icons.pause_rounded,
-                          color: Constants.salmon,
-                          size: 24,
+                    widget.mode == TestMode.practice
+                      ? ScaleButton(
+                        onTap: () => Navigator.of(context).pop(),
+                        child: SvgPicture.asset(
+                          'assets/images/exit.svg',
+                          height: 16,
+                        ),
+                      )
+                      : Container(),
+                    widget.mode != TestMode.practice && !_isPaused
+                      ? ScaleButton(
+                        onTap: () => setState(() => _isPaused = true),
+                        child: SvgPicture.asset(
+                          'assets/images/pause.svg',
+                          height: 16,
                         ),
                       )
                       : Container(),

@@ -93,12 +93,6 @@ class _TestStatsSubpageState extends State<TestStatsSubpage> with RecordMixin, A
                                 records: sortedRecords[TestMode.lives] ?? [],
                               )
                             ),
-                            Expanded(
-                              child: StatsColumn(
-                                mode: TestMode.practice,
-                                records: sortedRecords[TestMode.practice] ?? [],
-                              )
-                            ),
                           ],
                         ),
                       );

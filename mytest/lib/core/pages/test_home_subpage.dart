@@ -41,6 +41,7 @@ class _TestHomeSubpageState extends State<TestHomeSubpage> with AlertMixin {
   List<Question> _questionsToDelete = [];
 
   final TextEditingController _queryController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
 
   /* UNWRITTEN QUESTION CHANGES ============================================= */
 
@@ -56,6 +57,13 @@ class _TestHomeSubpageState extends State<TestHomeSubpage> with AlertMixin {
         )
       );
       _toAnimate = _questions.length - 1; // Mark to animate in
+    });
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeIn
+      );
     });
   }
 
@@ -140,7 +148,49 @@ class _TestHomeSubpageState extends State<TestHomeSubpage> with AlertMixin {
     setState(() => AppState.updateEditingState(EditingAction.endEditingTest));
   }
 
-  /* BUILD ================================================================== */
+  /* STATE-AWARE NAVIGATION ================================================= */
+
+  void _pushNewTestDetail() {
+    if (_currentTest != AppState.selectedTest.value) {
+      if (AppState.editingState.value != EditingState.notEditing) {
+        showConfirmationDialog(
+          context: context,
+          title: "変更は保存されません",
+          description: "保存されていない変更があります。変更を放棄して次の画面に進みますか？",
+          confirmText: "進む",
+          onConfirm: () {
+            resetState();
+            Navigator.of(context).pushReplacementNamed("test_detail/home");
+          }
+        );
+      }
+      else {
+        resetState();
+        Navigator.of(context).pushReplacementNamed("test_detail/home");
+      }
+    }
+  }
+
+  void _navigateWithEditConfirmation(String newRoute) {
+    if (AppState.editingState.value != EditingState.notEditing) {
+      showConfirmationDialog(
+        context: context,
+        title: "変更は保存されません",
+        description: "保存されていない変更があります。変更を放棄して次の画面に進みますか？",
+        confirmText: "進む",
+        onConfirm: () {
+          resetState();
+          Navigator.of(context).pushNamed(newRoute);
+        }
+      );
+    }
+    else {
+      resetState();
+      Navigator.of(context).pushNamed(newRoute);
+    }
+  }
+
+  /* STATE ================================================================== */
 
   void resetState() {
     // Clear search
@@ -151,10 +201,18 @@ class _TestHomeSubpageState extends State<TestHomeSubpage> with AlertMixin {
     AppState.updateEditingState(EditingAction.endEditingTest);
     AppState.updateEditingState(EditingAction.endEditingTestListing);
     _questions = AppState.selectedTest.value?.getOrderedQuestions().map(
-      (q) => Pair(a: q, b: true)
+            (q) => Pair(a: q, b: true)
     ).toList() ?? [];
     _questionsToDelete = [];
     setState(() {});
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    _queryController.dispose();
+    AppState.selectedTest.removeListener(_pushNewTestDetail);
+    super.dispose();
   }
 
   @override
@@ -163,60 +221,12 @@ class _TestHomeSubpageState extends State<TestHomeSubpage> with AlertMixin {
     _questions = AppState.selectedTest.value?.getOrderedQuestions().map(
       (q) => Pair(a: q, b: true)
     ).toList() ?? [];
+    AppState.selectedTest.addListener(_pushNewTestDetail);
     super.initState();
   }
 
-  bool _addedListener = false;
-
   @override
   Widget build(BuildContext context) {
-    navigateWithEditConfirmation(String newRoute) {
-      if (AppState.editingState.value != EditingState.notEditing) {
-        showConfirmationDialog(
-          context: context,
-          title: "変更は保存されません",
-          description: "保存されていない変更があります。変更を放棄して次の画面に進みますか？",
-          confirmText: "進む",
-          onConfirm: () {
-            resetState();
-            Navigator.of(context).pushNamed(newRoute);
-          }
-        );
-      }
-      else {
-        resetState();
-        Navigator.of(context).pushNamed(newRoute);
-      }
-    }
-
-    pushNewTestDetail() { // Named to add/remove as listener (must be within context)
-      if (_currentTest != AppState.selectedTest.value) {
-        if (AppState.editingState.value != EditingState.notEditing) {
-          showConfirmationDialog(
-            context: context,
-            title: "変更は保存されません",
-            description: "保存されていない変更があります。変更を放棄して次の画面に進みますか？",
-            confirmText: "進む",
-            onConfirm: () {
-              resetState();
-              AppState.selectedTest.removeListener(pushNewTestDetail);
-              Navigator.of(context).pushReplacementNamed("test_detail/home");
-            }
-          );
-        }
-        else {
-          resetState();
-          AppState.selectedTest.removeListener(pushNewTestDetail);
-          Navigator.of(context).pushReplacementNamed("test_detail/home");
-        }
-      }
-    }
-
-    if (!_addedListener) {
-      AppState.selectedTest.addListener(pushNewTestDetail);
-      _addedListener = true;
-    }
-
     return AppState.selectedTest.value != null
       ? ListenableBuilder(
         listenable: AppState.selectedTest.value!,
@@ -229,13 +239,13 @@ class _TestHomeSubpageState extends State<TestHomeSubpage> with AlertMixin {
                   title: AppState.selectedTest.value!.title,
                   actions: [
                     ScaleButton(
-                      onTap: () => navigateWithEditConfirmation("test_detail/settings"),
+                      onTap: () => _navigateWithEditConfirmation("test_detail/settings"),
                       child: SvgPicture.asset(
                         'assets/images/settings.svg', height: 18,
                       )
                     ),
                     ScaleButton(
-                      onTap: () => navigateWithEditConfirmation("test_detail/stats"),
+                      onTap: () => _navigateWithEditConfirmation("test_detail/stats"),
                       child: SvgPicture.asset(
                         'assets/images/stats.svg', height: 16,
                       )
@@ -246,7 +256,6 @@ class _TestHomeSubpageState extends State<TestHomeSubpage> with AlertMixin {
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(20, 20, 0, 0),
                     child: SpacedGroup(
-                      key: UniqueKey(),
                       axis: Axis.vertical,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       spacing: 20,
@@ -297,6 +306,7 @@ class _TestHomeSubpageState extends State<TestHomeSubpage> with AlertMixin {
                           child: _questions.isNotEmpty || AppState.isEditing(EditingType.test)
                             ? ReorderableListView.builder(
                               buildDefaultDragHandles: false,
+                              scrollController: _scrollController,
                               proxyDecorator: (child, _, __) => Material(color: Colors.transparent, child: child,),
                               itemBuilder: (BuildContext context, int index) {
                                 if (_query.isEmpty
@@ -318,7 +328,9 @@ class _TestHomeSubpageState extends State<TestHomeSubpage> with AlertMixin {
                                       enableEditing: AppState.isEditing(EditingType.test),
                                       displayQuestion: _questions[index].b,
                                       animate: animate,
-                                      updateDisplayState: (displayQuestion) => _questions[index].b = displayQuestion,
+                                      updateDisplayState: (displayQuestion) {
+                                        setState(() => _questions[index].b = displayQuestion);
+                                      },
                                       onChangedQuestion: (updated) => _questions[index].a.question = updated,
                                       onChangedAnswer: (updated) => _questions[index].a.answer = updated,
                                       onDeleteImage: (imageIndex) => _deleteImage(context, index, imageIndex),

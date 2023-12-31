@@ -5,10 +5,12 @@ import 'package:mytest/global_widgets/scale_button.dart';
 class QuestionEditMenu extends StatelessWidget {
 
   final void Function() onDelete;
-  final void Function() onImageUpload;
+  final void Function()? onImageUpload;
 
   const QuestionEditMenu({
-    super.key, required this.onDelete, required this.onImageUpload
+    super.key,
+    required this.onDelete,
+    required this.onImageUpload
   });
 
   @override
@@ -32,20 +34,25 @@ class QuestionEditMenu extends StatelessWidget {
         ),
         const SizedBox(width: 5),
         ScaleButton(
-          onTap: onImageUpload,
+          onTap: onImageUpload ?? () {},
+          enabled: onImageUpload != null,
           child: Container(
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: Constants.white,
               border: Border.all(
-                color: Constants.salmon,
+                color: onImageUpload != null
+                  ? Constants.salmon
+                  : Constants.charcoal.withOpacity(0.5),
                 width: 2
               )
             ),
             padding: const EdgeInsets.all(3),
-            child: const Icon(
+            child: Icon(
               Icons.image_outlined,
-              color: Constants.salmon,
+              color: onImageUpload != null
+                ? Constants.salmon
+                : Constants.charcoal.withOpacity(0.5),
               size: 14,
             ),
           ),

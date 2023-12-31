@@ -4,8 +4,11 @@ class ScaleButton extends StatefulWidget {
 
   final Widget child;
   final void Function() onTap;
+  final bool enabled;
 
-  const ScaleButton({super.key, required this.onTap, required this.child});
+  const ScaleButton({
+    super.key, required this.onTap, required this.child, this.enabled = true
+  });
 
   @override
   State<ScaleButton> createState() => _ScaleButtonState();
@@ -37,9 +40,16 @@ class _ScaleButtonState extends State<ScaleButton> with SingleTickerProviderStat
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTapDown: (_) { _controller.reset(); _controller.forward(); },
+      onTapDown: (_) {
+        if (widget.enabled) {
+          _controller.reset();
+          _controller.forward();
+        }
+      },
       onTap: () {
-        widget.onTap();
+        if (widget.enabled) {
+          widget.onTap();
+        }
       },
       child: ScaleTransition(
         scale: _animation,

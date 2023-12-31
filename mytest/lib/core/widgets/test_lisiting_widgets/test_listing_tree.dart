@@ -61,10 +61,17 @@ class _TestListingTreeState extends State<TestListingTree> with AlertMixin {
 
   void _saveTests(BuildContext context) {
     AppState.saveEditedTests(_editingTests).then((success) {
-      setState(() => _editingTests = []);
-      if (!success) { showErrorDialog(context, ErrorType.save); }
+      if (success) {
+        setState(() {
+          _editingTests = [];
+          AppState.updateEditingState(EditingAction.endEditingTestListing);
+        });
+      }
+      else {
+        setState(() => _editingTests = []);
+        showErrorDialog(context, ErrorType.save);
+      }
     });
-    setState(() => AppState.updateEditingState(EditingAction.endEditingTestListing));
   }
 
   int _indexOfTest(Test test) {
@@ -80,16 +87,16 @@ class _TestListingTreeState extends State<TestListingTree> with AlertMixin {
     if (!AppState.isEditing(EditingType.listing)) { // Only allow selection if NOT editing
       if (AppState.editingState.value != EditingState.notEditing) {
         showConfirmationDialog(
-            context: context,
-            title: "変更は保存されません",
-            description: "保存されていない変更があります。変更を放棄して次の画面に進みますか？",
-            confirmText: "進む",
-            onConfirm: () {
-              AppState.updateEditingState(EditingAction.endEditingTest);
-              AppState.updateEditingState(EditingAction.endEditingTestListing);
-              AppState.selectedTest.value = AppState.allTests[index];
-              setState(() => _selectedTestIndex = index);
-            }
+          context: context,
+          title: "変更は保存されません",
+          description: "保存されていない変更があります。変更を放棄して次の画面に進みますか？",
+          confirmText: "進む",
+          onConfirm: () {
+            AppState.updateEditingState(EditingAction.endEditingTest);
+            AppState.updateEditingState(EditingAction.endEditingTestListing);
+            AppState.selectedTest.value = AppState.allTests[index];
+            setState(() => _selectedTestIndex = index);
+          }
         );
       } else {
         AppState.selectedTest.value = AppState.allTests[index];
@@ -104,10 +111,11 @@ class _TestListingTreeState extends State<TestListingTree> with AlertMixin {
   void initState() {
     _selectedTestIndex = AppState.selectedTest.value?.order ?? -1;
     AppState.editingState.addListener(() {
-      if (!AppState.isEditing(EditingType.listing)) {
-        setState(() {
+      if (!AppState.isEditing(EditingType.listing)
+          && _selectedTestIndex != AppState.selectedTest.value?.order) {
+        setState(() { // Reload if editing was force stopped by detail nav
           _selectedTestIndex = AppState.selectedTest.value?.order ?? -1;
-        }); // Reload if editing was force stopped by detail nav
+        });
       }
     });
     super.initState();
@@ -169,6 +177,9 @@ class _TestListingTreeState extends State<TestListingTree> with AlertMixin {
                   if (test != null && test != _editingTests[_selectedTestIndex].test) {
                     _selectedTestIndex = _indexOfTest(test);
                   }
+                }
+                else if (test?.order != _selectedTestIndex) {
+                  _selectedTestIndex = test?.order ?? -1;
                 }
                 return AppState.selectedTest.value != null
                   ? ListenableBuilder(

@@ -58,7 +58,7 @@ class MyApp extends StatelessWidget {
         '/': (context) => const HomePage(),
         '/exams/lives': (context) => const TestPage(mode: TestMode.lives),
         '/exams/full': (context) => const TestPage(mode: TestMode.full),
-        '/exams/infinite': (context) => const TestPage(mode: TestMode.practice),
+        '/exams/practice': (context) => const TestPage(mode: TestMode.practice),
         '/exams/result': (context) => const TestResultPage(),
       },
     );

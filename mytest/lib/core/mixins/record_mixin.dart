@@ -20,14 +20,11 @@ mixin RecordMixin {
   Map<TestMode, List<Record>> sortRecordsByType(List<Record> allRecords) {
     Map<TestMode, List<Record>> map = {
       TestMode.full: [],
-      TestMode.lives: [],
-      TestMode.practice: []
+      TestMode.lives: []
     };
 
     for (var record in allRecords) {
-      if (record.testMode > 3 || record.testMode < 0) {
-        map[TestMode.values[0]]!.add(record);
-      } else {
+      if (record.testMode >= 0 && record.testMode <= 1) {
         map[TestMode.values[record.testMode]]!.add(record);
       }
     }

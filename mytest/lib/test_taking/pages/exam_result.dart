@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:flutter_svg/flutter_svg.dart';
+
 import 'package:mytest/models/question.dart';
 
 import 'package:mytest/constants.dart';
@@ -10,6 +12,7 @@ import 'package:mytest/global_mixins/alert_mixin.dart';
 import '../mixins/result_mixin.dart';
 
 import 'package:mytest/global_widgets/spaced_group.dart';
+import 'package:mytest/global_widgets/scale_button.dart';
 
 
 class TestResultPage extends StatefulWidget {
@@ -118,21 +121,27 @@ class _TestResultPageState extends State<TestResultPage> with ExamResultMixin, A
                 ),
               ),
             ),
-            Row(
+            SpacedGroup(
+              axis: Axis.horizontal,
+              spacing: 20,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                IconButton(
-                  icon: const Icon(Icons.replay, color: Constants.white, size: 20,),
-                  onPressed: () => Navigator.of(context).pushReplacementNamed(
+                ScaleButton(
+                  onTap: () => Navigator.of(context).pushReplacementNamed(
                     '/exams/${Constants.modeRouteName(_mode)}',
                     arguments: {'test': _questions.first.a.test.value}
-                  )
+                  ),
+                  child: SvgPicture.asset(
+                    'assets/images/repeat.svg',
+                    height: 20,
+                  ),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.close, color: Constants.white, size: 20,),
-                  onPressed: () {
-                    Navigator.of(context).pushNamed('/');
-                  },
+                ScaleButton(
+                  onTap: () => Navigator.of(context).pushNamed('/'),
+                  child: SvgPicture.asset(
+                    'assets/images/close.svg',
+                    height: 18,
+                  ),
                 ),
               ],
             ),

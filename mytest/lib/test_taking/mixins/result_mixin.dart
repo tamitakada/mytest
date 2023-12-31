@@ -15,15 +15,18 @@ mixin ExamResultMixin {
   }
 
   Future<bool> saveResult(List<Pair<Question, bool>> questions, Test test, TestMode mode) async {
-    Record record = Record(time: DateTime.now(), testMode: mode.index);
-    for (var pair in questions) {
-      if (pair.b) {
-        record.correctQuestions.add(pair.a);
-      } else {
-        record.incorrectQuestions.add(pair.a);
+    if (mode != TestMode.practice) { // DON'T record practice sessions
+      Record record = Record(time: DateTime.now(), testMode: mode.index);
+      for (var pair in questions) {
+        if (pair.b) {
+          record.correctQuestions.add(pair.a);
+        } else {
+          record.incorrectQuestions.add(pair.a);
+        }
       }
+      return await DataManager.upsertRecord(record, test);
     }
-    return await DataManager.upsertRecord(record, test);
+    return true;
   }
 
 }
