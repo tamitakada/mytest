@@ -4,6 +4,8 @@ import 'package:mytest/constants.dart';
 import 'package:mytest/models/question.dart';
 import 'package:mytest/widgets/spaced_group.dart';
 import 'package:mytest/widgets/scrollable_image_display.dart';
+import 'package:mytest/widgets/scale_button.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 
 class QuestionView extends StatefulWidget {
@@ -175,16 +177,15 @@ class _QuestionEditViewState extends State<QuestionEditView> {
       spacing: 10,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        IconButton(
-          onPressed: () {
+        ScaleButton(
+          onTap: () {
             widget.updateDisplayState(!_showQuestion);
             setState(() => _showQuestion = !_showQuestion);
           },
-          icon: const Icon(
-            Icons.restart_alt_rounded,
-            color: Constants.charcoal,
-            size: 20,
-          ),
+          child: SvgPicture.asset(
+            'assets/images/switch.svg',
+            height: 18,
+          )
         ),
         Expanded(
           child: Container(

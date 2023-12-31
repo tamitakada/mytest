@@ -6,8 +6,7 @@ mixin RecordMixin {
 
   String getDate(Record record) {
     final DateFormat formatter = DateFormat('yy.MM.dd hh:mm');
-    final String formatted = formatter.format(record.time);
-    return formatted;
+    return formatter.format(record.time);
   }
 
   int getScore(Record record) {

@@ -33,7 +33,7 @@ class StatsColumn extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: Constants.salmon,
+              color: Constants.sakura,
               borderRadius: BorderRadius.circular(10)
             ),
             child: ListView.builder(

@@ -18,26 +18,20 @@ class RecordView extends StatelessWidget with RecordMixin {
         children: [
           Text(
             getDate(record),
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: Constants.white
-            ),
+            style: Theme.of(context).textTheme.bodySmall
           ),
           Row(
             children: [
               Text(
                 '${record.correctQuestions.length + record.incorrectQuestions.length}問',
                 textAlign: TextAlign.right,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Constants.white
-                ),
+                style: Theme.of(context).textTheme.bodySmall
               ),
               const SizedBox(width: 5),
               Text(
                 '${getScore(record)}点',
                 textAlign: TextAlign.right,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Constants.white
-                ),
+                style: Theme.of(context).textTheme.bodySmall,
               ),
             ],
           )

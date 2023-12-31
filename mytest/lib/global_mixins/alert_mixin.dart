@@ -28,7 +28,7 @@ mixin AlertMixin {
             child: Center(
               child: Text(
                 Constants.errorDescription(type),
-                textAlign: TextAlign.center,
+                textAlign: TextAlign.justify,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Constants.white
                 ),
@@ -36,12 +36,9 @@ mixin AlertMixin {
             ),
           ),
           actions: [
-            ElevatedButton(
-              child: Text(
-                '了解',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              onPressed: () => Navigator.of(context).pop(),
+            MTButton(
+              text: '了解',
+              onTap: () => Navigator.of(context).pop(),
             ),
           ],
         );
@@ -49,20 +46,22 @@ mixin AlertMixin {
     );
   }
 
-  Future<void> showDeletionConfirmationDialog(
-    BuildContext context,
-    void Function() onConfirm,
-    { void Function()? onCancel }
-  ) async {
+  Future<void> showConfirmationDialog({
+    required BuildContext context,
+    required String title,
+    required String description,
+    required String confirmText,
+    required void Function() onConfirm,
+    void Function()? onCancel
+  }) async {
     return showDialog<void>(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
-          actionsAlignment: MainAxisAlignment.center,
           backgroundColor: Constants.salmon,
           title: Text(
-            '削除しますか？',
+            title,
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.displaySmall?.copyWith(
                 color: Constants.white
@@ -73,7 +72,7 @@ mixin AlertMixin {
             height: 80,
             child: Center(
               child: Text(
-                '復元は不可能になります。',
+                description,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Constants.white
@@ -82,26 +81,28 @@ mixin AlertMixin {
             ),
           ),
           actions: [
-            ElevatedButton(
-              child: Text(
-                'キャンセル',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              onPressed: () {
-                if (onCancel != null) { onCancel(); }
-                Navigator.of(context).pop();
-              },
-            ),
-            const SizedBox(width: 5),
-            ElevatedButton(
-              child: Text(
-                '削除する',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              onPressed: () {
-                onConfirm();
-                Navigator.of(context).pop();
-              },
+            Row(
+              children: [
+                Expanded(
+                  child: MTButton(
+                    text: 'キャンセル',
+                    onTap: () {
+                      if (onCancel != null) { onCancel(); }
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: MTButton(
+                    text: confirmText,
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      onConfirm();
+                    },
+                  ),
+                ),
+              ],
             ),
           ],
         );
@@ -129,7 +130,6 @@ mixin AlertMixin {
             bool showInvalidAnimationOnBuild = showInvalidAnimation;
             showInvalidAnimation = false;
             return AlertDialog(
-              actionsAlignment: MainAxisAlignment.center,
               backgroundColor: Constants.salmon,
               title: Text(
                 title,
@@ -166,9 +166,34 @@ mixin AlertMixin {
                 ),
               ),
               actions: [
-                MTButton(
-                  onTap: () => Navigator.of(context).pop(),
-                  text: 'キャンセル'
+                Row(
+                  children: [
+                    Expanded(
+                      child: MTButton(
+                        onTap: () => Navigator.of(context).pop(),
+                        text: 'キャンセル'
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: MTButton(
+                        onTap: () {
+                          String text = controller.text;
+                          if (text.trim().isEmpty) {
+                            setState(() {
+                              showInvalidAnimation = true;
+                              focusNode.requestFocus();
+                            });
+                          }
+                          else {
+                            onSubmitted(text);
+                            Navigator.of(context).pop();
+                          }
+                        },
+                        text: '決定'
+                      ),
+                    ),
+                  ],
                 )
               ],
             );

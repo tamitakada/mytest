@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 import 'package:file_selector/file_selector.dart';
-import 'package:uuid/uuid.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:mytest/app_state.dart';
 
@@ -20,8 +20,10 @@ import 'package:mytest/constants.dart';
 import 'package:mytest/widgets/error_page.dart';
 import 'package:mytest/widgets/spaced_group.dart';
 import 'package:mytest/widgets/mt_text_field.dart';
+import 'package:mytest/widgets/scale_button.dart';
 import '../widgets/test_home_widgets/widgets.dart';
 import '../widgets/animated_editor_view.dart';
+import 'package:mytest/widgets/mt_app_bar.dart';
 
 
 class TestHomeSubpage extends StatefulWidget {
@@ -87,9 +89,7 @@ class _TestHomeSubpageState extends State<TestHomeSubpage> with AlertMixin {
       XFile? file = await openFile(acceptedTypeGroups: <XTypeGroup>[typeGroup]);
       if (file != null) {
         String filename = Constants.uuid.v1();
-        File? copied = await FileUtils.copyFile(
-          File(file.path), filename
-        );
+        File? copied = await FileUtils.copyFile(File(file.path), filename);
         if (copied != null) {
           setState(() => _questions[index].a.images.add(filename));
           return true;
@@ -97,10 +97,8 @@ class _TestHomeSubpageState extends State<TestHomeSubpage> with AlertMixin {
         return false;
       }
       return true;
-    } catch (e) {
-      print(e);
     }
-    return false;
+    catch (e) { return false; }
   }
   
   void _deleteImage(BuildContext context, int questionIndex, int imageIndex) {
@@ -153,7 +151,7 @@ class _TestHomeSubpageState extends State<TestHomeSubpage> with AlertMixin {
   @override
   void initState() {
     _currentTest = AppState.selectedTest.value;
-    _questions = AppState.selectedTest.value?.questions.map(
+    _questions = AppState.selectedTest.value?.getOrderedQuestions().map(
       (q) => Pair(a: q, b: true)
     ).toList() ?? [];
     AppState.selectedTest.addListener(_pushNewTestDetail);
@@ -173,143 +171,136 @@ class _TestHomeSubpageState extends State<TestHomeSubpage> with AlertMixin {
         listenable: AppState.selectedTest.value!,
         builder: (context, child) {
           return Scaffold(
-            appBar: AppBar(
-              centerTitle: false,
-              title: Padding(
-                padding: const EdgeInsets.fromLTRB(0, 0, 0, 20),
-                child: Text(
-                  AppState.selectedTest.value!.title,
-                  style: Theme.of(context).textTheme.displayLarge,
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 2,
-                ),
-              ),
-              toolbarHeight: 80,
-              scrolledUnderElevation: 0,
-              actions: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(0, 0, 0, 20),
-                  child: IconButton(
-                    onPressed: () => Navigator.of(context).pushNamed(
-                      "test_detail/settings",
-                      arguments: {"test": AppState.selectedTest.value}
+            backgroundColor: Constants.white,
+            body: Column(
+              children: [
+                MTAppBar(
+                  title: AppState.selectedTest.value!.title,
+                  actions: [
+                    ScaleButton(
+                      onTap: () => Navigator.of(context).pushNamed(
+                        "test_detail/settings",
+                        arguments: {"test": AppState.selectedTest.value}
+                      ),
+                      child: SvgPicture.asset(
+                        'assets/images/settings.svg',
+                        height: 18,
+                      )
                     ),
-                    icon: const Icon(
-                      Icons.settings,
-                      color: Constants.charcoal,
-                      size: 20,
-                    )
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(0, 0, 20, 20),
-                  child: IconButton(
-                    onPressed: () => Navigator.of(context).pushNamed(
-                      "test_detail/stats",
-                      arguments: {"test": AppState.selectedTest.value}
+                    ScaleButton(
+                      onTap: () => Navigator.of(context).pushNamed(
+                        "test_detail/stats",
+                        arguments: {"test": AppState.selectedTest.value}
+                      ),
+                      child: SvgPicture.asset(
+                        'assets/images/stats.svg',
+                        height: 16,
+                      )
                     ),
-                    icon: const Icon(
-                      Icons.bar_chart_rounded,
-                      color: Constants.charcoal,
-                      size: 20,
+                  ],
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 20, 0, 0),
+                    child: SpacedGroup(
+                      axis: Axis.vertical,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      spacing: 20,
+                      children: [
+                        TestOptionsMenu(test: AppState.selectedTest.value!),
+                        SpacedGroup(
+                          axis: Axis.horizontal,
+                          spacing: 20,
+                          children: [
+                            Expanded(
+                              child: MTTextField(
+                                enabled: !_isEditing,
+                                hintText: '問題を検索',
+                                controller: _queryController,
+                                onChanged: (query) => setState(() { _query = query; }),
+                              )
+                            ),
+                            _isEditing
+                              ? ScaleButton(
+                                onTap: _addQuestion,
+                                child: SvgPicture.asset(
+                                  'assets/images/add.svg',
+                                  height: 16
+                                ),
+                              )
+                              : Container(),
+                            ScaleButton(
+                              onTap: () {
+                                if (_isEditing) { _validateChanges(context); }
+                                else {
+                                  setState(() {
+                                    _queryController.clear();
+                                    _query = "";
+                                    _isEditing = true;
+                                  });
+                                }
+                              },
+                              child: SvgPicture.asset(
+                                'assets/images/${_isEditing ? 'save' : 'edit'}.svg',
+                                height: 16
+                              ),
+                            ),
+                          ]
+                        ),
+                        Expanded(
+                          child: _questions.isNotEmpty || _isEditing
+                            ? ReorderableListView.builder(
+                              buildDefaultDragHandles: false,
+                              proxyDecorator: (child, _, __) => Material(color: Colors.transparent, child: child,),
+                              itemBuilder: (BuildContext context, int index) {
+                                if (_query.isEmpty
+                                    || AppState.selectedTest.value!.questions.elementAt(index).question.toLowerCase().contains(_query.toLowerCase())
+                                    || AppState.selectedTest.value!.questions.elementAt(index).answer.toLowerCase().contains(_query.toLowerCase())
+                                ) {
+                                  bool animate = index == _toAnimate;
+                                  _toAnimate = animate ? -1 : _toAnimate; // Reset to prevent double animation
+                                  return AnimatedEditorView(
+                                    key: Key('$index'),
+                                    index: index,
+                                    isEditing: _isEditing,
+                                    onDelete: () => _deleteQuestion(index),
+                                    onImageUpload: _questions[index].b
+                                      ? () => _selectNewImageSync(context, index) : null,
+                                    child: QuestionView(
+                                      index: index,
+                                      question: _questions[index].a,
+                                      enableEditing: _isEditing,
+                                      displayQuestion: _questions[index].b,
+                                      animate: animate,
+                                      updateDisplayState: (displayQuestion) => _questions[index].b = displayQuestion,
+                                      onChangedQuestion: (updated) => _questions[index].a.question = updated,
+                                      onChangedAnswer: (updated) => _questions[index].a.answer = updated,
+                                      onDeleteImage: (imageIndex) => _deleteImage(context, index, imageIndex),
+                                    )
+                                  );
+                                }
+                                return Container(key: Key('$index'));
+                              },
+                              itemCount: _questions.length,
+                              shrinkWrap: true,
+                              onReorder: _reorderQuestion
+                            )
+                            : const ErrorPage(
+                              margin: EdgeInsets.fromLTRB(0, 0, 0, 20),
+                              message: "問題集が空です"
+                            )
+                        )
+                      ],
                     )
                   ),
                 ),
               ],
             ),
-            backgroundColor: Constants.white,
-            body: Padding(
-              padding: const EdgeInsets.fromLTRB(10, 0, 20, 0),
-              child: SpacedGroup(
-                axis: Axis.vertical,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: 20,
-                children: [
-                  TestOptionsMenu(test: AppState.selectedTest.value!),
-                  SpacedGroup(
-                    axis: Axis.horizontal,
-                    spacing: 10,
-                    children: [
-                      Expanded(
-                        child: MTTextField(
-                          enabled: !_isEditing,
-                          hintText: '問題を検索',
-                          controller: _queryController,
-                          onChanged: (query) => setState(() { _query = query; }),
-                        )
-                      ),
-                      _isEditing
-                        ? IconButton(
-                          icon: const Icon(Icons.add, color: Constants.charcoal),
-                          onPressed: _addQuestion
-                        )
-                        : Container(),
-                      IconButton(
-                        icon: Icon(
-                          _isEditing ? Icons.check : Icons.edit,
-                          color: Constants.charcoal
-                        ),
-                        onPressed: () {
-                          if (_isEditing) { _validateChanges(context); }
-                          else {
-                            setState(() {
-                              _queryController.clear();
-                              _query = "";
-                              _isEditing = true;
-                            });
-                          }
-                        }
-                      )
-                    ]
-                  ),
-                  Expanded(
-                    child: _questions.isNotEmpty || _isEditing
-                      ? ReorderableListView.builder(
-                        buildDefaultDragHandles: false,
-                        proxyDecorator: (child, _, __) => Material(color: Colors.transparent, child: child,),
-                        itemBuilder: (BuildContext context, int index) {
-                          if (_query.isEmpty
-                              || AppState.selectedTest.value!.questions.elementAt(index).question.toLowerCase().contains(_query.toLowerCase())
-                              || AppState.selectedTest.value!.questions.elementAt(index).answer.toLowerCase().contains(_query.toLowerCase())
-                          ) {
-                            bool animate = index == _toAnimate;
-                            _toAnimate = animate ? -1 : _toAnimate; // Reset to prevent double animation
-                            return AnimatedEditorView(
-                              key: Key('$index'),
-                              index: index,
-                              isEditing: _isEditing,
-                              onDelete: () => _deleteQuestion(index),
-                              onImageUpload: _questions[index].b
-                                ? () => _selectNewImageSync(context, index) : null,
-                              child: QuestionView(
-                                index: index,
-                                question: _questions[index].a,
-                                enableEditing: _isEditing,
-                                displayQuestion: _questions[index].b,
-                                animate: animate,
-                                updateDisplayState: (displayQuestion) => _questions[index].b = displayQuestion,
-                                onChangedQuestion: (updated) => _questions[index].a.question = updated,
-                                onChangedAnswer: (updated) => _questions[index].a.answer = updated,
-                                onDeleteImage: (imageIndex) => _deleteImage(context, index, imageIndex),
-                              )
-                            );
-                          }
-                          return Container(key: Key('$index'));
-                        },
-                        itemCount: _questions.length,
-                        shrinkWrap: true,
-                        onReorder: _reorderQuestion
-                      )
-                      : const ErrorPage(margin: EdgeInsets.zero, message: "問題集が空です")
-                  )
-                ],
-              )
-            ),
           );
         }
       )
       : const ErrorPage(
-        margin: EdgeInsets.fromLTRB(0, 0, 20, 0),
+        margin: EdgeInsets.fromLTRB(20, 0, 0, 20),
         message: "表示できるテストがありません"
       );
   }

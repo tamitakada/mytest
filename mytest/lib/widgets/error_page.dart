@@ -10,7 +10,7 @@ class ErrorPage extends StatelessWidget {
   const ErrorPage({
     super.key,
     this.message = "エラーが発生しました",
-    this.margin = const EdgeInsets.all(20)
+    this.margin = EdgeInsets.zero
   });
 
   @override

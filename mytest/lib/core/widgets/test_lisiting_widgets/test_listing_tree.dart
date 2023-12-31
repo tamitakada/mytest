@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 
+import 'package:flutter_svg/flutter_svg.dart';
+
 import 'package:mytest/models/models.dart';
 import 'package:mytest/models/editing_test.dart';
 
 import 'package:mytest/global_mixins/alert_mixin.dart';
+import 'package:mytest/widgets/spaced_group.dart';
 
 import 'test_listing.dart';
+import 'package:mytest/widgets/scale_button.dart';
 
 import 'package:mytest/constants.dart';
 import 'package:mytest/app_state.dart';
@@ -76,7 +80,7 @@ class _TestListingTreeState extends State<TestListingTree> with AlertMixin {
   Widget build(BuildContext context) {
     return Container(
       width: 220,
-      margin: const EdgeInsets.all(20),
+      margin: const EdgeInsets.fromLTRB(0, 0, 0, 20),
       clipBehavior: Clip.hardEdge,
       decoration: BoxDecoration(
         color: Constants.sakura,
@@ -85,18 +89,16 @@ class _TestListingTreeState extends State<TestListingTree> with AlertMixin {
       child: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-            child: Row(
+            padding: const EdgeInsets.fromLTRB(0, 20, 20, 10),
+            child: SpacedGroup(
+              axis: Axis.horizontal,
+              spacing: 15,
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 !_isEditing
-                  ? IconButton(
-                    icon: const Icon(
-                      Icons.add,
-                      color: Constants.charcoal,
-                      size: 20,
-                    ),
-                    onPressed: () =>
+                  ? ScaleButton(
+                    child: SvgPicture.asset('assets/images/add.svg', height: 16),
+                    onTap: () =>
                       showTitleEditDialog(
                         context,
                         '新テスト作成',
@@ -104,13 +106,12 @@ class _TestListingTreeState extends State<TestListingTree> with AlertMixin {
                       ),
                   )
                   : Container(),
-                IconButton(
-                  icon: Icon(
-                    _isEditing ? Icons.check : Icons.edit,
-                    color: Constants.charcoal,
-                    size: 18,
+                ScaleButton(
+                  child: SvgPicture.asset(
+                    'assets/images/${_isEditing ? 'save' : 'edit'}.svg',
+                    height: 16
                   ),
-                  onPressed:  () {
+                  onTap: () {
                     if (_isEditing) { _saveTests(context); }
                     else {
                       setState(() {

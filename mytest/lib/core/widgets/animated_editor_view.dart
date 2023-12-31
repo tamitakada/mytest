@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:mytest/constants.dart';
 
 import 'package:mytest/global_mixins/alert_mixin.dart';
+import 'test_home_widgets/question_edit_menu.dart';
 
 
 class AnimatedEditorView extends StatelessWidget with AlertMixin {
@@ -25,7 +26,7 @@ class AnimatedEditorView extends StatelessWidget with AlertMixin {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 5),
+      margin: const EdgeInsets.fromLTRB(0, 0, 0, 10),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -44,51 +45,19 @@ class AnimatedEditorView extends StatelessWidget with AlertMixin {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: Column(
-                    children: [
-                      onDelete != null
-                       ? GestureDetector(
-                        onTap: () {
-                          showDeletionConfirmationDialog(context, onDelete!);
-                        },
-                        child: Container(
-                          decoration: const BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Constants.salmon
-                          ),
-                          padding: const EdgeInsets.all(5),
-                          child: const Icon(
-                            Icons.delete_outline_rounded,
-                            color: Constants.white,
-                            size: 14,
-                          ),
-                        ),
-                      ) : Container(),
-                      onImageUpload != null
-                        ? GestureDetector(
-                          onTap: onImageUpload,
-                          child: Container(
-                            margin: const EdgeInsets.fromLTRB(0, 5, 0, 0),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Constants.white,
-                              border: Border.all(
-                                color: Constants.salmon,
-                                width: 2
-                              )
-                            ),
-                            padding: const EdgeInsets.all(3),
-                            child: const Icon(
-                              Icons.image_outlined,
-                              color: Constants.salmon,
-                              size: 14,
-                            ),
-                          ),
-                        )
-                        : Container(),
-                    ],
-                  ),
+                  padding: const EdgeInsets.fromLTRB(5, 0, 15, 0),
+                  child: onDelete != null && onImageUpload != null
+                    ? QuestionEditMenu(
+                      onDelete: () => showConfirmationDialog(
+                        context: context,
+                        title: "削除しますか？",
+                        description: "復元は不可能になります。",
+                        confirmText: "削除する",
+                        onConfirm: onDelete!
+                      ),
+                      onImageUpload: onImageUpload!
+                    )
+                    : Container(),
                 ),
               ],
             ) : Container(),

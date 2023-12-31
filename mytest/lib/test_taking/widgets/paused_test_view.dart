@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 
+import 'package:flutter_svg/flutter_svg.dart';
+
 import 'package:mytest/models/test.dart';
 import 'package:mytest/constants.dart';
+import 'package:mytest/global_mixins/alert_mixin.dart';
+
+import 'package:mytest/widgets/scale_button.dart';
 import 'package:mytest/widgets/spaced_group.dart';
 
 
-class PausedTestView extends StatelessWidget {
+class PausedTestView extends StatelessWidget with AlertMixin {
 
   final Test test;
   final TestMode mode;
@@ -20,24 +25,45 @@ class PausedTestView extends StatelessWidget {
     return Center(
       child: SpacedGroup(
         axis: Axis.horizontal,
-        spacing: 10,
+        spacing: 30,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          IconButton(
-            icon: const Icon(Icons.exit_to_app, color: Constants.salmon),
-            onPressed: () => Navigator.of(context, rootNavigator: true).popUntil(
-              ModalRoute.withName("/")
+          ScaleButton(
+            onTap: () => showConfirmationDialog(
+              context: context,
+              title: "前の画面に戻りますか？",
+              description: "このテストは記録されません。",
+              confirmText: "戻る",
+              onConfirm: () => Navigator.of(context, rootNavigator: true)
+                .popUntil(ModalRoute.withName('/'))
+            ),
+            child: SvgPicture.asset(
+              'assets/images/exit.svg',
+              height: 20,
             ),
           ),
-          IconButton(
-            icon: const Icon(Icons.play_arrow_rounded, color: Constants.salmon, size: 50),
-            onPressed: unpause,
+          ScaleButton(
+            onTap: unpause,
+            child: SvgPicture.asset(
+              'assets/images/play.svg',
+              height: 30,
+            ),
           ),
-          IconButton(
-            icon: const Icon(Icons.replay, color: Constants.salmon,),
-            onPressed: () => Navigator.of(context, rootNavigator: true).popAndPushNamed(
-              '/exams/${Constants.modeRouteName(mode)}',
-              arguments: {'test': test}
+          ScaleButton(
+            onTap: () => showConfirmationDialog(
+              context: context,
+              title: "テストをやり直しますか？",
+              description: "このテストは記録されません。",
+              confirmText: "やり直す",
+              onConfirm: () => Navigator.of(context, rootNavigator: true)
+                .pushReplacementNamed(
+                  '/exams/${Constants.modeRouteName(mode)}',
+                  arguments: {'test': test}
+                )
+            ),
+            child: SvgPicture.asset(
+              'assets/images/repeat.svg',
+              height: 20,
             ),
           )
         ]
