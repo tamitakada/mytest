@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+
 import 'package:mytest/models/record.dart';
+
 import '../../mixins/record_mixin.dart';
-import 'package:mytest/constants.dart';
+
 
 class RecordView extends StatelessWidget with RecordMixin {
 
@@ -20,21 +22,11 @@ class RecordView extends StatelessWidget with RecordMixin {
             getDate(record),
             style: Theme.of(context).textTheme.bodySmall
           ),
-          Row(
-            children: [
-              Text(
-                '${record.correctQuestions.length + record.incorrectQuestions.length}問',
-                textAlign: TextAlign.right,
-                style: Theme.of(context).textTheme.bodySmall
-              ),
-              const SizedBox(width: 5),
-              Text(
-                '${getScore(record)}点',
-                textAlign: TextAlign.right,
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-            ],
-          )
+          Text(
+            '${record.correctQuestions.length}/${record.correctQuestions.length + record.incorrectQuestions.length}問',
+            textAlign: TextAlign.right,
+            style: Theme.of(context).textTheme.bodySmall
+          ),
         ],
       ),
     );

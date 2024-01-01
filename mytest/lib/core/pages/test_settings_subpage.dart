@@ -119,7 +119,7 @@ class _TestSettingsSubpageState extends State<TestSettingsSubpage> with AlertMix
                       ),
                     ),
                     TestSettingListing(
-                      description: '一定の誤差まで許容する',
+                      description: '10%の誤差を許容する',
                       settingChild: Switch(
                         value: AppState.selectedTest.value!.allowError,
                         activeColor: Constants.salmon,
@@ -136,7 +136,7 @@ class _TestSettingsSubpageState extends State<TestSettingsSubpage> with AlertMix
                       ),
                     ),
                     TestSettingListing(
-                      description: '問題と答えを逆にする',
+                      description: '問題と解答を逆にする',
                       settingChild: Switch(
                         value: AppState.selectedTest.value!.flipTerms,
                         activeColor: Constants.salmon,
@@ -153,13 +153,11 @@ class _TestSettingsSubpageState extends State<TestSettingsSubpage> with AlertMix
                       ),
                     ),
                     TestSettingListing(
-                      description: 'テストを削除する',
+                      description: 'テスト削除',
                       settingChild: ScaleButton(
                         onTap: () => showConfirmationDialog(
                           context: context,
-                          title: "削除しますか？",
-                          description: "復元は不可能になります。",
-                          confirmText: "削除する",
+                          type: ConfirmationType.deletion,
                           onConfirm: () => _deleteTest(context)
                         ),
                         child: SvgPicture.asset(

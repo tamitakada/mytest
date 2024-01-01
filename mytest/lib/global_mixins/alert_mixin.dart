@@ -21,8 +21,8 @@ mixin AlertMixin {
             ),
           ),
           content: SizedBox(
-            width: 150,
-            height: 100,
+            width: 100,
+            height: 80,
             child: Center(
               child: Text(
                 Constants.errorDescription(type),
@@ -46,10 +46,11 @@ mixin AlertMixin {
 
   Future<void> showConfirmationDialog({
     required BuildContext context,
-    required String title,
-    required String description,
-    required String confirmText,
     required void Function() onConfirm,
+    String? title,
+    String? description,
+    String? confirmText,
+    ConfirmationType type = ConfirmationType.custom,
     void Function()? onCancel
   }) async {
     return showDialog<void>(
@@ -59,18 +60,18 @@ mixin AlertMixin {
         return AlertDialog(
           backgroundColor: Constants.salmon,
           title: Text(
-            title,
+            Constants.confirmationTitle(type) ?? title ?? "",
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.displaySmall?.copyWith(
                 color: Constants.white
             ),
           ),
           content: SizedBox(
-            width: 100,
-            height: 80,
+            width: 80,
+            height: 60,
             child: Center(
               child: Text(
-                description,
+                Constants.confirmationDescription(type) ?? description ?? "",
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Constants.white
@@ -93,7 +94,7 @@ mixin AlertMixin {
                 const SizedBox(width: 10),
                 Expanded(
                   child: MTButton(
-                    text: confirmText,
+                    text: Constants.confirmationConfirmation(type) ?? confirmText ?? "",
                     onTap: () {
                       Navigator.of(context).pop();
                       onConfirm();

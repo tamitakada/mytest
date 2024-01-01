@@ -13,6 +13,12 @@ enum ErrorType {
   emptyInput
 }
 
+enum ConfirmationType {
+  unsavedEdits,
+  deletion,
+  custom
+}
+
 class Constants {
 
   static const uuid = Uuid();
@@ -52,6 +58,39 @@ class Constants {
         return 'データ保存に失敗しました。ストレージの空き容量をご確認の上、再試行をお願いいたします。';
       case ErrorType.emptyInput:
         return '問題・解答のどちらかが欠けているカードがあるため、テストは保存できません。';
+    }
+  }
+
+  static String? confirmationTitle(ConfirmationType type) {
+    switch (type) {
+      case ConfirmationType.unsavedEdits:
+        return '未保存の編集があります';
+      case ConfirmationType.deletion:
+        return '削除しますか？';
+      case ConfirmationType.custom:
+        return null;
+    }
+  }
+
+  static String? confirmationDescription(ConfirmationType type) {
+    switch (type) {
+      case ConfirmationType.unsavedEdits:
+        return '編集を保存せずに続きますか？';
+      case ConfirmationType.deletion:
+        return '復元は不可能になります。';
+      case ConfirmationType.custom:
+        return null;
+    }
+  }
+
+  static String? confirmationConfirmation(ConfirmationType type) {
+    switch (type) {
+      case ConfirmationType.unsavedEdits:
+        return '続く';
+      case ConfirmationType.deletion:
+        return '削除する';
+      case ConfirmationType.custom:
+        return null;
     }
   }
 

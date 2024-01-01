@@ -1,4 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+
+import 'package:window_size/window_size.dart';
 
 import 'core/pages/home_page.dart';
 import 'test_taking/pages/exam_result.dart';
@@ -8,6 +12,12 @@ import 'constants.dart';
 
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+    setWindowTitle('マイテスト');
+    setWindowMinSize(const Size(800, 500));
+    setWindowFrame(const Rect.fromLTWH(100, 100, 1000, 650));
+  }
   runApp(const MyApp());
 }
 

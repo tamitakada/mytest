@@ -50,9 +50,7 @@ class AnimatedEditorView extends StatelessWidget with AlertMixin {
                     ? QuestionEditMenu(
                       onDelete: () => showConfirmationDialog(
                         context: context,
-                        title: "削除しますか？",
-                        description: "復元は不可能になります。",
-                        confirmText: "削除する",
+                        type: ConfirmationType.deletion,
                         onConfirm: onDelete!,
                       ),
                       onImageUpload: onImageUpload,

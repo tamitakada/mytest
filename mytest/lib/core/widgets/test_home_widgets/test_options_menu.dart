@@ -17,38 +17,14 @@ class TestOptionsMenu extends StatelessWidget with AlertMixin {
   });
 
   void _onOptionSelect(BuildContext context, void Function() navigateToTest) {
-    switch (AppState.editingState.value) {
-      case EditingState.editingTest:
-        showConfirmationDialog(
-          context: context,
-          title: "練習を開始しますか？",
-          description: "保存されていない変更があります。変更を放棄してテストを開始しますか？",
-          confirmText: "開始する",
-          onConfirm: navigateToTest
-        );
-        break;
-      case EditingState.editingTestListing:
-        showConfirmationDialog(
-          context: context,
-          title: "練習を開始しますか？",
-          description: "保存されていない変更があります。変更を放棄してテストを開始しますか？",
-          confirmText: "開始する",
-          onConfirm: navigateToTest
-        );
-        break;
-      case EditingState.editingBoth:
-        showConfirmationDialog(
-            context: context,
-            title: "練習を開始しますか？",
-            description: "保存されていない変更があります。変更を放棄してテストを開始しますか？",
-            confirmText: "開始する",
-            onConfirm: navigateToTest
-        );
-        break;
-      case EditingState.notEditing:
-        navigateToTest();
-        break;
+    if (AppState.editingState.value != EditingState.notEditing) {
+      showConfirmationDialog(
+        context: context,
+        type: ConfirmationType.unsavedEdits,
+        onConfirm: navigateToTest
+      );
     }
+    else { navigateToTest(); }
   }
 
   @override

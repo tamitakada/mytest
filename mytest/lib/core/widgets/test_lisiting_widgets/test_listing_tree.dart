@@ -88,9 +88,7 @@ class _TestListingTreeState extends State<TestListingTree> with AlertMixin {
       if (AppState.editingState.value != EditingState.notEditing) {
         showConfirmationDialog(
           context: context,
-          title: "変更は保存されません",
-          description: "保存されていない変更があります。変更を放棄して次の画面に進みますか？",
-          confirmText: "進む",
+          type: ConfirmationType.unsavedEdits,
           onConfirm: () {
             AppState.updateEditingState(EditingAction.endEditingTest);
             AppState.updateEditingState(EditingAction.endEditingTestListing);
