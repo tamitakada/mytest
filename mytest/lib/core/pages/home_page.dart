@@ -25,20 +25,6 @@ class _HomePageState extends State<HomePage> with AlertMixin {
 
   bool _isShowingDialog = false; // Prevent duplicate errors
 
-  // bool _didRestore = false;
-  //
-  // Future<String> loadAsset(String filename) async {
-  //   return await DefaultAssetBundle.of(context).loadString('assets/$filename.txt');
-  // }
-
-  void restore() async {
-    // Development.addBackup("古文文法", 0, await loadAsset("kobun"));
-    //Development.addBackup("仏教", 1, await loadAsset("bukkyo"));
-    // Development.addBackup("神道", 2, await loadAsset("shinto"));
-    // Development.addBackup("百人一首", 3, await loadAsset("hyakunin"));
-    // Development.addBackup("漢文", 4, await loadAsset("kanbun"));
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
