@@ -22,9 +22,6 @@ class Test with ChangeNotifier {
   bool flipTerms;
   bool allowError;
 
-  @Index()
-  DateTime? lastTestDate;
-
   @Backlink(to: 'test')
   final questions = IsarLinks<Question>();
 

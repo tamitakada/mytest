@@ -14,10 +14,6 @@ class Question {
   String answer;
   int order;
 
-  int allowedMistakes;
-
-  bool archived;
-
   List<String> images;
 
   Question({
@@ -25,8 +21,6 @@ class Question {
     required this.answer,
     required this.order,
     required this.images,
-    this.allowedMistakes = 0,
-    this.archived = false
   });
 
 }

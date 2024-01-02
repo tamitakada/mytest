@@ -27,15 +27,15 @@ const TestSchema = CollectionSchema(
       name: r'flipTerms',
       type: IsarType.bool,
     ),
-    r'hashCode': PropertySchema(
+    r'hasListeners': PropertySchema(
       id: 2,
+      name: r'hasListeners',
+      type: IsarType.bool,
+    ),
+    r'hashCode': PropertySchema(
+      id: 3,
       name: r'hashCode',
       type: IsarType.long,
-    ),
-    r'lastTestDate': PropertySchema(
-      id: 3,
-      name: r'lastTestDate',
-      type: IsarType.dateTime,
     ),
     r'order': PropertySchema(
       id: 4,
@@ -53,21 +53,7 @@ const TestSchema = CollectionSchema(
   deserialize: _testDeserialize,
   deserializeProp: _testDeserializeProp,
   idName: r'id',
-  indexes: {
-    r'lastTestDate': IndexSchema(
-      id: 8519310673598575799,
-      name: r'lastTestDate',
-      unique: false,
-      replace: false,
-      properties: [
-        IndexPropertySchema(
-          name: r'lastTestDate',
-          type: IndexType.value,
-          caseSensitive: false,
-        )
-      ],
-    )
-  },
+  indexes: {},
   links: {
     r'questions': LinkSchema(
       id: 7337840743230316860,
@@ -109,8 +95,8 @@ void _testSerialize(
 ) {
   writer.writeBool(offsets[0], object.allowError);
   writer.writeBool(offsets[1], object.flipTerms);
-  writer.writeLong(offsets[2], object.hashCode);
-  writer.writeDateTime(offsets[3], object.lastTestDate);
+  writer.writeBool(offsets[2], object.hasListeners);
+  writer.writeLong(offsets[3], object.hashCode);
   writer.writeLong(offsets[4], object.order);
   writer.writeString(offsets[5], object.title);
 }
@@ -128,7 +114,6 @@ Test _testDeserialize(
     title: reader.readString(offsets[5]),
   );
   object.id = id;
-  object.lastTestDate = reader.readDateTimeOrNull(offsets[3]);
   return object;
 }
 
@@ -144,9 +129,9 @@ P _testDeserializeProp<P>(
     case 1:
       return (reader.readBoolOrNull(offset) ?? false) as P;
     case 2:
-      return (reader.readLong(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 3:
-      return (reader.readDateTimeOrNull(offset)) as P;
+      return (reader.readLong(offset)) as P;
     case 4:
       return (reader.readLong(offset)) as P;
     case 5:
@@ -175,14 +160,6 @@ extension TestQueryWhereSort on QueryBuilder<Test, Test, QWhere> {
   QueryBuilder<Test, Test, QAfterWhere> anyId() {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(const IdWhereClause.any());
-    });
-  }
-
-  QueryBuilder<Test, Test, QAfterWhere> anyLastTestDate() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(
-        const IndexWhereClause.any(indexName: r'lastTestDate'),
-      );
     });
   }
 }
@@ -252,116 +229,6 @@ extension TestQueryWhere on QueryBuilder<Test, Test, QWhereClause> {
       ));
     });
   }
-
-  QueryBuilder<Test, Test, QAfterWhereClause> lastTestDateIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IndexWhereClause.equalTo(
-        indexName: r'lastTestDate',
-        value: [null],
-      ));
-    });
-  }
-
-  QueryBuilder<Test, Test, QAfterWhereClause> lastTestDateIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IndexWhereClause.between(
-        indexName: r'lastTestDate',
-        lower: [null],
-        includeLower: false,
-        upper: [],
-      ));
-    });
-  }
-
-  QueryBuilder<Test, Test, QAfterWhereClause> lastTestDateEqualTo(
-      DateTime? lastTestDate) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IndexWhereClause.equalTo(
-        indexName: r'lastTestDate',
-        value: [lastTestDate],
-      ));
-    });
-  }
-
-  QueryBuilder<Test, Test, QAfterWhereClause> lastTestDateNotEqualTo(
-      DateTime? lastTestDate) {
-    return QueryBuilder.apply(this, (query) {
-      if (query.whereSort == Sort.asc) {
-        return query
-            .addWhereClause(IndexWhereClause.between(
-              indexName: r'lastTestDate',
-              lower: [],
-              upper: [lastTestDate],
-              includeUpper: false,
-            ))
-            .addWhereClause(IndexWhereClause.between(
-              indexName: r'lastTestDate',
-              lower: [lastTestDate],
-              includeLower: false,
-              upper: [],
-            ));
-      } else {
-        return query
-            .addWhereClause(IndexWhereClause.between(
-              indexName: r'lastTestDate',
-              lower: [lastTestDate],
-              includeLower: false,
-              upper: [],
-            ))
-            .addWhereClause(IndexWhereClause.between(
-              indexName: r'lastTestDate',
-              lower: [],
-              upper: [lastTestDate],
-              includeUpper: false,
-            ));
-      }
-    });
-  }
-
-  QueryBuilder<Test, Test, QAfterWhereClause> lastTestDateGreaterThan(
-    DateTime? lastTestDate, {
-    bool include = false,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IndexWhereClause.between(
-        indexName: r'lastTestDate',
-        lower: [lastTestDate],
-        includeLower: include,
-        upper: [],
-      ));
-    });
-  }
-
-  QueryBuilder<Test, Test, QAfterWhereClause> lastTestDateLessThan(
-    DateTime? lastTestDate, {
-    bool include = false,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IndexWhereClause.between(
-        indexName: r'lastTestDate',
-        lower: [],
-        upper: [lastTestDate],
-        includeUpper: include,
-      ));
-    });
-  }
-
-  QueryBuilder<Test, Test, QAfterWhereClause> lastTestDateBetween(
-    DateTime? lowerLastTestDate,
-    DateTime? upperLastTestDate, {
-    bool includeLower = true,
-    bool includeUpper = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IndexWhereClause.between(
-        indexName: r'lastTestDate',
-        lower: [lowerLastTestDate],
-        includeLower: includeLower,
-        upper: [upperLastTestDate],
-        includeUpper: includeUpper,
-      ));
-    });
-  }
 }
 
 extension TestQueryFilter on QueryBuilder<Test, Test, QFilterCondition> {
@@ -379,6 +246,16 @@ extension TestQueryFilter on QueryBuilder<Test, Test, QFilterCondition> {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'flipTerms',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Test, Test, QAfterFilterCondition> hasListenersEqualTo(
+      bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'hasListeners',
         value: value,
       ));
     });
@@ -480,75 +357,6 @@ extension TestQueryFilter on QueryBuilder<Test, Test, QFilterCondition> {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
         property: r'id',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-      ));
-    });
-  }
-
-  QueryBuilder<Test, Test, QAfterFilterCondition> lastTestDateIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'lastTestDate',
-      ));
-    });
-  }
-
-  QueryBuilder<Test, Test, QAfterFilterCondition> lastTestDateIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'lastTestDate',
-      ));
-    });
-  }
-
-  QueryBuilder<Test, Test, QAfterFilterCondition> lastTestDateEqualTo(
-      DateTime? value) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'lastTestDate',
-        value: value,
-      ));
-    });
-  }
-
-  QueryBuilder<Test, Test, QAfterFilterCondition> lastTestDateGreaterThan(
-    DateTime? value, {
-    bool include = false,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'lastTestDate',
-        value: value,
-      ));
-    });
-  }
-
-  QueryBuilder<Test, Test, QAfterFilterCondition> lastTestDateLessThan(
-    DateTime? value, {
-    bool include = false,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'lastTestDate',
-        value: value,
-      ));
-    });
-  }
-
-  QueryBuilder<Test, Test, QAfterFilterCondition> lastTestDateBetween(
-    DateTime? lower,
-    DateTime? upper, {
-    bool includeLower = true,
-    bool includeUpper = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'lastTestDate',
         lower: lower,
         includeLower: includeLower,
         upper: upper,
@@ -879,6 +687,18 @@ extension TestQuerySortBy on QueryBuilder<Test, Test, QSortBy> {
     });
   }
 
+  QueryBuilder<Test, Test, QAfterSortBy> sortByHasListeners() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'hasListeners', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Test, Test, QAfterSortBy> sortByHasListenersDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'hasListeners', Sort.desc);
+    });
+  }
+
   QueryBuilder<Test, Test, QAfterSortBy> sortByHashCode() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'hashCode', Sort.asc);
@@ -888,18 +708,6 @@ extension TestQuerySortBy on QueryBuilder<Test, Test, QSortBy> {
   QueryBuilder<Test, Test, QAfterSortBy> sortByHashCodeDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'hashCode', Sort.desc);
-    });
-  }
-
-  QueryBuilder<Test, Test, QAfterSortBy> sortByLastTestDate() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'lastTestDate', Sort.asc);
-    });
-  }
-
-  QueryBuilder<Test, Test, QAfterSortBy> sortByLastTestDateDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'lastTestDate', Sort.desc);
     });
   }
 
@@ -953,6 +761,18 @@ extension TestQuerySortThenBy on QueryBuilder<Test, Test, QSortThenBy> {
     });
   }
 
+  QueryBuilder<Test, Test, QAfterSortBy> thenByHasListeners() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'hasListeners', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Test, Test, QAfterSortBy> thenByHasListenersDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'hasListeners', Sort.desc);
+    });
+  }
+
   QueryBuilder<Test, Test, QAfterSortBy> thenByHashCode() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'hashCode', Sort.asc);
@@ -974,18 +794,6 @@ extension TestQuerySortThenBy on QueryBuilder<Test, Test, QSortThenBy> {
   QueryBuilder<Test, Test, QAfterSortBy> thenByIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.desc);
-    });
-  }
-
-  QueryBuilder<Test, Test, QAfterSortBy> thenByLastTestDate() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'lastTestDate', Sort.asc);
-    });
-  }
-
-  QueryBuilder<Test, Test, QAfterSortBy> thenByLastTestDateDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'lastTestDate', Sort.desc);
     });
   }
 
@@ -1027,15 +835,15 @@ extension TestQueryWhereDistinct on QueryBuilder<Test, Test, QDistinct> {
     });
   }
 
-  QueryBuilder<Test, Test, QDistinct> distinctByHashCode() {
+  QueryBuilder<Test, Test, QDistinct> distinctByHasListeners() {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'hashCode');
+      return query.addDistinctBy(r'hasListeners');
     });
   }
 
-  QueryBuilder<Test, Test, QDistinct> distinctByLastTestDate() {
+  QueryBuilder<Test, Test, QDistinct> distinctByHashCode() {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'lastTestDate');
+      return query.addDistinctBy(r'hashCode');
     });
   }
 
@@ -1072,15 +880,15 @@ extension TestQueryProperty on QueryBuilder<Test, Test, QQueryProperty> {
     });
   }
 
-  QueryBuilder<Test, int, QQueryOperations> hashCodeProperty() {
+  QueryBuilder<Test, bool, QQueryOperations> hasListenersProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'hashCode');
+      return query.addPropertyName(r'hasListeners');
     });
   }
 
-  QueryBuilder<Test, DateTime?, QQueryOperations> lastTestDateProperty() {
+  QueryBuilder<Test, int, QQueryOperations> hashCodeProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'lastTestDate');
+      return query.addPropertyName(r'hashCode');
     });
   }
 

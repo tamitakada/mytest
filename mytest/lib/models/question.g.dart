@@ -17,33 +17,23 @@ const QuestionSchema = CollectionSchema(
   name: r'Question',
   id: -6819722535046815095,
   properties: {
-    r'allowedMistakes': PropertySchema(
-      id: 0,
-      name: r'allowedMistakes',
-      type: IsarType.long,
-    ),
     r'answer': PropertySchema(
-      id: 1,
+      id: 0,
       name: r'answer',
       type: IsarType.string,
     ),
-    r'archived': PropertySchema(
-      id: 2,
-      name: r'archived',
-      type: IsarType.bool,
-    ),
     r'images': PropertySchema(
-      id: 3,
+      id: 1,
       name: r'images',
       type: IsarType.stringList,
     ),
     r'order': PropertySchema(
-      id: 4,
+      id: 2,
       name: r'order',
       type: IsarType.long,
     ),
     r'question': PropertySchema(
-      id: 5,
+      id: 3,
       name: r'question',
       type: IsarType.string,
     )
@@ -93,12 +83,10 @@ void _questionSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeLong(offsets[0], object.allowedMistakes);
-  writer.writeString(offsets[1], object.answer);
-  writer.writeBool(offsets[2], object.archived);
-  writer.writeStringList(offsets[3], object.images);
-  writer.writeLong(offsets[4], object.order);
-  writer.writeString(offsets[5], object.question);
+  writer.writeString(offsets[0], object.answer);
+  writer.writeStringList(offsets[1], object.images);
+  writer.writeLong(offsets[2], object.order);
+  writer.writeString(offsets[3], object.question);
 }
 
 Question _questionDeserialize(
@@ -108,12 +96,10 @@ Question _questionDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = Question(
-    allowedMistakes: reader.readLongOrNull(offsets[0]) ?? 0,
-    answer: reader.readString(offsets[1]),
-    archived: reader.readBoolOrNull(offsets[2]) ?? false,
-    images: reader.readStringList(offsets[3]) ?? [],
-    order: reader.readLong(offsets[4]),
-    question: reader.readString(offsets[5]),
+    answer: reader.readString(offsets[0]),
+    images: reader.readStringList(offsets[1]) ?? [],
+    order: reader.readLong(offsets[2]),
+    question: reader.readString(offsets[3]),
   );
   object.id = id;
   return object;
@@ -127,16 +113,12 @@ P _questionDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readLongOrNull(offset) ?? 0) as P;
-    case 1:
       return (reader.readString(offset)) as P;
-    case 2:
-      return (reader.readBoolOrNull(offset) ?? false) as P;
-    case 3:
+    case 1:
       return (reader.readStringList(offset) ?? []) as P;
-    case 4:
+    case 2:
       return (reader.readLong(offset)) as P;
-    case 5:
+    case 3:
       return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -233,62 +215,6 @@ extension QuestionQueryWhere on QueryBuilder<Question, Question, QWhereClause> {
 
 extension QuestionQueryFilter
     on QueryBuilder<Question, Question, QFilterCondition> {
-  QueryBuilder<Question, Question, QAfterFilterCondition>
-      allowedMistakesEqualTo(int value) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'allowedMistakes',
-        value: value,
-      ));
-    });
-  }
-
-  QueryBuilder<Question, Question, QAfterFilterCondition>
-      allowedMistakesGreaterThan(
-    int value, {
-    bool include = false,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'allowedMistakes',
-        value: value,
-      ));
-    });
-  }
-
-  QueryBuilder<Question, Question, QAfterFilterCondition>
-      allowedMistakesLessThan(
-    int value, {
-    bool include = false,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'allowedMistakes',
-        value: value,
-      ));
-    });
-  }
-
-  QueryBuilder<Question, Question, QAfterFilterCondition>
-      allowedMistakesBetween(
-    int lower,
-    int upper, {
-    bool includeLower = true,
-    bool includeUpper = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'allowedMistakes',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-      ));
-    });
-  }
-
   QueryBuilder<Question, Question, QAfterFilterCondition> answerEqualTo(
     String value, {
     bool caseSensitive = true,
@@ -415,16 +341,6 @@ extension QuestionQueryFilter
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'answer',
         value: '',
-      ));
-    });
-  }
-
-  QueryBuilder<Question, Question, QAfterFilterCondition> archivedEqualTo(
-      bool value) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'archived',
-        value: value,
       ));
     });
   }
@@ -904,18 +820,6 @@ extension QuestionQueryLinks
 }
 
 extension QuestionQuerySortBy on QueryBuilder<Question, Question, QSortBy> {
-  QueryBuilder<Question, Question, QAfterSortBy> sortByAllowedMistakes() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'allowedMistakes', Sort.asc);
-    });
-  }
-
-  QueryBuilder<Question, Question, QAfterSortBy> sortByAllowedMistakesDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'allowedMistakes', Sort.desc);
-    });
-  }
-
   QueryBuilder<Question, Question, QAfterSortBy> sortByAnswer() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'answer', Sort.asc);
@@ -925,18 +829,6 @@ extension QuestionQuerySortBy on QueryBuilder<Question, Question, QSortBy> {
   QueryBuilder<Question, Question, QAfterSortBy> sortByAnswerDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'answer', Sort.desc);
-    });
-  }
-
-  QueryBuilder<Question, Question, QAfterSortBy> sortByArchived() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'archived', Sort.asc);
-    });
-  }
-
-  QueryBuilder<Question, Question, QAfterSortBy> sortByArchivedDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'archived', Sort.desc);
     });
   }
 
@@ -967,18 +859,6 @@ extension QuestionQuerySortBy on QueryBuilder<Question, Question, QSortBy> {
 
 extension QuestionQuerySortThenBy
     on QueryBuilder<Question, Question, QSortThenBy> {
-  QueryBuilder<Question, Question, QAfterSortBy> thenByAllowedMistakes() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'allowedMistakes', Sort.asc);
-    });
-  }
-
-  QueryBuilder<Question, Question, QAfterSortBy> thenByAllowedMistakesDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'allowedMistakes', Sort.desc);
-    });
-  }
-
   QueryBuilder<Question, Question, QAfterSortBy> thenByAnswer() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'answer', Sort.asc);
@@ -988,18 +868,6 @@ extension QuestionQuerySortThenBy
   QueryBuilder<Question, Question, QAfterSortBy> thenByAnswerDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'answer', Sort.desc);
-    });
-  }
-
-  QueryBuilder<Question, Question, QAfterSortBy> thenByArchived() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'archived', Sort.asc);
-    });
-  }
-
-  QueryBuilder<Question, Question, QAfterSortBy> thenByArchivedDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'archived', Sort.desc);
     });
   }
 
@@ -1042,22 +910,10 @@ extension QuestionQuerySortThenBy
 
 extension QuestionQueryWhereDistinct
     on QueryBuilder<Question, Question, QDistinct> {
-  QueryBuilder<Question, Question, QDistinct> distinctByAllowedMistakes() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'allowedMistakes');
-    });
-  }
-
   QueryBuilder<Question, Question, QDistinct> distinctByAnswer(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'answer', caseSensitive: caseSensitive);
-    });
-  }
-
-  QueryBuilder<Question, Question, QDistinct> distinctByArchived() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'archived');
     });
   }
 
@@ -1089,21 +945,9 @@ extension QuestionQueryProperty
     });
   }
 
-  QueryBuilder<Question, int, QQueryOperations> allowedMistakesProperty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'allowedMistakes');
-    });
-  }
-
   QueryBuilder<Question, String, QQueryOperations> answerProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'answer');
-    });
-  }
-
-  QueryBuilder<Question, bool, QQueryOperations> archivedProperty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'archived');
     });
   }
 

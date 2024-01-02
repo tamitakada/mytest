@@ -86,6 +86,11 @@ flutter:
     - assets/images/pause.svg
     - assets/images/exit.svg
     - assets/images/back.svg
+    - assets/bukkyo.txt
+    - assets/hyakunin.txt
+    - assets/kanbun.txt
+    - assets/kobun.txt
+    - assets/shinto.txt
 
   fonts:
     - family: Smart
